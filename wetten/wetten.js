@@ -6,10 +6,12 @@
 
 // Import des dataService für Firebase-Integration
 import dataService from '../global/data-service.js';
+import { createStatusHelper } from '../global/status.js';
 // Warten bis das DOM vollständig geladen ist
 document.addEventListener('DOMContentLoaded', async function() {
 
     const statusContainer = document.getElementById('statusContainer');
+    const setStatus = createStatusHelper(statusContainer);
     const finalistsContainer = document.getElementById('finalistsContainer');
     const bettingForm = document.getElementById('bettingForm');
     const betterNameInput = document.getElementById('betterName');
@@ -799,26 +801,4 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
     }
     
-    /**
-     * Setzt eine Status-Nachricht
-     * @param {string} message - Die Nachricht
-     * @param {string} type - Der Nachrichtentyp (info, success, warning, error)
-     */
-    function setStatus(message, type = 'info') {
-        statusContainer.className = 'status-container';
-        statusContainer.classList.add(`status-${type}`);
-        statusContainer.textContent = message;
-        
-        // Nach 5 Sekunden ausblenden
-        setTimeout(() => {
-            statusContainer.style.opacity = '0';
-            setTimeout(() => {
-                statusContainer.className = 'status-container';
-                statusContainer.style.opacity = '1';
-            }, 500);
-        }, 5000);
-    }
-
-;
-    document.head.appendChild(style);
 });

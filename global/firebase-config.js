@@ -2,6 +2,22 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js';
 import { getDatabase, ref, set, get, onValue } from 'https://www.gstatic.com/firebasejs/10.6.0/firebase-database.js';
 
+/**
+ * SICHERHEITSHINWEIS: Firebase Security Rules konfigurieren!
+ * Unter https://console.firebase.google.com → Realtime Database → Rules
+ *
+ * Empfohlene Mindest-Rules für dieses System (nur lokale Turniere):
+ * {
+ *   "rules": {
+ *     ".read": true,
+ *     ".write": true
+ *   }
+ * }
+ *
+ * Für öffentliche Events: Schreibzugriff auf bekannte IPs oder
+ * authentifizierte Nutzer einschränken!
+ */
+
 // Firebase-Konfiguration
 const firebaseConfig = {
   apiKey: "AIzaSyCErBTiPU7xnW1K-GdYaUxm2nc_-G5bycE",
@@ -17,8 +33,6 @@ const firebaseConfig = {
 // Firebase-App initialisieren
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
-
-console.log("Firebase initialisiert");
 
 // Exportiere nur die benötigten Funktionen und Objekte
 export { 

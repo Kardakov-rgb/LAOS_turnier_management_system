@@ -478,11 +478,6 @@ document.addEventListener('DOMContentLoaded', async function() {
       setIsLoading(false);
     }
   }
-  function setupAutoRefresh() {
-    console.log('Auto-Refresh aktiviert: Daten werden alle 5 Sekunden aktualisiert');
-    
-
-  }
   /**
    * Exportiert die Statistik-Daten als JSON-Datei
    */
@@ -521,11 +516,8 @@ document.addEventListener('DOMContentLoaded', async function() {
  * Richtet einen automatischen Aktualisierungszyklus ein
  */
 function setupAutoRefresh() {
-    console.log('Auto-Refresh aktiviert: Daten werden alle 5 Sekunden aktualisiert');
-    
     // Intervall zum Aktualisieren der Daten
     setInterval(async () => {
-      console.log('Auto-Refresh: Aktualisiere Daten...');
       await refreshData();
     }, 5000); // 5000 Millisekunden = 5 Sekunden
   }

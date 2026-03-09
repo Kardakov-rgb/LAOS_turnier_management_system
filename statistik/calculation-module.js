@@ -3,6 +3,14 @@
  * Modul zur Berechnung von Statistiken aus den Spieldaten
  */
 
+import { normalizeData } from '../global/data-service.js';
+
+// ─── Turnier-Konstanten ───────────────────────────────────────────────────────
+const BEER_PER_GOAL_ML = 110;     // Bier pro Tor in Milliliter (Beer Pong Regel)
+const FINALE_GOAL_BASELINE = 10;  // Maximale Tore im Finale (für Bier-Berechnung)
+const AVG_GOALS_BASELINE = 6;     // Durchschnittliche Tore pro Spiel (Basislinie)
+// ─────────────────────────────────────────────────────────────────────────────
+
 /**
  * Berechnet die Team-Statistiken aus Vorrunde und KO-Runde
  * @param {Array} teams - Alle Teams im Turnier
@@ -11,8 +19,6 @@
  * @returns {Array} - Berechnete Team-Statistiken
  */
 export function calculateTeamStatistics(teams, vorrundeMatches, koMatches) {
-  console.log('Berechne Teamstatistiken...', {teams, vorrundeMatches, koMatches});
-  
   // Statistik-Objekte für jedes Team initialisieren
   const teamStats = teams.map(team => createEmptyTeamStat(team));
 
@@ -20,11 +26,7 @@ export function calculateTeamStatistics(teams, vorrundeMatches, koMatches) {
   processVorrundeMatches(teamStats, vorrundeMatches);
   
   // Normalisiere koMatches, falls es als Firebase-Array kommt
-  let normalizedKoMatches = koMatches;
-  if (koMatches && koMatches.type === 'array' && koMatches.value) {
-      normalizedKoMatches = koMatches.value;
-      console.log('Normalisierte KO-Matches:', normalizedKoMatches);
-  }
+  const normalizedKoMatches = normalizeData(koMatches);
   
   // KO-Runden-Matches verarbeiten
   processKORoundMatches(teamStats, normalizedKoMatches);
@@ -34,8 +36,6 @@ export function calculateTeamStatistics(teams, vorrundeMatches, koMatches) {
   
   // Bier-Berechnungen durchführen
   calculateBeerStatistics(teamStats, normalizedKoMatches);
-  
-  console.log('Team-Statistiken erfolgreich berechnet:', teamStats);
   
   return teamStats;
 }
@@ -183,19 +183,14 @@ function processKORoundMatches(teamStats, koMatches) {
     return;
   }
 
-  console.log('Verarbeite KO-Matches:', koMatches);
-  
   // Alle KO-Runden durchgehen
   const rounds = ['playoff', 'quarterfinal', 'semifinal', 'final'];
-  
+
   rounds.forEach(round => {
     // Prüfe, ob diese Runde existiert
     if (!koMatches[round] || !Array.isArray(koMatches[round])) {
-      console.warn(`KO-Runde ${round} existiert nicht oder ist kein Array`);
       return;
     }
-
-    console.log(`Verarbeite KO-Runde ${round}:`, koMatches[round]);
     
     koMatches[round].forEach(match => {
       // Validiere Match-Struktur
@@ -221,8 +216,6 @@ function processKORoundMatches(teamStats, koMatches) {
         console.warn(`Teams ohne Namen oder Scores in Runde ${round}:`, match);
         return;
       }
-      
-      console.log(`Verarbeite Match: ${match.teams[0].name} vs ${match.teams[1].name}, Gewinner: ${match.winner}`);
       
       // Beide Teams und deren Scores extrahieren
       const team1 = match.teams[0];
@@ -302,64 +295,64 @@ function calculateGoalDifferences(teamStats) {
  */
 function calculateBeerStatistics(teamStats, koMatches) {
   teamStats.forEach(teamStat => {
-    // Bier für Vorrunde Tore: 110ml pro Tor (gegeben und getrunken)
-    teamStat.beerGiven.vorrunde = teamStat.goalsScored.vorrunde * 110;
-    teamStat.beerDrunk.vorrunde = teamStat.goalsConceded.vorrunde * 110;
-    
-    // Bier für KO-Runde Tore: 110ml pro Tor (gegeben und getrunken)
-    teamStat.beerGiven.ko = teamStat.goalsScored.ko * 110;
-    teamStat.beerDrunk.ko = teamStat.goalsConceded.ko * 110;
-    
+    // Bier für Vorrunde Tore: BEER_PER_GOAL_ML pro Tor (gegeben und getrunken)
+    teamStat.beerGiven.vorrunde = teamStat.goalsScored.vorrunde * BEER_PER_GOAL_ML;
+    teamStat.beerDrunk.vorrunde = teamStat.goalsConceded.vorrunde * BEER_PER_GOAL_ML;
+
+    // Bier für KO-Runde Tore: BEER_PER_GOAL_ML pro Tor (gegeben und getrunken)
+    teamStat.beerGiven.ko = teamStat.goalsScored.ko * BEER_PER_GOAL_ML;
+    teamStat.beerDrunk.ko = teamStat.goalsConceded.ko * BEER_PER_GOAL_ML;
+
     // Bier für Siege und Niederlagen berechnen - für Vorrunde
-    // Vereinfachte Berechnung: (6 - Gegentore) * 110ml pro Sieg
-    const avgGoalsConcededPerMatchVorrunde = teamStat.matches.vorrunde > 0 ? 
+    // Vereinfachte Berechnung: (AVG_GOALS_BASELINE - Gegentore) * BEER_PER_GOAL_ML pro Sieg
+    const avgGoalsConcededPerMatchVorrunde = teamStat.matches.vorrunde > 0 ?
       teamStat.goalsConceded.vorrunde / teamStat.matches.vorrunde : 0;
-    
-    const beerForVorrundeWins = teamStat.wins.vorrunde * Math.max(0, (6 - avgGoalsConcededPerMatchVorrunde) * 110);
+
+    const beerForVorrundeWins = teamStat.wins.vorrunde * Math.max(0, (AVG_GOALS_BASELINE - avgGoalsConcededPerMatchVorrunde) * BEER_PER_GOAL_ML);
     teamStat.beerGiven.vorrunde += beerForVorrundeWins;
-    
+
     // Bier für Niederlagen in der Vorrunde
-    const avgGoalsScoredPerMatchVorrunde = teamStat.matches.vorrunde > 0 ? 
+    const avgGoalsScoredPerMatchVorrunde = teamStat.matches.vorrunde > 0 ?
       teamStat.goalsScored.vorrunde / teamStat.matches.vorrunde : 0;
-    
-    const beerForVorrundeLosses = teamStat.losses.vorrunde * Math.max(0, (6 - avgGoalsScoredPerMatchVorrunde) * 110);
+
+    const beerForVorrundeLosses = teamStat.losses.vorrunde * Math.max(0, (AVG_GOALS_BASELINE - avgGoalsScoredPerMatchVorrunde) * BEER_PER_GOAL_ML);
     teamStat.beerDrunk.vorrunde += beerForVorrundeLosses;
-    
+
     // Bier für Siege und Niederlagen in der KO-Runde
-    // Vereinfachte Berechnung: (6 - Gegentore) * 110ml pro Sieg
-    const avgGoalsConcededPerMatchKo = teamStat.matches.ko > 0 ? 
+    // Vereinfachte Berechnung: (AVG_GOALS_BASELINE - Gegentore) * BEER_PER_GOAL_ML pro Sieg
+    const avgGoalsConcededPerMatchKo = teamStat.matches.ko > 0 ?
       teamStat.goalsConceded.ko / teamStat.matches.ko : 0;
-    
-    const beerForKoWins = teamStat.wins.ko * Math.max(0, (6 - avgGoalsConcededPerMatchKo) * 110);
+
+    const beerForKoWins = teamStat.wins.ko * Math.max(0, (AVG_GOALS_BASELINE - avgGoalsConcededPerMatchKo) * BEER_PER_GOAL_ML);
     teamStat.beerGiven.ko += beerForKoWins;
-    
+
     // Bier für Niederlagen in der KO-Runde
-    const avgGoalsScoredPerMatchKo = teamStat.matches.ko > 0 ? 
+    const avgGoalsScoredPerMatchKo = teamStat.matches.ko > 0 ?
       teamStat.goalsScored.ko / teamStat.matches.ko : 0;
-    
-    const beerForKoLosses = teamStat.losses.ko * Math.max(0, (6 - avgGoalsScoredPerMatchKo) * 110);
+
+    const beerForKoLosses = teamStat.losses.ko * Math.max(0, (AVG_GOALS_BASELINE - avgGoalsScoredPerMatchKo) * BEER_PER_GOAL_ML);
     teamStat.beerDrunk.ko += beerForKoLosses;
-    
-    // Finale-Spezialfall: (10 - Gegentore) * 110ml für den Sieger
-    // (10 - eigene Tore) * 110ml für den Verlierer
+
+    // Finale-Spezialfall: (FINALE_GOAL_BASELINE - Gegentore) * BEER_PER_GOAL_ML für den Sieger
+    // (FINALE_GOAL_BASELINE - eigene Tore) * BEER_PER_GOAL_ML für den Verlierer
     const isFinalTeam = teamStat.isFinalWinner || teamStat.isFinalLoser;
     if (isFinalTeam && koMatches && koMatches.final && koMatches.final.length > 0) {
       const finalMatch = koMatches.final[0];
       if (finalMatch && finalMatch.teams && finalMatch.teams.length === 2) {
         const isTeam1 = finalMatch.teams[0].name === teamStat.team;
         const isTeam2 = finalMatch.teams[1].name === teamStat.team;
-        
+
         if (isTeam1 || isTeam2) {
           const teamIndex = isTeam1 ? 0 : 1;
           const opponentIndex = teamIndex === 0 ? 1 : 0;
-          
+
           if (teamStat.isFinalWinner) {
-            // Sieger bekommt zusätzliches Bier: (10 - Gegentore) * 110ml
-            const extraBeer = Math.max(0, (10 - finalMatch.teams[opponentIndex].score) * 110);
+            // Sieger bekommt zusätzliches Bier: (FINALE_GOAL_BASELINE - Gegentore) * BEER_PER_GOAL_ML
+            const extraBeer = Math.max(0, (FINALE_GOAL_BASELINE - finalMatch.teams[opponentIndex].score) * BEER_PER_GOAL_ML);
             teamStat.beerGiven.ko += extraBeer;
           } else if (teamStat.isFinalLoser) {
-            // Verlierer trinkt zusätzliches Bier: (10 - eigene Tore) * 110ml
-            const extraBeer = Math.max(0, (10 - finalMatch.teams[teamIndex].score) * 110);
+            // Verlierer trinkt zusätzliches Bier: (FINALE_GOAL_BASELINE - eigene Tore) * BEER_PER_GOAL_ML
+            const extraBeer = Math.max(0, (FINALE_GOAL_BASELINE - finalMatch.teams[teamIndex].score) * BEER_PER_GOAL_ML);
             teamStat.beerDrunk.ko += extraBeer;
           }
         }
@@ -474,10 +467,7 @@ export function getAllMatchesForTeam(teamName, vorrundeMatches, koMatches) {
   const allMatches = [];
   
   // Normalisierung von koMatches, falls es vom Firebase-Format kommt
-  let normalizedKoMatches = koMatches;
-  if (koMatches && koMatches.type === 'array' && koMatches.value) {
-      normalizedKoMatches = koMatches.value;
-  }
+  const normalizedKoMatches = normalizeData(koMatches);
   
   // Vorrunden-Matches
   if (Array.isArray(vorrundeMatches)) {
@@ -491,19 +481,19 @@ export function getAllMatchesForTeam(teamName, vorrundeMatches, koMatches) {
         const opponentScore = isTeam1 ? match.score2 : match.score1;
         
         // Bier-Berechnung für dieses Spiel
-        const beerGiven = ownScore * 110; // 110ml pro Tor
-        const beerDrunk = opponentScore * 110;
-        
+        const beerGiven = ownScore * BEER_PER_GOAL_ML;
+        const beerDrunk = opponentScore * BEER_PER_GOAL_ML;
+
         // Zusätzliches Bier für Sieg/Niederlage
         let additionalBeerGiven = 0;
         let additionalBeerDrunk = 0;
-        
+
         if (ownScore > opponentScore) {
-          // Sieg: (6 - Gegentore) * 110ml
-          additionalBeerGiven = Math.max(0, (6 - opponentScore) * 110);
+          // Sieg: (AVG_GOALS_BASELINE - Gegentore) * BEER_PER_GOAL_ML
+          additionalBeerGiven = Math.max(0, (AVG_GOALS_BASELINE - opponentScore) * BEER_PER_GOAL_ML);
         } else if (ownScore < opponentScore) {
-          // Niederlage: (6 - eigene Tore) * 110ml
-          additionalBeerDrunk = Math.max(0, (6 - ownScore) * 110);
+          // Niederlage: (AVG_GOALS_BASELINE - eigene Tore) * BEER_PER_GOAL_ML
+          additionalBeerDrunk = Math.max(0, (AVG_GOALS_BASELINE - ownScore) * BEER_PER_GOAL_ML);
         }
         
         allMatches.push({
@@ -552,28 +542,28 @@ export function getAllMatchesForTeam(teamName, vorrundeMatches, koMatches) {
         const opponentScore = match.teams[team2Index].score;
         
         // Bier-Berechnung für KO-Spiel
-        const beerGiven = ownScore * 110; // 110ml pro Tor
-        const beerDrunk = opponentScore * 110;
-        
+        const beerGiven = ownScore * BEER_PER_GOAL_ML;
+        const beerDrunk = opponentScore * BEER_PER_GOAL_ML;
+
         // Zusätzliches Bier für Sieg/Niederlage
         let additionalBeerGiven = 0;
         let additionalBeerDrunk = 0;
-        
+
         if (match.winner === teamName) {
-          // Sieg: (6 - Gegentore) * 110ml
-          additionalBeerGiven = Math.max(0, (6 - opponentScore) * 110);
-          
+          // Sieg: (AVG_GOALS_BASELINE - Gegentore) * BEER_PER_GOAL_ML
+          additionalBeerGiven = Math.max(0, (AVG_GOALS_BASELINE - opponentScore) * BEER_PER_GOAL_ML);
+
           // Finale: Zusätzliches Bier für den Sieger
           if (round === 'final') {
-            additionalBeerGiven += Math.max(0, (10 - opponentScore) * 110);
+            additionalBeerGiven += Math.max(0, (FINALE_GOAL_BASELINE - opponentScore) * BEER_PER_GOAL_ML);
           }
         } else {
-          // Niederlage: (6 - eigene Tore) * 110ml
-          additionalBeerDrunk = Math.max(0, (6 - ownScore) * 110);
-          
+          // Niederlage: (AVG_GOALS_BASELINE - eigene Tore) * BEER_PER_GOAL_ML
+          additionalBeerDrunk = Math.max(0, (AVG_GOALS_BASELINE - ownScore) * BEER_PER_GOAL_ML);
+
           // Finale: Zusätzliches Bier für den Verlierer
           if (round === 'final') {
-            additionalBeerDrunk += Math.max(0, (10 - ownScore) * 110);
+            additionalBeerDrunk += Math.max(0, (FINALE_GOAL_BASELINE - ownScore) * BEER_PER_GOAL_ML);
           }
         }
         

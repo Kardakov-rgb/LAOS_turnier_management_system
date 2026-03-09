@@ -1,4 +1,4 @@
-import dataService from '../global/data-service.js';
+import dataService, { normalizeData } from '../global/data-service.js';
 
 class KoTournamentModel {
   constructor() {
@@ -18,9 +18,10 @@ class KoTournamentModel {
       
       if (loadedMatches) {
         // Normalisiere Datenstruktur (von Firebase oder localStorage)
-        if (loadedMatches.type === 'array' && loadedMatches.value) {
-          this.koMatches = loadedMatches.value;
-        } else if (loadedMatches.playoff || loadedMatches.quarterfinal || 
+        const normalized = normalizeData(loadedMatches);
+        if (normalized !== loadedMatches) {
+          this.koMatches = normalized;
+        } else if (loadedMatches.playoff || loadedMatches.quarterfinal ||
                   loadedMatches.semifinal || loadedMatches.final) {
           this.koMatches = loadedMatches;
         }
@@ -34,10 +35,8 @@ class KoTournamentModel {
         // Stelle sicher, dass jedes Match ein teams-Array hat
         this.ensureValidMatches();
         
-        console.log('KO-Matches erfolgreich geladen:', this.koMatches);
         return true;
       } else {
-        console.log('Keine gespeicherten KO-Matches gefunden');
         return false;
       }
     } catch (error) {
@@ -64,11 +63,6 @@ class KoTournamentModel {
   async saveData() {
     try {
       const success = await dataService.saveData('koMatches', this.koMatches);
-      if (success) {
-        console.log('KO-Matches erfolgreich gespeichert');
-      } else {
-        console.log('KO-Matches lokal gespeichert. Wird synchronisiert, sobald wieder online.');
-      }
       return true;
     } catch (error) {
       console.error('Fehler beim Speichern der KO-Matches:', error);
@@ -83,9 +77,7 @@ class KoTournamentModel {
       let standings = await dataService.getData('vorrundeStandings');
       
       // Normalisieren, falls es ein Array-Wrapper ist
-      if (standings && standings.type === 'array' && Array.isArray(standings.value)) {
-        standings = standings.value;
-      }
+      standings = normalizeData(standings);
       
       if (!standings || !Array.isArray(standings) || standings.length === 0) {
         console.error('Keine Vorrunden-Daten gefunden');
@@ -150,7 +142,6 @@ class KoTournamentModel {
           isFreilos: true
         });
       }
-      console.log(`${missingTeams} Freilose hinzugefügt.`);
     }
     
     return filledStandings;
@@ -287,15 +278,10 @@ for (let i = 0; i < 4; i++) {
 
   // Tischnummern zuweisen
   assignTableNumbers() {
-    console.log('Weise Tischnummern zu...');
-    
-    // Funktionen, die für jede Runde die Tischnummern zuweisen
+    // Tischnummern für jede Runde zuweisen (zyklisch 1-4)
     const assignTableNumbersForRound = (matches, startIndex = 0) => {
       matches.forEach((match, index) => {
-        // Tischnummer (zyklisch 1-4)
-        const tableNumber = ((index + startIndex) % 4) + 1;
-        match.tableNumber = tableNumber;
-        console.log(`Match ${match.id} in Runde ${match.round} erhält Tisch ${tableNumber}`);
+        match.tableNumber = ((index + startIndex) % 4) + 1;
       });
     };
     
@@ -384,7 +370,6 @@ for (let i = 0; i < 4; i++) {
     const { round, match: nextMatch } = nextMatchInfo;
     
     // Aktuelles Match-ID speichern
-    console.log(`UpdateNextMatch: Aktuelles Match ist ${this.currentEditingMatch}, nächstes Match: ${nextMatchId}`);
     
     let teamIndex = 0;
     
@@ -400,7 +385,6 @@ for (let i = 0; i < 4; i++) {
         const mapping = QF_TO_SF_MAPPING[this.currentEditingMatch];
         if (mapping && mapping.sfId === nextMatchId) {
           teamIndex = mapping.position;
-          console.log(`Platziere Team aus ${this.currentEditingMatch} an Position ${teamIndex} in ${nextMatchId}`);
         } else {
           // Fallback: Prüfe, ob Position 0 bereits belegt ist
           teamIndex = nextMatch.teams[0].name !== null ? 1 : 0;
@@ -469,7 +453,6 @@ for (let i = 0; i < 4; i++) {
 
   // Abhängige Matches zurücksetzen
   resetDependentMatches(matchId) {
-    console.log(`Setze abhängige Matches für ${matchId} zurück`);
     
     // Match finden
     const matchInfo = this.findMatchById(matchId);
@@ -488,7 +471,6 @@ for (let i = 0; i < 4; i++) {
     let foundIndex = -1;
     nextMatch.teams.forEach((team, idx) => {
       if (team && team.sourceMatchId === matchId) {
-        console.log(`Gefunden via sourceMatchId: ${team.name} an Position ${idx}`);
         foundIndex = idx;
       }
     });
@@ -497,7 +479,6 @@ for (let i = 0; i < 4; i++) {
     if (foundIndex === -1 && match.winner) {
       nextMatch.teams.forEach((team, idx) => {
         if (team && team.name === match.winner) {
-          console.log(`Gefunden via Winner-Name: ${team.name} an Position ${idx}`);
           foundIndex = idx;
         }
       });
@@ -508,7 +489,6 @@ for (let i = 0; i < 4; i++) {
       const QF_TO_SF_MAPPING = this.getQFtoSFMapping();
       const mapping = QF_TO_SF_MAPPING[matchId];
       if (mapping && mapping.sfId === nextMatchId) {
-        console.log(`Setze zurück via Mapping: Position ${mapping.position} in ${nextMatchId}`);
         foundIndex = mapping.position;
       }
     }

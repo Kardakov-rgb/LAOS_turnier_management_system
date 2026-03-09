@@ -6,12 +6,14 @@
 
 // Importiere dataService für Firebase-Zugriff
 import dataService from '../global/data-service.js';
+import { createStatusHelper } from '../global/status.js';
 // Warten bis das DOM vollständig geladen ist
 document.addEventListener('DOMContentLoaded', async function() {
 
     // DOM-Elemente
 // DOM-Elemente
 const statusContainer = document.getElementById('statusContainer');
+    const setStatus = createStatusHelper(statusContainer);
 const teamsOverviewContainer = document.getElementById('teamsOverviewContainer');
 const updateTimeElement = document.getElementById('updateTime');
 const connectionStatusElement = document.getElementById('connection-status');
@@ -445,11 +447,6 @@ function createMatchEntry(match, teamName, round) {
      * @param {string} message - Die anzuzeigende Nachricht
      * @param {string} type - Der Typ der Nachricht ('info', 'success', 'warning', 'error')
      */
-    function setStatus(message, type = 'info') {
-        statusContainer.className = 'status-container';
-        statusContainer.classList.add(`status-${type}`);
-        statusContainer.textContent = message;
-    }
     
     // Bei Verlassen der Seite den Timer stoppen
     window.addEventListener('beforeunload', function() {

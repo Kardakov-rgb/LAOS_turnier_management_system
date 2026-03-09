@@ -210,3 +210,17 @@ async getData(key) {
 // Erstelle eine einzelne Instanz, die in der gesamten App verwendet wird
 const dataService = new DataService();
 export default dataService;
+
+/**
+ * Normalisiert Firebase-Daten: Entpackt das Array-Wrapper-Format
+ * ({ type: 'array', value: [...] }) zurück in ein plain Array.
+ * Gibt andere Datentypen unverändert zurück.
+ * @param {*} data - Rohe Daten aus Firebase/localStorage
+ * @returns {*} - Normalisierte Daten
+ */
+export function normalizeData(data) {
+    if (data && data.type === 'array' && Array.isArray(data.value)) {
+        return data.value;
+    }
+    return data;
+}

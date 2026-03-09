@@ -224,11 +224,6 @@ function fillTeamsToTwentyFour() {
             });
         });
 
-        console.log('DEBUGGING teams-Variable:');
-        console.log('- Type:', typeof teams);
-        console.log('- Is Array:', Array.isArray(teams));
-        console.log('- Content:', JSON.stringify(teams));
-        console.log('- Prototype methods:', Object.getPrototypeOf(teams));
     }
     
     /**
