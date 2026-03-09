@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LAOS 2.0 - Statistik</title>
+    <link rel="icon" type="image/x-icon" href="../global/favicon.png">
+    <!-- Globale CSS-Datei -->
+    <link rel="stylesheet" href="../global/global.css">
+    <link rel="stylesheet" href="./statistik.css">
+</head>
+<body>
+    <div class="page-container">
+        <!-- Header-Bereich mit Navigation -->
+        <header class="main-header">
+            <div class="logo-container">
+                <img src="../global/favicon.png" alt="Logo" class="site-logo">
+                <h1 class="site-title">LAOS 2.0</h1>
+            </div>
+            
+            <nav class="main-nav">
+                <ul class="nav-list">
+                    <li class="nav-item"><a href="../index.html" class="nav-link">Startseite</a></li>
+                    <li class="nav-item"><a href="../teams/teams.html" class="nav-link">Teams</a></li>
+                    <li class="nav-item"><a href="../vorrunde/vorrunde.html" class="nav-link">Vorrunde</a></li>
+                    <li class="nav-item"><a href="../korunde/ko-runde.html" class="nav-link">KO-Runde</a></li>
+                    <li class="nav-item"><a href="../gegner/gegner.html" class="nav-link ">Gegner-Übersicht</a></li>
+                    <li class="nav-item"><a href="../statistik/statistik.html" class="nav-link active">Statistik</a></li>
+                    <li class="nav-item"><a href="../wetten/wetten.html" class="nav-link">Wetten</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <!-- Hauptinhalt der Seite -->
+        <main class="main-content">
+            <div class="statistik-container">
+                
+                <!-- Neue Hauptkategorien-Auswahl -->
+                <div class="main-category-selection">
+                    <button class="main-category-btn active" data-category="tabelle">Tabelle</button>
+                    <button class="main-category-btn" data-category="erweitert">Erweiterte Statistik</button>
+                </div>
+                
+                <!-- Tabelle-Bereich -->
+                <div id="tabelle-content" class="category-content">
+                    <!-- Phasen-Tabs innerhalb der Tabelle -->
+                    <div class="phase-selection">
+                        <button class="phase-btn active" data-phase="all">Gesamtes Turnier</button>
+                        <button class="phase-btn" data-phase="vorrunde">Nur Vorrunde</button>
+                        <button class="phase-btn" data-phase="ko">Nur KO-Runde</button>
+                    </div>
+                    
+                    <!-- Team-Statistiken -->
+                    <div class="stats-table-container">
+                        <table id="team-stats-table" class="stats-table sortable">
+                            <thead>
+                                <tr>
+                                    <th class="pos-col">Platz</th>
+                                    <th class="team-col">Team</th>
+                                    <th class="sort-col" data-sort="matches">Sp</th>
+                                    <th class="sort-col" data-sort="wins">S</th>
+                                    <th class="sort-col" data-sort="draws">U</th>
+                                    <th class="sort-col" data-sort="losses">N</th>
+                                    <th class="sort-col" data-sort="goals">Tore</th>
+                                    <th class="sort-col" data-sort="goalDifference">Diff</th>
+                                    <th class="sort-col" data-sort="beerGiven">Bier verteilt</th>
+                                    <th class="sort-col" data-sort="beerDrunk">Bier getrunken</th>
+                                    <th class="sort-col" data-sort="beerBalance">Bier Bilanz</th>
+                                </tr>
+                            </thead>
+                            <tbody id="team-stats-body">
+                                <!-- Wird durch JavaScript gefüllt -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Erweiterte Statistik-Bereich -->
+<!-- Erweiterte Statistik-Bereich mit Team-Detailansicht und Top-Listen -->
+<div id="erweitert-content" class="category-content" style="display: none;">
+    <!-- Unterkategorien-Auswahl für erweiterte Statistik -->
+    <div class="erweitert-navigation">
+        <button class="erweitert-nav-btn active" data-section="toplisten">Top-Listen</button>
+        <button class="erweitert-nav-btn" data-section="teamdetail">Team-Detailansicht</button>
+        <button class="erweitert-nav-btn" data-section="tischstatistik">Tisch-Statistik</button>
+    </div>
+    
+    <!-- Top-Listen Bereich -->
+    <div id="toplisten-section" class="erweitert-section">
+        <div class="toplists-container">
+            <!-- Offensivstärke -->
+            <div class="toplist-card">
+                <h3 class="toplist-title">🥅 Offensivstärke</h3>
+                <p class="toplist-description">Teams mit den meisten erzielten Toren</p>
+                <table class="toplist-table" id="offensive-table">
+                    <thead>
+                        <tr>
+                            <th class="pos-col">Pos</th>
+                            <th>Team</th>
+                            <th>Erzielte Tore</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Wird durch JavaScript gefüllt -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Defensivstärke -->
+            <div class="toplist-card">
+                <h3 class="toplist-title">🛡️ Defensivstärke</h3>
+                <p class="toplist-description">Teams mit den wenigsten kassierten Toren</p>
+                <table class="toplist-table" id="defensive-table">
+                    <thead>
+                        <tr>
+                            <th class="pos-col">Pos</th>
+                            <th>Team</th>
+                            <th>Gegentore</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Wird durch JavaScript gefüllt -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Höchste Siege -->
+            <div class="toplist-card">
+                <h3 class="toplist-title">🏆 Höchste Siege</h3>
+                <p class="toplist-description">Die deutlichsten Siege im Turnier</p>
+                <table class="toplist-table" id="victories-table">
+                    <thead>
+                        <tr>
+                            <th class="pos-col">Pos</th>
+                            <th>Match</th>
+                            <th>Ergebnis</th>
+                            <th>Differenz</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Wird durch JavaScript gefüllt -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Bier-Könige -->
+            <div class="toplist-card">
+                <h3 class="toplist-title">🍺 Bier-Könige</h3>
+                <p class="toplist-description">Teams mit der besten Bier-Bilanz</p>
+                <table class="toplist-table" id="beer-kings-table">
+                    <thead>
+                        <tr>
+                            <th class="pos-col">Pos</th>
+                            <th>Team</th>
+                            <th>Bier-Bilanz</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Wird durch JavaScript gefüllt -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="toplist-card">
+                <h3 class="toplist-title">🍺 Bierdurst-Champions</h3>
+                <p class="toplist-description">Teams, die am meisten Bier getrunken haben</p>
+                <table class="toplist-table" id="beer-drunk-table">
+                    <thead>
+                        <tr>
+                            <th class="pos-col">Pos</th>
+                            <th>Team</th>
+                            <th>Getrunkenes Bier</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Wird durch JavaScript gefüllt -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Teams mit dem meisten verteilten Bier -->
+            <div class="toplist-card">
+                <h3 class="toplist-title">🍻 Bierverteil-Champions</h3>
+                <p class="toplist-description">Teams, die am meisten Bier verteilt haben</p>
+                <table class="toplist-table" id="beer-given-table">
+                    <thead>
+                        <tr>
+                            <th class="pos-col">Pos</th>
+                            <th>Team</th>
+                            <th>Verteiltes Bier</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Wird durch JavaScript gefüllt -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Team-Detailansicht Bereich -->
+    <!-- Erweiterung der Team-Detailansicht um den Vergleichsmodus -->
+<div id="teamdetail-section" class="erweitert-section" style="display: none;">
+    <div class="team-detail-controls">
+        <!-- Option zum Umschalten zwischen Einzelansicht und Vergleichsmodus -->
+        <div class="view-mode-switch">
+            <button id="single-team-btn" class="view-mode-btn active">Einzelteam-Ansicht</button>
+            <button id="compare-teams-btn" class="view-mode-btn">Teams vergleichen</button>
+        </div>
+        
+        <!-- Einzel-Team Auswahl (bestehend) -->
+        <div id="single-team-select" class="team-select-container">
+            <select id="team-selector" class="team-select">
+                <option value="">Team auswählen...</option>
+                <!-- Wird durch JavaScript gefüllt -->
+            </select>
+        </div>
+        
+        <!-- Team-Vergleich Auswahl (neu) -->
+        <div id="compare-teams-select" class="team-select-container" style="display: none;">
+            <select id="team1-selector" class="team-select">
+                <option value="">Erstes Team auswählen...</option>
+                <!-- Wird durch JavaScript gefüllt -->
+            </select>
+            <select id="team2-selector" class="team-select">
+                <option value="">Zweites Team auswählen...</option>
+                <!-- Wird durch JavaScript gefüllt -->
+            </select>
+            <button id="compare-btn" class="btn btn-primary">Vergleichen</button>
+        </div>
+    </div>
+    
+    <!-- Einzel-Team Details Container (bestehend) -->
+    <div id="team-detail-container" class="team-detail-container">
+        <h3 id="team-detail-name">Team auswählen</h3>
+        <div id="team-stats-summary" style="display: none;">
+            <!-- Hier werden die Teamstatistiken angezeigt -->
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="stat-label">Spiele:</span>
+                    <span id="detail-matches" class="stat-value">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Siege:</span>
+                    <span id="detail-wins" class="stat-value">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Unentschieden:</span>
+                    <span id="detail-draws" class="stat-value">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Niederlagen:</span>
+                    <span id="detail-losses" class="stat-value">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Tore:</span>
+                    <span id="detail-goals" class="stat-value">0:0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Ø Tore pro Spiel:</span>
+                    <span id="detail-avg-goals" class="stat-value">0.0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Beste Tordifferenz:</span>
+                    <span id="detail-best-diff" class="stat-value">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Bier verteilt:</span>
+                    <span id="detail-beer-given" class="stat-value">0.0 L</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Bier getrunken:</span>
+                    <span id="detail-beer-drunk" class="stat-value">0.0 L</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Bier-Bilanz:</span>
+                    <span id="detail-beer-balance" class="stat-value">0.0 L</span>
+                </div>
+            </div>
+            
+            <div class="form-chart">
+                <h4>Formkurve (letzte Spiele)</h4>
+                <div id="form-indicators" class="form-indicators">
+                    <!-- Hier werden die Formkurven-Indikatoren hinzugefügt -->
+                </div>
+            </div>
+        </div>
+        
+        <div id="team-matches-card" class="team-matches-card" style="display: none;">
+            <h4>Alle Spiele</h4>
+            <table class="team-matches-table">
+                <thead>
+                    <tr>
+                        <th>Runde</th>
+                        <th>Gegner</th>
+                        <th>Ergebnis</th>
+                        <th>Tordiff</th>
+                        <th>Bier-Bilanz</th>
+                    </tr>
+                </thead>
+                <tbody id="team-matches-body">
+                    <!-- Hier werden die Spielzeilen hinzugefügt -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Team-Vergleich Container (neu) -->
+    <div id="team-compare-container" class="team-compare-container" style="display: none;">
+        <div class="teams-header-row">
+            <div class="team-compare-header">
+                <h3 id="team1-name" class="team-name-left">Team 1</h3>
+            </div>
+            <div class="team-compare-header center-header">
+                <h3>Vergleich</h3>
+            </div>
+            <div class="team-compare-header">
+                <h3 id="team2-name" class="team-name-right">Team 2</h3>
+            </div>
+        </div>
+        
+        <!-- Allgemeine Statistiken -->
+        <div class="comparison-section">
+            <h4 class="section-title">Allgemeine Statistiken</h4>
+            <div class="comparison-grid">
+                <!-- Spiele -->
+                <div class="stat-row-compare">
+                    <div class="stat-value-left" id="compare-matches-1">-</div>
+                    <div class="stat-label-center">Spiele</div>
+                    <div class="stat-value-right" id="compare-matches-2">-</div>
+                </div>
+                
+                <!-- Siege -->
+                <div class="stat-row-compare">
+                    <div class="stat-value-left" id="compare-wins-1">-</div>
+                    <div class="stat-label-center">Siege</div>
+                    <div class="stat-value-right" id="compare-wins-2">-</div>
+                </div>
+                
+                <!-- Unentschieden -->
+                <div class="stat-row-compare">
+                    <div class="stat-value-left" id="compare-draws-1">-</div>
+                    <div class="stat-label-center">Unentschieden</div>
+                    <div class="stat-value-right" id="compare-draws-2">-</div>
+                </div>
+                
+                <!-- Niederlagen -->
+                <div class="stat-row-compare">
+                    <div class="stat-value-left" id="compare-losses-1">-</div>
+                    <div class="stat-label-center">Niederlagen</div>
+                    <div class="stat-value-right" id="compare-losses-2">-</div>
+                </div>
+                
+                <!-- Siegquote (relativ) -->
+                <div class="stat-row-compare">
+                    <div class="stat-value-left" id="compare-winrate-1">-</div>
+                    <div class="stat-label-center">Siegquote</div>
+                    <div class="stat-value-right" id="compare-winrate-2">-</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tor-Statistiken -->
+        <div class="comparison-section">
+            <h4 class="section-title">Tor-Statistiken</h4>
+            <div class="comparison-grid">
+                <!-- Tore -->
+                <div class="stat-row-compare">
+                    <div class="stat-value-left" id="compare-goals-1">-</div>
+                    <div class="stat-label-center">Tore</div>
+                    <div class="stat-value-right" id="compare-goals-2">-</div>
+                </div>
+                
+                <!-- Ø Tore pro Spiel -->
+                <div class="stat-row-compare">
+                    <div class="stat-value-left" id="compare-avg-goals-1">-</div>
+                    <div class="stat-label-center">Ø Tore pro Spiel</div>
+                    <div class="stat-value-right" id="compare-avg-goals-2">-</div>
+                </div>
+                
+                <!-- Gegentore -->
+                <div class="stat-row-compare">
+                    <div class="stat-value-left" id="compare-goals-against-1">-</div>
+                    <div class="stat-label-center">Gegentore</div>
+                    <div class="stat-value-right" id="compare-goals-against-2">-</div>
+                </div>
+                
+                <!-- Ø Gegentore pro Spiel -->
+                <div class="stat-row-compare">
+                    <div class="stat-value-left" id="compare-avg-goals-against-1">-</div>
+                    <div class="stat-label-center">Ø Gegentore pro Spiel</div>
+                    <div class="stat-value-right" id="compare-avg-goals-against-2">-</div>
+                </div>
+                
+                <!-- Tordifferenz -->
+                <div class="stat-row-compare">
+                    <div class="stat-value-left" id="compare-goal-diff-1">-</div>
+                    <div class="stat-label-center">Tordifferenz</div>
+                    <div class="stat-value-right" id="compare-goal-diff-2">-</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Bier-Statistiken -->
+        <div class="comparison-section">
+            <h4 class="section-title">Bier-Statistiken</h4>
+            <div class="comparison-grid">
+                <!-- Bier verteilt -->
+                <div class="stat-row-compare">
+                    <div class="stat-value-left" id="compare-beer-given-1">-</div>
+                    <div class="stat-label-center">Bier verteilt</div>
+                    <div class="stat-value-right" id="compare-beer-given-2">-</div>
+                </div>
+                
+                <!-- Bier pro Spiel verteilt -->
+                <div class="stat-row-compare">
+                    <div class="stat-value-left" id="compare-beer-given-per-game-1">-</div>
+                    <div class="stat-label-center">Bier pro Spiel verteilt</div>
+                    <div class="stat-value-right" id="compare-beer-given-per-game-2">-</div>
+                </div>
+                
+                <!-- Bier getrunken -->
+                <div class="stat-row-compare">
+                    <div class="stat-value-left" id="compare-beer-drunk-1">-</div>
+                    <div class="stat-label-center">Bier getrunken</div>
+                    <div class="stat-value-right" id="compare-beer-drunk-2">-</div>
+                </div>
+                
+                <!-- Bier pro Spiel getrunken -->
+                <div class="stat-row-compare">
+                    <div class="stat-value-left" id="compare-beer-drunk-per-game-1">-</div>
+                    <div class="stat-label-center">Bier pro Spiel getrunken</div>
+                    <div class="stat-value-right" id="compare-beer-drunk-per-game-2">-</div>
+                </div>
+                
+                <!-- Bier-Bilanz -->
+                <div class="stat-row-compare">
+                    <div class="stat-value-left" id="compare-beer-balance-1">-</div>
+                    <div class="stat-label-center">Bier-Bilanz</div>
+                    <div class="stat-value-right" id="compare-beer-balance-2">-</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <div id="table-stats-section" class="erweitert-section" style="display: none;">
+        <!-- Filter-Buttons für Turnierphasen -->
+
+        
+        <!-- Container für die Tischstatistik-Karten -->
+        <div id="table-cards-container" class="table-cards-container">
+            <!-- Wird dynamisch durch JavaScript gefüllt -->
+        </div>
+    </div>
+</div>
+
+                <div class="statistik-header">
+                    <div class="statistik-info">
+                        <span class="last-update">Letzte Aktualisierung: <span id="updateTime">-</span></span>
+                    </div>
+                    <div class="statistik-actions">
+                        <button id="exportDataBtn" class="btn btn-secondary">📤</button>
+                        <button id="refreshDataBtn" class="btn btn-primary">🔄</button>
+                    </div>
+                </div>
+
+                <!-- Status-Container für Hinweise -->
+                <div id="statusContainer" class="status-container"></div>
+
+            </div>
+
+        </main>
+
+        <!-- Footer-Bereich mit Logo -->
+    <footer class="overlay-footer">
+        <img src="../global/Footer.png" alt="Footer">
+    </footer>
+    </div>
+
+    <!-- JavaScript -->
+    <script type="module" src="./statistik.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/10.6.0/firebase-database.js"></script>
+    <script type="module" src="../global/firebase-config.js"></script>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LAOS 2.0 - KO-Runde</title>
+    <link rel="icon" type="image/x-icon" href="../global/favicon.png">
+    <!-- Globale CSS-Datei -->
+    <link rel="stylesheet" href="../global/global.css">
+    <link rel="stylesheet" href="./ko-runde.css">
+    <link rel="stylesheet" href="../global/auth-module.css">
+    <link rel="stylesheet" href="../global/system-status-corner.css">
+
+</head>
+<body>
+    <div class="page-container">
+        <!-- Header-Bereich mit Navigation -->
+        <header class="main-header">
+            <div class="logo-container">
+                <img src="../global/favicon.png" alt="Logo" class="site-logo">
+                <h1 class="site-title">LAOS 2.0</h1>
+            </div>
+            <nav class="main-nav">
+                <ul class="nav-list">
+                    <li class="nav-item"><a href="../index.html" class="nav-link">Startseite</a></li>
+                    <li class="nav-item"><a href="../teams/teams.html" class="nav-link">Teams</a></li>
+                    <li class="nav-item"><a href="../vorrunde/vorrunde.html" class="nav-link">Vorrunde</a></li>
+                    <li class="nav-item"><a href="../korunde/ko-runde.html" class="nav-link active">KO-Runde</a></li>
+                    <li class="nav-item"><a href="../gegner/gegner.html" class="nav-link ">Gegner-Übersicht</a></li>
+                    <li class="nav-item"><a href="../statistik/statistik.html" class="nav-link">Statistik</a></li>
+                    <li class="nav-item"><a href="../wetten/wetten.html" class="nav-link">Wetten</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <!-- Hauptinhalt der Seite -->
+        <main class="main-content">
+
+            
+            
+            <div class="ko-container">
+                <!-- Überschrift und Aktionen -->
+                                
+                <!-- KO-Runden-Baum -->
+                <div id="koTreeContainer" class="ko-tree-container">
+                    <div id="notInitializedMessage" class="not-initialized-message">
+                        Die KO-Runde wurde noch nicht initialisiert. Bitte klicke auf "KO-Runde initialisieren", um zu beginnen.
+                    </div>
+                    
+                    <div id="tournamentBracket" class="tournament-bracket" style="display: none;">
+                        <!-- Playoff-Runde -->
+                        <div class="round playoff-round">
+                            <div class="matches-container" id="playoffContainer"></div>
+                        </div>
+                        
+                        <!-- Viertelfinale -->
+                        <div class="round quarterfinal-round">
+                            <div class="matches-container" id="quarterfinalContainer"></div>
+                        </div>
+                        
+                        <!-- Halbfinale -->
+                        <div class="round semifinal-round">
+                            <div class="matches-container" id="semifinalContainer"></div>
+                        </div>
+                        
+                        <!-- Finale -->
+                        <div class="round final-round">
+                            <div class="matches-container" id="finalContainer"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sieger-Anzeige -->
+                <div id="winnerContainer" class="winner-container" style="display: none;">
+                    <h3>Turniersieger</h3>
+                    <div class="winner-display">
+                        <div class="trophy-icon">🏆</div>
+                        <div id="winnerTeam" class="winner-team"></div>
+                    </div>
+                </div>
+
+                <div class="ko-header">
+                    <div class="ko-actions">
+                        <button id="initKoRundeBtn" class="btn btn-primary">🚀</button>
+                        <button id="exportDataBtn" class="btn btn-secondary">📤</button>
+                        <button id="resetKoRundeBtn" class="btn btn-danger">🔄</button>
+                    </div>
+                </div>
+                <!-- Status-Anzeige -->
+                <div id="statusContainer" class="status-container"></div>
+            </div>
+        </main>
+        
+    <footer class="overlay-footer">
+        <img src="../global/Footer.png" alt="Footer">
+    </footer>
+    </div>
+
+    <!-- JavaScript -->
+    <script type="module" src="./ko-runde-new.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/10.6.0/firebase-database.js"></script>
+    <script type="module" src="../global/firebase-config.js"></script>
+</body>
+</html>

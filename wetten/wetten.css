@@ -1,0 +1,427 @@
+/* Wetten Container */
+
+.wetten-container {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 1.5rem;
+    background-color: transparent;
+    border-radius: 12px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.wetten-header {
+    display: flex;
+    justify-content: right;
+    align-items: center;
+    padding: 0.5rem;
+    margin-bottom: 0.2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.wetten-title {
+    color: var(--color-blue-dark);
+    font-size: 2.5rem;
+    position: relative;
+    display: inline-block;
+}
+
+.wetten-title:after {
+    content: "";
+    position: absolute;
+    bottom: -10px;
+    left: 0;
+    width: 100px;
+    height: 3px;
+    background: linear-gradient(to right, var(--color-blue), var(--color-orange));
+    border-radius: 2px;
+}
+
+.wetten-actions {
+    display: flex;
+    gap: 0.8rem;
+}
+
+/* Status-Container */
+.status-container {
+    margin: 1rem 0;
+    padding: 1rem;
+    border-radius: 8px;
+    background-color: transparent;
+}
+
+.status-warning {
+    background-color: #fff3cd;
+    color: #856404;
+    border-left: 5px solid #ffeeba;
+}
+
+.status-error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border-left: 5px solid #f5c6cb;
+}
+
+.status-success {
+    background-color: #d4edda;
+    color: #155724;
+    border-left: 5px solid #c3e6cb;
+}
+
+.status-info {
+    background-color: #cce5ff;
+    color: #004085;
+    border-left: 5px solid #b8daff;
+}
+
+/* Sektions-Header */
+.section-title {
+    color: var(--color-blue-dark);
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+    display: inline-block;
+}
+
+.section-title:after {
+    content: "";
+    position: absolute;
+    bottom: -8px;
+    left: 0;
+    width: 50px;
+    height: 2px;
+    background: var(--color-orange);
+    border-radius: 2px;
+}
+
+/* Finalisten-Bereich */
+.finalists-section {
+    margin: 0.2rem;
+    padding: 0.2rem;
+    background-color:transparent;
+    border-radius: 8px;
+}
+
+.finalists-container {
+    display: flex;
+    justify-content: space-around;
+    align-items: stretch;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.finalist-card {
+    flex: 1;
+    min-width: 300px;
+    max-width: 100%;
+    background: linear-gradient(135deg, var(--color-blue-light), var(--color-blue));
+    color: white;
+    border-radius: 8px;
+    padding: 0.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.finalist-name {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    text-align: center;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.finalist-stats {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.stat-group {
+    flex: 1;
+    min-width: 120px;
+}
+
+.stat-group-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    padding-bottom: 0.3rem;
+}
+
+.stat-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.3rem;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+}
+
+.stat-value {
+    font-weight: 600;
+}
+
+.beer-balance-value {
+    font-weight: 700;
+    font-size: 1.0rem;
+    padding: 0.2rem 0.2rem;
+    border-radius: 4px;
+    margin-top: 0.5rem;
+    justify-content: space-between;
+}
+
+.positive {
+    background-color: rgba(40, 167, 69, 0.3);
+}
+
+.negative {
+    background-color: rgba(220, 53, 69, 0.3);
+}
+
+.neutral {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.current-odds {
+    margin-top: 1rem;
+    padding: 0.8rem;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    text-align: center;
+}
+
+.odds-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: red;
+}
+
+.odds-label {
+    font-size: 1rem;
+    opacity: 0.9;
+}
+
+.finalist-not-determined {
+    text-align: center;
+    padding: 2rem;
+    font-style: italic;
+    color: var(--color-medium-gray);
+    width: 100%;
+}
+
+/* Wettformular */
+.betting-form {
+    padding: 0.2rem;
+    border-radius: 8px;
+    background: red;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.form-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 0.2rem;
+}
+
+.form-group {
+    flex: 1;
+    min-width: 200px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 250px;
+    color: var(--color-dark-gray);
+}
+
+.form-input {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+/* Team-Wetten Bereich */
+.team-bets-section {
+    margin: 0.2rem;
+    padding: 0.2rem;
+    background-color: transparent;
+    border-radius: 8px;;
+}
+
+.team-bets-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.team-bets-table-container {
+    flex: 1;
+    min-width: 300px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    background-color:#f5f5f5;
+}
+
+.team-bets-header {
+    background-color:transparent;
+    color: transparent;
+    padding: 0.0rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.team-bets-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.team-bets-odds {
+    background-color: rgba(255, 255, 255, 0.2);
+    padding: 0.4rem 0.8rem;
+    border-radius: 4px;
+    font-weight: 700;
+}
+
+.team-bets-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.team-bets-table th,
+.team-bets-table td {
+    padding: 0.2rem;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.team-bets-table th {
+    background-color: #f5f5f5;
+    font-weight: 600;
+    color: var(--color-dark-gray);
+}
+
+.team-bets-table tr:last-child td {
+    border-bottom: none;
+}
+
+.better-name {
+    font-weight: 500;
+}
+
+.bet-amount {
+    text-align: right;
+    font-weight: 500;
+    color: var(--color-dark-gray);
+}
+
+.potential-win {
+    text-align: right;
+    font-weight: 700;
+    color: var(--color-green-dark);
+}
+
+.no-bets-message {
+    padding: 2rem;
+    text-align: center;
+    color: var(--color-medium-gray);
+    font-style: italic;
+}
+
+/* Total Stats */
+.total-stats-container {
+    margin-bottom: 0.2rem;
+}
+
+.total-stats {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 0.2rem;
+    background-color: transparent;
+    border-radius: 6px;
+    padding: 0.2rem;
+}
+
+.total-stat-block {
+    text-align: center;
+}
+
+.total-stat-value {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--color-dark-gray);
+}
+
+.total-stat-label {
+    font-size: 0.9rem;
+    color: var(--color-medium-gray);
+    margin-top: 0.3rem;
+}
+
+/* Responsive Anpassungen */
+@media (max-width: 768px) {
+    .finalists-container {
+        flex-direction: column;
+        align-items: center;
+    }
+    .finalist-card {
+        width: 100%;
+        max-width: none;
+    }
+    .form-row {
+        flex-direction: column;
+    }
+    .team-bets-container {
+        flex-direction: column;
+    }
+    
+    .team-bets-table-container {
+        width: 100%;
+        margin-bottom: 0.2rem;
+    }
+}
+
+/* Neues Grid-Layout für den oberen Bereich */
+.wetten-top-grid {
+    display: grid;
+    grid-template-columns: 20% 80%;
+    gap: 1rem;
+    margin-bottom: 0.2rem;
+}
+
+/* Anpassungen für den Statistik-Container */
+.wetten-top-grid .total-stats-container {
+    margin-bottom: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* Anpassungen für das Wettformular */
+.wetten-top-grid .betting-form-section {
+    margin: 0.2rem;
+}
+
+/* Responsive Anpassungen */
+@media (max-width: 992px) {
+    .wetten-top-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    .wetten-top-grid .total-stats-container {
+        margin-bottom: 0.2rem;
+    }
+}

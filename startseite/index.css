@@ -1,0 +1,110 @@
+/* 
+* LAOS 2.0 - Index-spezifisches CSS
+* Dieses Stylesheet enthält Stile, die nur auf der Startseite verwendet werden.
+*/
+
+/* Main-Content als Flex-Container für vertikale Zentrierung */
+.main-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh; /* Mindesthöhe für den Inhaltsbereich */
+}
+
+/* Willkommenscontainer */
+.welcome-container {
+    text-align: center;
+    padding: 4rem;
+    border-radius: 12px;
+    max-width: 1000px; /* Verbreitert für größeren Text */
+    width: 90%;
+    margin: 0 auto; /* Horizontale Zentrierung */
+    transform-style: preserve-3d;
+    perspective: 1000px;
+    animation: float 6s ease-in-out infinite;
+}
+
+/* Animation für den schwebenden Effekt */
+@keyframes float {
+    0% {
+        transform: translateY(0px) rotate(0deg);
+    }
+    50% {
+        transform: translateY(-15px) rotate(1deg);
+    }
+    100% {
+        transform: translateY(0px) rotate(0deg);
+    }
+}
+
+/* Textgestaltung für die Willkommensnachricht */
+.welcome-text {
+    font-size: 5rem; /* Vergrößert von 3rem auf 5rem */
+    font-weight: 700;
+    color: var(--color-orange);
+    position: relative;
+    display: inline-block;
+    margin: 0;
+    animation: textReveal 1.5s ease-out;
+}
+
+/* Etwas Abstand zwischen den beiden Willkommenstexten */
+.welcome-text:first-child {
+    margin-bottom: 1rem; /* Mehr Abstand für größeren Text */
+}
+
+/* Animation für das Erscheinen des Textes */
+@keyframes textReveal {
+    0% {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Styling für die Buchstaben im Text (wird durch JavaScript erzeugt) */
+.letter {
+    display: inline-block;
+    transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.letter:hover {
+    transform: translateY(-15px) scale(1.2); /* Größerer Hover-Effekt */
+    color: var(--color-orange);
+}
+
+/* Höhe des Headers festlegen */
+.main-header {
+    height: 60px;
+}
+
+/* Sicherstellen, dass Leerzeichen eine vernünftige Breite haben */
+.letter.space {
+    width: 0.5em;
+}
+
+/* Leer-Status */
+.empty-teams {
+    text-align: center;
+    padding: 2rem;
+    color: var(--color-medium-gray);
+    font-style: italic;
+    background-color: rgba(255, 255, 255, 0.5);
+    border-radius: 8px;
+    grid-column: 1 / -1;
+}
+
+
+.pending-badge {
+    background-color: #ff7700;
+    color: white;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 0.8em;
+    margin-left: 10px;
+    display: none;
+}

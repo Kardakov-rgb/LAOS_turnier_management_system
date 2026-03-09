@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LAOS 2.0 - Teams</title>
+    <link rel="icon" type="image/x-icon" href="../global/favicon.png">
+    <!-- Globale CSS-Datei -->
+    <link rel="stylesheet" href="../global/global.css">
+    <link rel="stylesheet" href="./teams.css">
+</head>
+<body>
+    <div class="page-container">
+        <!-- Header-Bereich mit Navigation -->
+        <header class="main-header">
+            <div class="logo-container">
+                <img src="../global/favicon.png" alt="Logo" class="site-logo">
+                <h1 class="site-title">LAOS 2.0</h1>
+            </div>
+
+            <nav class="main-nav">
+                <ul class="nav-list">
+                    <li class="nav-item"><a href="../index.html" class="nav-link">Startseite</a></li>
+                    <li class="nav-item"><a href="../teams/teams.html" class="nav-link active">Teams</a></li>
+                    <li class="nav-item"><a href="../vorrunde/vorrunde.html" class="nav-link">Vorrunde</a></li>
+                    <li class="nav-item"><a href="../korunde/ko-runde.html" class="nav-link">KO-Runde</a></li>
+                    <li class="nav-item"><a href="../gegner/gegner.html" class="nav-link ">Gegner-Übersicht</a></li>
+                    <li class="nav-item"><a href="../statistik/statistik.html" class="nav-link">Statistik</a></li>
+                    <li class="nav-item"><a href="../wetten/wetten.html" class="nav-link">Wetten</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <!-- Hauptinhalt der Seite -->
+        <main class="main-content">
+            <div class="teams-container">
+                <div class="teams-header">
+                </div>
+                
+                <!-- Formular zum Hinzufügen eines Teams -->
+                <div class="team-form-container">
+                    <div class="form-group">
+                        <input type="text" id="teamNameInput" class="form-input" placeholder="Teamname eingeben">
+                        <button id="addTeamBtn" class="btn btn-primary">🍺</button>
+                    </div>
+
+                </div>
+                
+                <!-- Anzeige der Teams -->
+                <div class="teams-display">
+                    <div id="teamsList" class="teams-grid">
+                        <!-- Teams werden hier dynamisch eingefügt -->
+                    </div>
+                </div>
+                <div class="team-actions">
+                    <button id="fillTeamsBtn" class="btn btn-primary">🎲</button>;     
+                    <button id="exportTeamsBtn" class="btn btn-secondary">📤</button>
+                    <button id="resetTeamsBtn" class="btn btn-danger">🔄</button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer-Bereich mit Logo -->
+    <footer class="overlay-footer">
+        <img src="../global/Footer.png" alt="Footer">
+    </footer>
+</div>
+    </div>
+    <!-- JavaScript -->
+    <script type="module" src="./teams.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/10.6.0/firebase-database.js"></script>
+    <script type="module" src="../global/firebase-config.js"></script>
+    
+</body>
+</html>

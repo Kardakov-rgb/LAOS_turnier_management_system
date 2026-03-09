@@ -1,0 +1,249 @@
+/* 
+* LAOS 2.0 - Regelwerk-spezifisches CSS
+* Dieses Stylesheet enthält Stile, die nur auf der Regelwerk-Seite verwendet werden.
+*/
+.main-footer {
+    position: relative; /* Statt fixed */
+    width: 100%;
+    height: auto; /* Dynamische Höhe */
+    z-index: 1;
+}
+
+.main-content {
+    padding-bottom: 2rem; /* Reduzierter, statischer Padding */
+    position: relative; /* Sicherstellen, dass Inhalte korrekt fließen */
+}
+
+.page-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Volle Viewport-Höhe */
+}
+/* Regelwerk Container */
+.regelwerk-container {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 1.5rem;
+    background-color: transparent;
+    border-radius: 12px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.regelwerk-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.regelwerk-title {
+    color: var(--color-blue-dark);
+    font-size: 2.5rem;
+    position: relative;
+    display: inline-block;
+}
+
+.regelwerk-title:after {
+    content: "";
+    position: absolute;
+    bottom: -10px;
+    left: 0;
+    width: 100px;
+    height: 3px;
+    background: linear-gradient(to right, var(--color-blue), var(--color-orange));
+    border-radius: 2px;
+}
+
+/* Suchcontainer */
+.search-container {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.search-input {
+    padding: 0.6rem 1rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    width: 250px;
+    transition: all 0.3s ease;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--color-blue);
+    box-shadow: 0 0 0 3px rgba(142, 145, 223, 0.25);
+}
+
+/* Status-Container */
+.status-container {
+    margin: 1rem 0;
+    padding: 1rem;
+    border-radius: 8px;
+    background-color: transparent;
+    display: none;
+}
+
+.status-container.visible {
+    display: block;
+}
+
+.status-warning {
+    background-color: #fff3cd;
+    color: #856404;
+    border-left: 5px solid #ffeeba;
+}
+
+.status-error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border-left: 5px solid #f5c6cb;
+}
+
+.status-success {
+    background-color: #d4edda;
+    color: #155724;
+    border-left: 5px solid #c3e6cb;
+}
+
+.status-info {
+    background-color: #cce5ff;
+    color: #004085;
+    border-left: 5px solid #b8daff;
+}
+
+/* Layout für Navigation und Inhalt */
+.regelwerk-navigation {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+}
+
+.regelwerk-navigation a.nav-item {
+    padding: 0.5rem 1rem;
+    background-color: var(--color-light-gray);
+    border-radius: 4px;
+    color: var(--color-dark-gray);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.regelwerk-navigation a.nav-item:hover {
+    background-color: var(--color-blue-light);
+    color: white;
+}
+
+.regelwerk-navigation a.nav-item.active {
+    background-color: var(--color-blue);
+    color: white;
+}
+
+/* Hauptinhalt */
+.regelwerk-content {
+    padding: 2rem;
+    border-radius: 8px;
+    position: relative;
+}
+
+/* Regel-Sektionen */
+.regel-section {
+    margin-bottom: 2rem;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.regel-section:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.regel-section.highlight {
+    background-color: #ff8533;
+}
+
+.regel-title {
+    color: var(--color-blue-dark);
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid var(--color-orange);
+    padding-bottom: 0.5rem;
+}
+
+.regel-content p {
+    margin-bottom: 0.8rem;
+    line-height: 1.6;
+}
+
+.regel-content p:last-child {
+    margin-bottom: 0;
+}
+
+/* Footer Styling */
+.regelwerk-footer {
+    margin-top: 3rem;
+    text-align: center;
+    font-style: italic;
+    color: var(--color-dark-gray);
+}
+
+.regelwerk-footer p {
+    margin-bottom: 0.5rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .regelwerk-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .search-container {
+        width: 100%;
+        margin-top: 1rem;
+    }
+    
+    .search-input {
+        flex-grow: 1;
+    }
+    
+    .regelwerk-content {
+        padding: 1rem;
+    }
+    
+    .regel-section {
+        padding: 1rem;
+    }
+}
+
+/* Highlighter für Suchergebnisse */
+.highlight-text {
+    background-color: #ff8533;
+    padding: 0 2px;
+    border-radius: 2px;
+}
+
+/* Scrollbar Styling */
+.regelwerk-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.regelwerk-content::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+}
+
+.regelwerk-content::-webkit-scrollbar-thumb {
+    background: var(--color-blue-light);
+    border-radius: 4px;
+}
+
+.regelwerk-content::-webkit-scrollbar-thumb:hover {
+    background: var(--color-blue);
+}

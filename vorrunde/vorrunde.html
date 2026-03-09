@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">    <title>LAOS 2.0 - Vorrunde</title>
+    <link rel="icon" type="image/x-icon" href="../global/favicon.png">
+    <!-- Globale CSS-Datei -->
+    <link rel="stylesheet" href="../global/global.css">
+    <link rel="stylesheet" href="./vorrunde.css">
+</head>
+<body>
+    <div class="page-container">
+        <!-- Header-Bereich mit Navigation -->
+        <header class="main-header">
+            <div class="logo-container">
+                <img src="../global/favicon.png" alt="Logo" class="site-logo">
+                <h1 class="site-title">LAOS 2.0</h1>
+            </div>
+            
+                <!-- Verbindungsstatus hinzufügen -->
+
+            <nav class="main-nav">
+                <ul class="nav-list">
+                    <li class="nav-item"><a href="../index.html" class="nav-link">Startseite</a></li>
+                    <li class="nav-item"><a href="../teams/teams.html" class="nav-link">Teams</a></li>
+                    <li class="nav-item"><a href="../vorrunde/vorrunde.html" class="nav-link active">Vorrunde</a></li>
+                    <li class="nav-item"><a href="../korunde/ko-runde.html" class="nav-link">KO-Runde</a></li>
+                    <li class="nav-item"><a href="../gegner/gegner.html" class="nav-link ">Gegner-Übersicht</a></li>
+                    <li class="nav-item"><a href="../statistik/statistik.html" class="nav-link">Statistik</a></li>
+                    <li class="nav-item"><a href="../wetten/wetten.html" class="nav-link">Wetten</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <!-- Hauptinhalt der Seite -->
+        <main class="main-content">
+            <div class="vorrunde-container">
+                <!-- Zwei-Spalten-Layout für Spiele und Tabelle -->
+                <div class="vorrunde-content">
+                    <!-- Linke Spalte: Spiele mit Runden-Navigation -->
+                    <div class="matches-section">
+                        <div class="rounds-navigation">
+                            <button class="round-nav-btn" data-round="1">Runde 1</button>
+                            <button class="round-nav-btn" data-round="2">Runde 2</button>
+                            <button class="round-nav-btn" data-round="3">Runde 3</button>
+                            <button class="round-nav-btn" data-round="4">Runde 4</button>
+                            <button class="round-nav-btn" data-round="5">Runde 5</button>
+                            <button id="goldenCupBtn" class="golden-cup-btn">Golden Cup</button>
+                        </div>
+                        <div id="matchesContainer" class="matches-container">
+                            <!-- Spiele werden hier dynamisch eingefügt -->
+                             <!-- Das Overlay Element - direkt in die matches-section einfügen -->
+<div class="matches-overlay" id="matchesOverlay">
+    <div class="overlay-message" id="overlayMessage">
+        <h3>🚫 Gesperrt</h3>
+        <p>Die Spieleingabe ist momentan gesperrt.<br>
+        Bitte warten Sie, bis der Vorgang abgeschlossen ist.</p>
+    </div>
+</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Rechte Spalte: Tabelle -->
+                    <div class="standings-section">
+                        <h3 class="section-title"></h3>
+                        <div id="standingsContainer" class="standings-container">
+                            <!-- Tabelle wird hier dynamisch eingefügt -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="vorrunde-header">
+                    <div class="vorrunde-actions">
+                       <button id="initVorrundeBtn" class="btn btn-primary">🚀</button>
+                        <button id="exportDataBtn" class="btn btn-secondary">📤</button>
+                        <button id="resetVorrundeBtn" class="btn btn-danger">🔄</button>
+                    </div>
+                </div>
+            </div>
+
+</main>
+    <footer class="overlay-footer">
+        <img src="../global/Footer.png" alt="Footer">
+    </footer>
+    </div>
+
+    <!-- JavaScript -->
+    <script type="module" src="./vorrunde.js"></script>
+
+    <!-- Füge diese Zeilen vor deinen eigenen Skripten hinzu -->
+    <script type="module" src="https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/10.6.0/firebase-database.js"></script>
+    <script type="module" src="../global/firebase-config.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,384 @@
+/* 
+* LAOS 2.0 - Globales CSS
+* Dieses Stylesheet enthält allgemeine Stile, die auf allen Seiten verwendet werden.
+*/
+
+/* ---- Variablen für das Farbschema ---- */
+:root {
+    --color-red: #D50F0D;
+    --color-red-light: #ff3a38;
+    --color-red-dark: #a00c0a;
+    
+    --color-orange: #FF6600;
+    --color-orange-light: #ff8c40;
+    --color-orange-dark: #cc5200;
+    
+    --color-blue: #8E91DF;
+    --color-blue-light: #b0b2eb;
+    --color-blue-dark: #6c70d7;
+    
+    --color-green: #ADDDC8;
+    --color-green-light: #c9ead9;
+    --color-green-dark: #8ecea9;
+    
+    --color-black: #000000;
+    --color-dark-gray: #333333;
+    --color-medium-gray: #666666;
+    --color-light-gray: #f5f5f5;
+    
+    --color-brown: #A48876;
+    --color-brown-light: #bcaa9e;
+    --color-brown-dark: #8c6e5a;
+
+    --font-primary: 'Montserrat', sans-serif;
+    --font-secondary: 'Roboto', sans-serif;
+}
+
+/* ---- Grundlegende Zurücksetzung ---- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* ---- Grundlegende Seitenstruktur ---- */
+html, body {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    font-family: var(--font-primary);
+}
+
+body {
+    line-height: 1.6;
+    color: var(--color-black);
+}
+
+.page-container {
+    min-height: 100vh;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    overflow-x: hidden;
+    padding-bottom: 0; /* Kein zusätzliches Padding, da der Footer fixiert ist */
+}
+
+/* ---- Header-Stile ---- */
+.main-header {
+    background-color: var(--color-blue);
+    color: white;
+    padding: 0.5rem;
+    height: 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 99.5%;
+    z-index: 10;
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    position: fixed;
+}
+
+.site-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    margin: 0;
+    transition: transform 0.3s ease;
+}
+
+.site-title:hover {
+    transform: scale(1.05);
+}
+
+/* ---- Navigation-Stile ---- */
+.main-nav {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+}
+
+.nav-list {
+    list-style: none;
+    display: flex;
+    gap: 1rem;
+}
+
+.nav-item {
+    position: relative;
+}
+
+.nav-link {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 1.1rem;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.nav-link.active {
+    background-color: var(--color-orange);
+    color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Stelle sicher, dass der Hauptinhalt einen höheren z-index hat */
+.main-content {
+    position: relative;
+    z-index: 5; /* Höher als der Footer */
+    padding-bottom: calc(33vh + 2rem); /* Berücksichtigt die Footer-Höhe */
+}
+
+/* ---- Haupt-Content-Stile ---- */
+.main-content {
+    flex: 1 0 auto;
+    padding: 2rem;
+    padding-top: 5rem;
+    position: relative;
+    z-index: 5; /* Höher als Footer, niedriger als Header */
+    background: linear-gradient(120deg, var(--color-green-light), var(--color-blue-light));
+    justify-content: center;
+}
+
+
+/* ---- Button-Stile ---- */
+.btn {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    border-radius: 4px;
+    font-weight: 500;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    font-size: 2rem;
+}
+
+.btn-primary {
+    background-color:var(--color-orange);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary:hover {
+    background-color: var(--color-orange-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn-secondary {
+    background-color: transparent;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn-secondary:hover {
+    background-color: var(--color-blue-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn-danger {
+    background-color: transparent;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn-danger:hover {
+    background-color: var(--color-red-dark);
+}
+
+/* ---- Utility-Klassen ---- */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.mt-1 { margin-top: 0.5rem; }
+.mt-2 { margin-top: 1rem; }
+.mt-3 { margin-top: 1.5rem; }
+.mt-4 { margin-top: 2rem; }
+.mt-5 { margin-top: 2.5rem; }
+
+.mb-1 { margin-bottom: 0.5rem; }
+.mb-2 { margin-bottom: 1rem; }
+.mb-3 { margin-bottom: 1.5rem; }
+.mb-4 { margin-bottom: 2rem; }
+.mb-5 { margin-bottom: 2.5rem; }
+
+/* ---- Karten-Stile ---- */
+.card {
+    background-color: white;
+    border-radius: 8px;
+    padding: 0.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* ---- Formular-Stile ---- */
+.form-group {
+    margin-bottom: 0.2rem;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.form-input {
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    font-family: var(--font-primary);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    font-size: 2rem;
+}
+
+.form-input:focus {
+    border-color: var(--color-blue);
+    box-shadow: 0 0 0 3px rgba(142, 145, 223, 0.25);
+    outline: none;
+}
+
+.form-input.error {
+    border-color: var(--color-red);
+    box-shadow: 0 0 0 3px rgba(213, 15, 13, 0.25);
+    animation: shake 0.5s linear;
+}
+
+/* Toast-Nachrichten */
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: var(--color-dark-gray);
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: 4px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    transition: all 0.3s ease;
+    opacity: 0;
+    transform: translateY(-20px);
+    max-width: 300px;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Schüttel-Animation für Fehler */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+}
+
+.site-logo {
+    height: 40px;
+    margin-right: 10px;
+}
+
+.site-title {
+    margin: 0;
+}
+
+/* 
+* LAOS 2.0 - Anpassungen für den Footer
+* Verhindert, dass der Footer Inhalte überdeckt
+*/
+
+/* Diese Stile zur screen-adjust.css hinzufügen */
+
+/* Footer-Styling - überarbeitete Version */
+.overlay-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    z-index: 5;
+    pointer-events: none;
+    max-height: 20vh; /* Maximale Höhe relativ zum Viewport */
+    overflow: hidden;
+}
+
+.overlay-footer img {
+    width: 100%;
+    display: block;
+    object-fit: cover;
+    object-position: top; /* Wichtig: Zeigt den oberen Teil des Bildes */
+    max-height: 20vh; /* Passt zur Container-Höhe */
+}
+
+/* Anpassung des Hauptinhaltsbereichs */
+.main-content {
+    position: relative;
+    z-index: 5;
+    padding-bottom: 20vh; /* Entspricht der Footer-Höhe */
+
+}
+
+/* Anpassung für die Startseite */
+.page-container {
+    min-height: 100vh;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    overflow-x: hidden;
+    overflow-y: auto; /* Erlaubt vertikales Scrollen wenn nötig */
+}
+
+.main-header {
+    z-index: 10;
+}
+
+/* Spezielle Anpassung für Tabellen, damit sie vollständig sichtbar sind */
+.standings-table, .stats-table {
+    margin-bottom: 15vh; /* Platz für den Footer */
+}
+
+
+#status-icon {
+    margin-right: 5px;
+}
+
+.pending-badge {
+    background-color: #ff7700;
+    color: white;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 0.8em;
+    margin-left: 10px;
+    display: none;
+}
+
