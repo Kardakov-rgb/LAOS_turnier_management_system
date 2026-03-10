@@ -99,25 +99,30 @@ async getData(key) {
     
     // Datenstruktur prüfen und ggf. Array zurückgeben
     if (data && data.type === 'array') {
-      return Array.isArray(data.value) ? data.value : []; // Sicherstellen, dass ein Array zurückgegeben wird
+      if (Array.isArray(data.value)) return data.value;
+      // Firebase konvertiert Arrays zu Objekten -> zurück konvertieren
+      if (data.value && typeof data.value === 'object') return Object.values(data.value);
+      return [];
     }
-    
+
     // Wenn data null ist oder kein Array, gib ein leeres Array zurück für Array-Keys
     if (key === 'tournamentTeams' && (!data || !data.value)) {
       return [];
     }
-    
+
     return data;
-    
+
   } catch (error) {
     console.error("Fehler beim Laden der Daten:", error);
     // Aus localStorage laden als Fallback
     const localData = localStorage.getItem(key);
     const data = localData ? JSON.parse(localData) : null;
-    
+
     // Datenstruktur prüfen und ggf. Array zurückgeben
     if (data && data.type === 'array') {
-      return Array.isArray(data.value) ? data.value : []; // Sicherstellen, dass ein Array zurückgegeben wird
+      if (Array.isArray(data.value)) return data.value;
+      if (data.value && typeof data.value === 'object') return Object.values(data.value);
+      return [];
     }
     
     // Wenn data null ist oder kein Array, gib ein leeres Array zurück für Array-Keys
@@ -141,12 +146,16 @@ async getData(key) {
                 localStorage.setItem(key, JSON.stringify(data));
                 
                 // Datenstruktur prüfen und ggf. Array zurückgeben
-                if (data.type === 'array' && Array.isArray(data.value)) {
-                    callback(data.value); // Array zurückgeben
-                } else if (data.type === 'array') {
-                    // Fallback, wenn data.value fehlt oder kein Array ist
-                    console.warn('Array-Daten ohne gültiges value-Array empfangen:', data);
-                    callback([]); // Leeres Array als Fallback
+                // Wichtig: Firebase konvertiert Arrays zu Objekten {0: ..., 1: ...}
+                if (data.type === 'array') {
+                    if (Array.isArray(data.value)) {
+                        callback(data.value);
+                    } else if (data.value && typeof data.value === 'object') {
+                        // Firebase hat Array zu Objekt konvertiert -> zurück konvertieren
+                        callback(Object.values(data.value));
+                    } else {
+                        callback([]);
+                    }
                 } else {
                     callback(data);
                 }
