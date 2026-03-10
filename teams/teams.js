@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     // Teams aus localStorage laden oder leeres Array initialisieren
     let teams = [];
+    let isSaving = false; // Flag: verhindert, dass die Subscription lokale Änderungen überschreibt
 
     // Teams laden (asynchron)
     try {
@@ -284,6 +285,7 @@ function fillTeamsToTwentyFour() {
      */
 // zu dieser asynchronen Funktion
 async function saveTeams() {
+    isSaving = true;
     try {
         const success = await dataService.saveData('tournamentTeams', teams);
         if (success) {
@@ -293,6 +295,8 @@ async function saveTeams() {
         }
     } catch (error) {
         console.error('Fehler beim Speichern der Teams:', error);
+    } finally {
+        isSaving = false;
     }
 }
     
@@ -356,17 +360,17 @@ async function saveTeams() {
     // Nach dem initialen Laden der Teams und Anzeigen
 // Setup für Echtzeit-Updates
 dataService.subscribeToData('tournamentTeams', updatedTeams => {
-    console.log('SUBSCRIPTION CALLBACK:');
-    console.log('- updatedTeams type:', typeof updatedTeams);
-    console.log('- Is Array:', Array.isArray(updatedTeams));
-    console.log('- Content:', JSON.stringify(updatedTeams));
-    
+    // Während einer laufenden Speicheroperation keine externen Updates übernehmen,
+    // da Firebase-Rollbacks (z.B. bei Berechtigungsfehlern) sonst den lokalen
+    // State überschreiben und die Teams-Anzeige leeren würden.
+    if (isSaving) return;
+
     // Sicherheitscheck: Nur ein Array akzeptieren
     if (!Array.isArray(updatedTeams)) {
         console.error('Fehler: Erwartete ein Array von Teams, erhielt aber:', updatedTeams);
         return; // Nicht fortfahren mit ungültigen Daten
     }
-    
+
     // Prüfen, ob es wirklich Änderungen gibt
     if (JSON.stringify(teams) !== JSON.stringify(updatedTeams)) {
         console.log('Teams wurden aktualisiert, rendere UI neu');
