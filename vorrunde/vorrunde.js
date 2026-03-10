@@ -1480,10 +1480,6 @@ function renderStandings() {
         
         console.log('Vorrunde wurde zurückgesetzt');
     }
- // Event-Listener für Golden Cup Button
-document.getElementById('goldenCupBtn').addEventListener('click', showGoldenCup);
-
-
 /**
  * Zeigt den Golden Cup an und analysiert Gleichstände
  */
@@ -2139,11 +2135,6 @@ dataService.subscribeToData('vorrundeStandings', updatedStandings => {
         renderStandings();
     }
 });
-
-    // Auf Authentifizierungsänderungen reagieren
-    auth.onAuthStateChanged(function(user) {
-        updateAuthStatus();
-    });
 
 /**
  * Verbesserte Funktion zum Hervorheben der Teams in der Tabelle mit Verzögerung

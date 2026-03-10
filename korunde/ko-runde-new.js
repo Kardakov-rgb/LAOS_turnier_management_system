@@ -33,11 +33,6 @@ document.addEventListener('DOMContentLoaded', async function() {
   controller.init();
   view.renderBracket();
   
-  // Auf Authentifizierungsänderungen reagieren
-  auth.onAuthStateChanged(function(user) {
-    updateAuthStatus();
-  });
-  
   // Debug-Zugriff auf globale Objekte (optional)
   window.koTournament = {
     model,
