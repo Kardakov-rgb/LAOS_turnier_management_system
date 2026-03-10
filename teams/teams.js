@@ -22,6 +22,25 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Teams aus localStorage laden oder leeres Array initialisieren
     let teams = [];
 
+    // Event-Listener ZUERST registrieren (vor dem async Datenladen!)
+    addTeamBtn.addEventListener('click', addTeam);
+
+    teamNameInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            addTeam();
+        }
+    });
+
+    exportTeamsBtn.addEventListener('click', exportTeams);
+
+    resetTeamsBtn.addEventListener('click', function() {
+        if (confirm('ACHTUNG: Möchtest du wirklich ALLE Daten komplett löschen? Diese Aktion kann nicht rückgängig gemacht werden.')) {
+            resetAllData();
+        }
+    });
+
+    fillTeamsBtn.addEventListener('click', fillTeamsToTwentyFour);
+
     // Teams laden (asynchron)
     try {
         const loadedTeams = await dataService.getData('tournamentTeams');
@@ -33,31 +52,10 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
     } catch (error) {
         console.error('Fehler beim Laden der Teams:', error);
-    }  
+    }
+
     // Teams anzeigen
     renderTeams();
-    
-    // Event-Listener für Hinzufügen-Button
-    addTeamBtn.addEventListener('click', addTeam);
-    
-    // Event-Listener für Enter-Taste im Input-Feld
-    teamNameInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            addTeam();
-        }
-    });
-    
-    // Event-Listener für Export-Button
-    exportTeamsBtn.addEventListener('click', exportTeams);
-    
-    // Event-Listener für Reset-Button
-    resetTeamsBtn.addEventListener('click', function() {
-        if (confirm('ACHTUNG: Möchtest du wirklich ALLE Daten komplett löschen? Diese Aktion kann nicht rückgängig gemacht werden.')) {
-            resetAllData();
-        }
-    });
-    
-    fillTeamsBtn.addEventListener('click', fillTeamsToTwentyFour);
 /**
  * Füllt die Teamliste auf 24 Teams auf
  */
