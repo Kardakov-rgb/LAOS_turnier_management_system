@@ -7,9 +7,17 @@ import dataService from '../global/data-service.js';
 
 
 // Warten bis das DOM vollständig geladen ist
-document.addEventListener('DOMContentLoaded', async function() {   
+document.addEventListener('DOMContentLoaded', async function() {
     // Initialize auth module first
     console.log("DOM geladen, initialisiere Auth");
+
+    // DOM-Elemente deklarieren
+    const addTeamBtn = document.getElementById('addTeamBtn');
+    const teamNameInput = document.getElementById('teamNameInput');
+    const teamsList = document.getElementById('teamsList');
+    const exportTeamsBtn = document.getElementById('exportTeamsBtn');
+    const resetTeamsBtn = document.getElementById('resetTeamsBtn');
+    const fillTeamsBtn = document.getElementById('fillTeamsBtn');
 
     // Teams aus localStorage laden oder leeres Array initialisieren
     let teams = [];
