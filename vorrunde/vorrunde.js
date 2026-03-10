@@ -958,19 +958,21 @@ function saveMatchResult(matchId) {
         if (match.score1 > match.score2) {
             // Team 1 hatte gewonnen
             standings[team1Index].won--;
-            standings[team1Index].points -= 2;
+            standings[team1Index].points -= 2 + (match.score1 >= 5 ? 1 : 0) + (match.score2 === 0 ? 1 : 0);
             standings[team2Index].lost--;
+            standings[team2Index].points -= (match.score2 >= 5 ? 1 : 0);
         } else if (match.score1 < match.score2) {
             // Team 2 hatte gewonnen
             standings[team1Index].lost--;
+            standings[team1Index].points -= (match.score1 >= 5 ? 1 : 0);
             standings[team2Index].won--;
-            standings[team2Index].points -= 2;
+            standings[team2Index].points -= 2 + (match.score2 >= 5 ? 1 : 0) + (match.score1 === 0 ? 1 : 0);
         } else {
             // Unentschieden
             standings[team1Index].drawn--;
-            standings[team1Index].points -= 1;
+            standings[team1Index].points -= 1 + (match.score1 >= 5 ? 1 : 0);
             standings[team2Index].drawn--;
-            standings[team2Index].points -= 1;
+            standings[team2Index].points -= 1 + (match.score2 >= 5 ? 1 : 0);
         }
     }
     
@@ -993,19 +995,21 @@ function saveMatchResult(matchId) {
     if (newScore1 > newScore2) {
         // Team 1 gewinnt
         standings[team1Index].won++;
-        standings[team1Index].points += 2;
+        standings[team1Index].points += 2 + (newScore1 >= 5 ? 1 : 0) + (newScore2 === 0 ? 1 : 0);
         standings[team2Index].lost++;
+        standings[team2Index].points += (newScore2 >= 5 ? 1 : 0);
     } else if (newScore1 < newScore2) {
         // Team 2 gewinnt
         standings[team1Index].lost++;
+        standings[team1Index].points += (newScore1 >= 5 ? 1 : 0);
         standings[team2Index].won++;
-        standings[team2Index].points += 2;
+        standings[team2Index].points += 2 + (newScore2 >= 5 ? 1 : 0) + (newScore1 === 0 ? 1 : 0);
     } else {
         // Unentschieden
         standings[team1Index].drawn++;
-        standings[team1Index].points += 1;
+        standings[team1Index].points += 1 + (newScore1 >= 5 ? 1 : 0);
         standings[team2Index].drawn++;
-        standings[team2Index].points += 1;
+        standings[team2Index].points += 1 + (newScore2 >= 5 ? 1 : 0);
     }
     
     // Tordifferenz aktualisieren
