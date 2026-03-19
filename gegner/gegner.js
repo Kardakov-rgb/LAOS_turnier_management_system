@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     // DOM-Elemente
 // DOM-Elemente
 const statusContainer = document.getElementById('statusContainer');
-const teamsOverviewContainer = document.getElementById('teamsOverviewContainer');
+const tableCardsContainer = document.getElementById('tableCardsContainer');
 const updateTimeElement = document.getElementById('updateTime');
 const connectionStatusElement = document.getElementById('connection-status');
 const statusIconElement = document.getElementById('status-icon');
@@ -62,21 +62,15 @@ async function init() {
     }
     
     // Erste Anzeige der Daten
-    renderTeamsOverview();
+    renderTableCards();
     renderStandings();
     updateLastUpdateTime();
-    
+
     // Timer für regelmäßige Aktualisierungen starten
     startUpdateTimer();
-    
+
     // Echtzeit-Updates für Daten einrichten
     setupRealtimeUpdates();
-    
-    // Höhenangleichung entfernen - DIESE ZEILE HINZUFÜGEN
-    höhenAngleichungEntfernen();
-    
-    // Regelmäßige Prüfung einrichten - DIESE ZEILEN HINZUFÜGEN
-    setInterval(höhenAngleichungEntfernen, 2000);
 
     
 }
@@ -112,17 +106,17 @@ function setupRealtimeUpdates() {
         if (JSON.stringify(teams) !== JSON.stringify(updatedTeams)) {
             console.log('Teams wurden aktualisiert');
             teams = updatedTeams;
-            renderTeamsOverview();
+            renderTableCards();
             updateLastUpdateTime();
         }
     });
-    
+
     // Echtzeit-Updates für Matches
     dataService.subscribeToData('vorrundeMatches', updatedMatches => {
         if (JSON.stringify(matches) !== JSON.stringify(updatedMatches)) {
             console.log('Matches wurden aktualisiert');
             matches = updatedMatches;
-            renderTeamsOverview();
+            renderTableCards();
             updateLastUpdateTime();
         }
     });
@@ -186,7 +180,7 @@ async function refreshData() {
             console.log('Teams oder Matches haben sich geändert, aktualisiere Anzeige');
             teams = currentTeams;
             matches = currentMatches;
-            renderTeamsOverview();
+            renderTableCards();
         }
         
         if (standingsChanged || goldenCupChanged) { // Neu
@@ -215,230 +209,130 @@ async function refreshData() {
     }
     
     /**
-     * Rendert die Team-Übersichten
+     * Gibt für jeden Tisch (1–6) das letzte gespielte, das nächste und übernächste Spiel zurück.
      */
-function renderTeamsOverview() {
-    // Container leeren
-    teamsOverviewContainer.innerHTML = '';
-    
-    // Matches nach Teams gruppieren
-    const teamMatches = groupMatchesByTeam();
-    
-    // Team-Karten erstellen
-    teams.forEach(team => {
-        const teamCard = createTeamOverviewCard(team, teamMatches[team] || []);
-        teamsOverviewContainer.appendChild(teamCard);
-    });
-    
-    // Höhenangleichung entfernen - DIESE ZEILE HINZUFÜGEN
-    höhenAngleichungEntfernen();
-}
-    
-    /**
-     * Gruppiert die Matches nach Teams
-     * @returns {Object} - Ein Objekt mit Team-Namen als Schlüssel und Arrays von Matches als Werte
-     */
-    function groupMatchesByTeam() {
-        const teamMatches = {};
-        
-        // Für jedes Team ein leeres Array initialisieren
-        teams.forEach(team => {
-            teamMatches[team] = [];
-        });
-        
-        // Matches den Teams zuordnen
-        matches.forEach(match => {
-            // Match für Team 1 hinzufügen
-            if (teamMatches[match.team1]) {
-                teamMatches[match.team1].push({
-                    ...match,
-                    isTeam1: true,  // Hinzufügen einer Markierung, dass dieses Team team1 ist
+    function getMatchesPerTable() {
+        const result = {};
+        for (let table = 1; table <= 6; table++) {
+            const tableMatches = matches
+                .filter(m => m.tableNumber === table)
+                .sort((a, b) => {
+                    if (a.round !== b.round) return a.round - b.round;
+                    return (a.isSecondHalf ? 1 : 0) - (b.isSecondHalf ? 1 : 0);
                 });
-            }
-            
-            // Match für Team 2 hinzufügen
-            if (teamMatches[match.team2]) {
-                teamMatches[match.team2].push({
-                    ...match,
-                    isTeam1: false,  // Hinzufügen einer Markierung, dass dieses Team team2 ist
-                });
-            }
-        });
-        
-        // Matches für jedes Team nach Runden sortieren
-        for (const team in teamMatches) {
-            teamMatches[team].sort((a, b) => a.round - b.round);
+            const lastPlayed = [...tableMatches].reverse().find(m => m.played) || null;
+            const unplayed = tableMatches.filter(m => !m.played);
+            result[table] = {
+                lastPlayed,
+                current: unplayed[0] || null,
+                next: unplayed[1] || null
+            };
         }
-        
-        return teamMatches;
+        return result;
     }
-    
+
     /**
-     * Erstellt eine Team-Übersichtskarte
-     * @param {string} teamName - Der Name des Teams
-     * @param {Array} teamMatches - Die Matches dieses Teams
-     * @returns {HTMLElement} - Die erstellte Karte
+     * Gibt ein lesbares Runden-Label zurück, z.B. "Rd. 3 · 1. H"
      */
-    function createTeamOverviewCard(teamName, teamMatches) {
-        // Team-Karte erstellen
-        const teamCard = document.createElement('div');
-        teamCard.className = 'team-overview-card';
-        
-        // Header mit Team-Namen
-        const teamHeader = document.createElement('div');
-        teamHeader.className = 'team-overview-header';
-        teamHeader.textContent = teamName;
-        teamCard.appendChild(teamHeader);
-        
-        // Container für Matches
-        const matchesContainer = document.createElement('div');
-        matchesContainer.className = 'team-matches-container';
-        
-        if (teamMatches.length === 0) {
-            // Keine Matches für dieses Team
-            const noMatches = document.createElement('div');
-            noMatches.className = 'no-matches';
-            noMatches.textContent = 'Keine Spiele für dieses Team gefunden.';
-            matchesContainer.appendChild(noMatches);
+    function getBatchLabel(match) {
+        if (!match) return '';
+        const half = match.isSecondHalf ? '2. H' : '1. H';
+        return `Rd. ${match.round} · ${half}`;
+    }
+
+    /**
+     * Rendert die 6 Tischkarten (ersetzt renderTeamsOverview).
+     */
+    function renderTableCards() {
+        tableCardsContainer.innerHTML = '';
+        const perTable = getMatchesPerTable();
+        for (let table = 1; table <= 6; table++) {
+            const { lastPlayed, current, next } = perTable[table];
+            const card = createTableCard(table, lastPlayed, current, next);
+            tableCardsContainer.appendChild(card);
+        }
+    }
+
+    /**
+     * Erstellt eine Tischkarte mit drei Sektionen: ZULETZT, JETZT, NÄCHSTES.
+     */
+    function createTableCard(tableNumber, lastPlayed, current, next) {
+        const card = document.createElement('div');
+        card.className = `table-card tisch-${tableNumber}`;
+
+        // Header
+        const header = document.createElement('div');
+        header.className = 'table-card-header';
+        header.textContent = `Tisch ${tableNumber}`;
+        card.appendChild(header);
+
+        // ZULETZT-Sektion
+        const zuletztSection = document.createElement('div');
+        zuletztSection.className = 'table-card-section';
+        const zuletztLabel = document.createElement('div');
+        zuletztLabel.className = 'section-label last';
+        zuletztLabel.textContent = 'Zuletzt';
+        zuletztSection.appendChild(zuletztLabel);
+        if (lastPlayed) {
+            const team1Won = lastPlayed.score1 > lastPlayed.score2;
+            const team2Won = lastPlayed.score2 > lastPlayed.score1;
+            zuletztSection.innerHTML += `
+                <div class="match-result-row">
+                    <span class="team-name ${team1Won ? 'winner' : ''}">${lastPlayed.team1}</span>
+                    <span class="result-score">${lastPlayed.score1}:${lastPlayed.score2}</span>
+                    <span class="team-name ${team2Won ? 'winner' : ''}">${lastPlayed.team2}</span>
+                </div>
+                <div class="round-info">${getBatchLabel(lastPlayed)}</div>
+            `;
         } else {
-            // Matches nach Runden gruppieren
-            const matchesByRound = groupMatchesByRound(teamMatches);
-            
-            // Für jede Runde die Matches anzeigen
-            for (const round in matchesByRound) {
-                const roundGroup = createRoundGroup(round, matchesByRound[round], teamName);
-                matchesContainer.appendChild(roundGroup);
-            }
+            zuletztSection.innerHTML += `<div class="no-games-text">–</div>`;
         }
-        
-        teamCard.appendChild(matchesContainer);
-        
-        return teamCard;
-    }
-    
-    /**
-     * Gruppiert Matches nach Runden
-     * @param {Array} matches - Die zu gruppierenden Matches
-     * @returns {Object} - Ein Objekt mit Runden-Nummern als Schlüssel und Arrays von Matches als Werte
-     */
-    function groupMatchesByRound(matches) {
-        const matchesByRound = {};
-        
-        matches.forEach(match => {
-            if (!matchesByRound[match.round]) {
-                matchesByRound[match.round] = [];
-            }
-            
-            matchesByRound[match.round].push(match);
-        });
-        
-        return matchesByRound;
-    }
-    
-    /**
-     * Erstellt eine Rundengruppe mit Matches
-     * @param {number} round - Die Rundennummer
-     * @param {Array} matches - Die Matches dieser Runde
-     * @param {string} teamName - Der Name des Teams, für das die Übersicht erstellt wird
-     * @returns {HTMLElement} - Das erstellte Element
-     */
-    function createRoundGroup(round, matches, teamName) {
-        const roundGroup = document.createElement('div');
-        roundGroup.className = 'round-group';
-        
-        // Matches dieser Runde anzeigen
-        matches.forEach(match => {
-            const matchEntry = createMatchEntry(match, teamName, round);
-            roundGroup.appendChild(matchEntry);
-        });
-        
-        return roundGroup;
-    }
-    
-/**
- * Erstellt einen Match-Eintrag
- * @param {Object} match - Das Match-Objekt
- * @param {string} teamName - Der Name des Teams, für das die Übersicht erstellt wird
- * @param {number} round - Die Rundennummer
- * @returns {HTMLElement} - Das erstellte Element
- */
-function createMatchEntry(match, teamName, round) {
-    const matchEntry = document.createElement('div');
-    matchEntry.className = `match-entry tisch-${match.tableNumber || 1}`;
-    
-    // Match-Info mit Halbzeit-Symbol
-    const matchInfo = document.createElement('div');
-    matchInfo.className = 'match-info';
-    
-    // Halbzeit-Symbol erstellen
-    const roundHalfInfo = document.createElement('div');
-    roundHalfInfo.className = 'round-half-info';
-    
-    // Symbol je nach Halbzeit wählen
-    if (match.isSecondHalf) {
-        // Zweite Hälfte: Zwei Punkte übereinander
-        roundHalfInfo.innerHTML = `
-            <div class="half-symbol second-half-symbol">
-                <span class="dot"></span>
-                <span class="dot"></span>
-            </div>
-        `;
-    } else {
-        // Erste Hälfte: Ein einzelner Punkt
-        roundHalfInfo.innerHTML = `
-            <div class="half-symbol first-half-symbol">
-                <span class="dot"></span>
-            </div>
-        `;
-    }
-    
-    // Halbzeit-Symbol zur Match-Info hinzufügen
-    matchInfo.appendChild(roundHalfInfo);
-    
-    // Match-Info zum Match-Entry hinzufügen
-    matchEntry.appendChild(matchInfo);
-    
-    // Gegner und Ergebnis nebeneinander
-    const matchContent = document.createElement('div');
-    matchContent.className = 'match-content';
-    
-    // Gegner-Name bestimmen
-    const isTeam1 = match.isTeam1;
-    const opponentName = isTeam1 ? match.team2 : match.team1;
-    
-    // Eigener Score und Gegner-Score
-    const ownScore = isTeam1 ? match.score1 : match.score2;
-    const opponentScore = isTeam1 ? match.score2 : match.score1;
-    
-    // Gegner-Name und Ergebnis nebeneinander anzeigen
-    if (match.played) {
-        // Ergebnis anzeigen
-        let resultClass = '';
-        if (ownScore > opponentScore) {
-            resultClass = 'team-won';
-        } else if (ownScore < opponentScore) {
-            resultClass = 'team-lost';
+        card.appendChild(zuletztSection);
+
+        // JETZT-Sektion
+        const jetztSection = document.createElement('div');
+        jetztSection.className = 'table-card-section';
+        const jetztLabel = document.createElement('div');
+        jetztLabel.className = 'section-label current';
+        jetztLabel.textContent = 'Jetzt';
+        jetztSection.appendChild(jetztLabel);
+        if (current) {
+            jetztSection.innerHTML += `
+                <div class="match-teams-row">
+                    <span class="team-name">${current.team1}</span>
+                    <span class="vs-sep">vs</span>
+                    <span class="team-name">${current.team2}</span>
+                </div>
+                <div class="round-info">${getBatchLabel(current)}</div>
+            `;
         } else {
-            resultClass = 'team-draw';
+            jetztSection.innerHTML += `<div class="pause-text">Pause</div>`;
         }
-        
-        matchContent.innerHTML = `
-            <span class="opponent-name">${opponentName}</span>
-            <span class="match-score ${resultClass}">${ownScore}:${opponentScore}</span>
-        `;
-    } else {
-        // Noch kein Ergebnis
-        matchContent.innerHTML = `
-            <span class="opponent-name">${opponentName}</span>
-            <span class="no-result">-:-</span>
-        `;
+        card.appendChild(jetztSection);
+
+        // NÄCHSTES-Sektion
+        const naechstesSection = document.createElement('div');
+        naechstesSection.className = 'table-card-section';
+        const naechstesLabel = document.createElement('div');
+        naechstesLabel.className = 'section-label next';
+        naechstesLabel.textContent = 'Nächstes';
+        naechstesSection.appendChild(naechstesLabel);
+        if (next) {
+            naechstesSection.innerHTML += `
+                <div class="match-teams-row">
+                    <span class="team-name">${next.team1}</span>
+                    <span class="vs-sep">vs</span>
+                    <span class="team-name">${next.team2}</span>
+                </div>
+                <div class="round-info">${getBatchLabel(next)}</div>
+            `;
+        } else {
+            naechstesSection.innerHTML += `<div class="no-games-text">–</div>`;
+        }
+        card.appendChild(naechstesSection);
+
+        return card;
     }
-    
-    // Match-Content zum Match-Entry hinzufügen
-    matchEntry.appendChild(matchContent);
-    
-    return matchEntry;
-}
     
     /**
      * Setzt einen Status-Text
@@ -646,20 +540,5 @@ function findTies(sortedStandings) {
     return ties;
 }
 
-/**
- * Entfernt die Höhenangleichung der Runden-Gruppen
- */
-function höhenAngleichungEntfernen() {
-    // Entferne die Klasse, die für die Höhenangleichung sorgt
-    document.querySelectorAll('.round-groups-equalized').forEach(element => {
-        element.classList.remove('round-groups-equalized');
-    });
-    
-    // Setze alle manuell gesetzten Höhen zurück
-    document.querySelectorAll('.round-group, .team-matches-container, .team-overview-card').forEach(element => {
-        element.style.height = 'auto';
-        element.style.minHeight = '0';
-    });
-}
 
 });
