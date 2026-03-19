@@ -19,7 +19,7 @@
     gap: 0.75rem;
     width: 100%;
     min-height: calc(100vh - 11rem);
-    align-items: start;
+    align-items: stretch;
 }
 
 .gegner-header {
@@ -319,8 +319,8 @@
 
 /* ─── Standings-Sektion (rechts) – Glassmorphism ─── */
 .standings-section {
-    /* Dunkles Glas-Panel – neutrales Dunkelblau */
-    background: linear-gradient(160deg, #1e2240 0%, #0b0c18 100%);
+    /* Dunkles Glas-Panel – Dunkelgrau (Standardfarbe) */
+    background: linear-gradient(160deg, #333333 0%, #111111 100%);
     border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 14px;
     overflow: hidden;
@@ -328,6 +328,8 @@
         0 8px 32px rgba(0, 0, 0, 0.4),
         inset 0 1px 0 rgba(255, 255, 255, 0.1);
     font-family: 'Space Mono', 'Courier New', monospace;
+    /* Höhe füllt die Grid-Zelle komplett */
+    align-self: stretch;
 }
 
 .standings-table {
