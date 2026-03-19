@@ -104,7 +104,7 @@
 
 /* ─── Sektionen – Basis ─── */
 .table-card-section {
-    padding: 0.65rem 1rem;
+    padding: 0.8rem 1.1rem;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -116,9 +116,23 @@
     background: rgba(0, 0, 0, 0.10);
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     flex: 0 0 auto;
-    padding: 0.28rem 1rem;  /* sehr kompakt */
+    padding: 0.3rem 1.1rem;
+}
+
+/* Trennlinie unter ZULETZT – Gradient-Balken */
+.section-last::after {
+    content: '';
+    display: block;
+    position: absolute;
+    bottom: 0; left: 8%; right: 8%;
+    height: 2px;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(255,255,255,0.45) 30%,
+        rgba(255,255,255,0.45) 70%,
+        transparent 100%);
+    border-radius: 1px;
 }
 
 /* JETZT – helles Glas, dominant, füllt den Raum */
@@ -126,36 +140,49 @@
     background: rgba(255, 255, 255, 0.32);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.25);
-    border-top: 1px solid rgba(255, 255, 255, 0.25);
     flex: 1;
-    padding: 1rem 1.1rem;
+    padding: 1.1rem 1.2rem;
     justify-content: center;
-    gap: 0.35rem;
+    gap: 0.5rem;
 }
 
-/* NÄCHSTES – mittlere Helligkeit + linker Akzentrand */
+/* Trennlinie unter JETZT */
+.section-current::after {
+    content: '';
+    display: block;
+    position: absolute;
+    bottom: 0; left: 5%; right: 5%;
+    height: 2px;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(255,255,255,0.55) 20%,
+        rgba(255,255,255,0.55) 80%,
+        transparent 100%);
+    border-radius: 1px;
+}
+
+/* NÄCHSTES – mittlere Helligkeit */
 .section-next {
     background: rgba(255, 255, 255, 0.15);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     border-left: 3px solid rgba(255, 255, 255, 0.5);
-    border-top: 1px solid rgba(255, 255, 255, 0.12);
     flex: 0 0 auto;
+    padding: 0.85rem 1.1rem;
 }
 
 /* ─── Sektions-Labels ─── */
 .section-label {
-    font-size: 0.58rem;
+    font-size: 0.68rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.18em;
-    margin-bottom: 0.35rem;
+    letter-spacing: 0.2em;
+    margin-bottom: 0.5rem;
 }
 
 /* ZULETZT-Label komplett ausblenden */
 .section-last    .section-label { display: none; }
-.section-current .section-label { color: rgba(255, 255, 255, 0.75); }
+.section-current .section-label { color: rgba(255, 255, 255, 0.72); }
 .section-next    .section-label { color: rgba(255, 255, 255, 0.62); }
 
 /* ─── Match-Zeilen ─── */
@@ -165,6 +192,13 @@
     align-items: center;
     gap: 0.4rem;
     flex-wrap: nowrap;
+}
+
+/* JETZT: Teams vertikal gestapelt – füllt den Raum */
+.section-current .match-teams-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.15rem;
 }
 
 /* ─── Teamnamen – je Sektion unterschiedliche Gewichtung ─── */
@@ -177,23 +211,27 @@
     font-weight: 700;
 }
 
-/* JETZT: uppercase, Monospace, dominant */
+/* JETZT: groß, vertikal, füllt Raum */
 .section-current .team-name {
     color: #fff;
-    font-size: 1.15rem;         /* kleiner als vorher – Space Mono ist breiter */
+    font-size: 1.6rem;
     font-weight: 700;
-    letter-spacing: 0.03em;
+    letter-spacing: 0.02em;
     text-transform: uppercase;
-    text-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
 }
 
 /* NÄCHSTES: uppercase, gut sichtbar */
 .section-next .team-name {
-    color: rgba(255, 255, 255, 0.88);
-    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1.05rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.03em;
 }
 
 /* ZULETZT: winzig, 35% opak – fast unsichtbar */
@@ -217,8 +255,14 @@
     flex-shrink: 0;
 }
 
-.section-current .vs-sep { color: rgba(255, 255, 255, 0.42); font-size: 0.8rem; }
-.section-next    .vs-sep { color: rgba(255, 255, 255, 0.32); font-size: 0.72rem; }
+/* JETZT: vs steht jetzt zwischen den gestapelten Teams – kleiner Einzug */
+.section-current .vs-sep {
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 0.75rem;
+    padding-left: 0.2rem;
+    letter-spacing: 0.1em;
+}
+.section-next    .vs-sep { color: rgba(255, 255, 255, 0.35); font-size: 0.75rem; }
 .section-last    .vs-sep { color: rgba(255, 255, 255, 0.22); font-size: 0.65rem; }
 
 /* ─── Ergebnis-Badge – im ZULETZT kein Badge, nur Text ─── */
