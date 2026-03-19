@@ -1,67 +1,39 @@
-/* 
-* LAOS 2.0 - Gegner-Übersicht-spezifisches CSS mit Vorrunden-Match-Karten-Design
-* Dieses Stylesheet enthält Stile, die nur auf der Gegner-Übersicht-Seite verwendet werden.
-* Aktualisiert mit einheitlicher Größe für round-group-Elemente und Verbindungsstatus
+/*
+* LAOS 2.0 - Gegner-Übersicht CSS
+* Glassmorphism + Space Mono: Karte = Tischfarb-Gradient, Sektionen = Glas-Panels
+* Font: Space Mono (Google Fonts) – technisch, terminal-artig
 */
 
-/* Gegner-Übersicht Container */
+/* ─── CSS-Variablen je Tisch ─── */
+.table-card.tisch-1 { --tisch-color: #D50F0D; --tisch-color-dark: #7a0908; --tisch-text: #fff; }
+.table-card.tisch-2 { --tisch-color: #FF6600; --tisch-color-dark: #b34600; --tisch-text: #fff; }
+.table-card.tisch-3 { --tisch-color: #6e72c4; --tisch-color-dark: #3d4196; --tisch-text: #fff; }
+.table-card.tisch-4 { --tisch-color: #4d9e7f; --tisch-color-dark: #286652; --tisch-text: #fff; }
+.table-card.tisch-5 { --tisch-color: #A48876; --tisch-color-dark: #6d5546; --tisch-text: #fff; }
+.table-card.tisch-6 { --tisch-color: #666666; --tisch-color-dark: #2e2e2e; --tisch-text: #fff; }
+
+/* ─── Hauptlayout ─── */
 .gegner-container {
     display: grid;
-    grid-template-columns: 80fr 20fr; /* Verhältnis 5:1 wie gewünscht */
-    gap: 0.5rem; /* Kleiner Abstand zwischen Teams und Tabelle */
+    grid-template-columns: 80fr 20fr;
+    gap: 0.75rem;
     width: 100%;
-    margin: 0 auto;
-    background-color: transparent;
-    border-radius: 12px;
+    min-height: calc(100vh - 11rem);
+    align-items: stretch;
 }
-
 
 .gegner-header {
     display: flex;
-    justify-content: right;
-    align-items: right;
-    margin-bottom: 1.5rem;
-    flex-wrap: wrap;
-    gap: 1rem;
-    padding-top:1rem;
-}
-
-.gegner-title {
-    color: var(--color-blue-dark);
-    font-size: 2.5rem;
-    position: relative;
-    display: inline-block;
-}
-
-.gegner-title:after {
-    content: "";
-    position: absolute;
-    bottom: -10px;
-    left: 0;
-    width: 100px;
-    height: 3px;
-    background: linear-gradient(to right, var(--color-blue), var(--color-orange));
-    border-radius: 2px;
+    justify-content: flex-end;
+    align-items: center;
+    padding-top: 0.5rem;
+    padding-bottom: 0.25rem;
 }
 
 .last-update {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     color: var(--color-medium-gray);
     font-style: italic;
-    align-items: right;
-}
-
-.pending-badge {
-    display: inline-block;
-    background-color: #ffc107;
-    color: #000;
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    text-align: center;
-    font-size: 0.8rem;
-    line-height: 20px;
-    margin-left: 0.5rem;
 }
 
 /* Status-Container */
@@ -72,428 +44,424 @@
     background-color: transparent;
 }
 
-.status-warning {
-    background-color: #fff3cd;
-    color: #856404;
-    border-left: 5px solid #ffeeba;
-}
+.status-warning  { background-color: #fff3cd; color: #856404; border-left: 5px solid #ffeeba; }
+.status-error    { background-color: #f8d7da; color: #721c24; border-left: 5px solid #f5c6cb; }
+.status-success  { background-color: #d4edda; color: #155724; border-left: 5px solid #c3e6cb; }
+.status-info     { background-color: #cce5ff; color: #004085; border-left: 5px solid #b8daff; }
 
-.status-error {
-    background-color: #f8d7da;
-    color: #721c24;
-    border-left: 5px solid #f5c6cb;
-}
-
-.status-success {
-    background-color: #d4edda;
-    color: #155724;
-    border-left: 5px solid #c3e6cb;
-}
-
-.status-info {
-    background-color: #cce5ff;
-    color: #004085;
-    border-left: 5px solid #b8daff;
-}
-
-/* Teams-Übersicht-Grid */
-.teams-overview-container {
+/* ─── Tischkarten-Grid ─── */
+.table-cards-container {
     display: grid;
-    grid-template-columns: repeat(6, 1fr); /* Genau 8 gleich breite Karten pro Zeile */
-    gap: 0.1rem; /* Minimaler Abstand zwischen Karten */
-    margin-top: 0.1rem;
-    align-items: start !important;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 0.85rem;
+    min-height: calc(100vh - 11rem);
+    align-items: stretch;
 }
 
-/* Team-Karte */
-.team-overview-card {
+/* ─── Einzelne Tischkarte – Farbblock mit Glassmorphism ─── */
+.table-card {
+    /* Karte = kräftiger Tischfarb-Gradient */
+    background: linear-gradient(160deg, var(--tisch-color) 0%, var(--tisch-color-dark) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.32),
+        inset 0 1px 0 rgba(255, 255, 255, 0.18);
     display: flex;
     flex-direction: column;
-    background-color: white;
-    border-radius: 6px;
-    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
-    overflow: visible;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    font-size: 0.75rem;
-    height: auto; /* Let the card take only the space it needs */
+    height: 100%;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+    /* Space Mono für alle Karten-Inhalte */
+    font-family: 'Space Mono', 'Courier New', monospace;
 }
 
-.team-overview-card:hover {
+.table-card:hover {
+    box-shadow:
+        0 14px 40px rgba(0, 0, 0, 0.38),
+        inset 0 1px 0 rgba(255, 255, 255, 0.22);
     transform: translateY(-3px);
-    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
 }
 
-/* Team-Header */
-.team-overview-header {
-    background-color: var(--color-blue);
-    color: white;
-    font-weight: bold;
-    font-size: 1.5rem;
+/* ─── Glas-Header ─── */
+.table-card-header {
+    background: rgba(0, 0, 0, 0.22);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+    color: #fff;
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;           /* Space Mono: nur 400 und 700 */
+    font-size: 1.15rem;         /* Monospace braucht etwas weniger */
     text-align: center;
-    border-radius: 6px;
+    padding: 0.65rem 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.4);
+    flex: 0 0 auto;
+}
+
+/* ─── Sektionen – Basis ─── */
+.table-card-section {
+    padding: 0.8rem 1.1rem;
     display: flex;
+    flex-direction: column;
     justify-content: center;
-    align-items: center;
-    word-wrap: break-word; /* Wichtig für Zeilenumbrüche */
-    overflow-wrap: break-word;
-    hyphens: auto;
-}
-
-
-/* Matches-Container */
-.team-matches-container {
-    padding: 0.2rem;
-    display: flex;
-    flex-direction: column;
-    overflow-y: visible; /* Kein Scrollen */
-        flex: 0 0 auto !important;
-    height: auto !important;
-}
-
-/* Runden-Gruppe mit einheitlicher Größe */
-.round-group {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 0; /* Prevent expanding beyond content */
-        min-height: 0 !important;
-}
-
-/* Match-Eintrag im Vorrunden-Stil */
-.match-entry {
-    display: grid;
-    grid-template-columns: 1fr 20fr; /* Match-info 2fr, Match-content 3fr */
-    padding: 0.2rem;
-    border-radius: 8px;
     position: relative;
-    background-color: white;
-    color: var(--color-dark-gray);
-    transition: all 0.3s ease;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    align-items: center; /* Vertikale Zentrierung */
 }
 
-.match-entry:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+/* ZULETZT – fast unsichtbar, archiviert */
+.section-last {
+    background: rgba(0, 0, 0, 0.10);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    flex: 0 0 auto;
+    padding: 0.3rem 1.1rem;
 }
 
-/* Tisch-Farben mit 60% Hintergrund und 100% Rand */
-.match-entry.tisch-1 {
-    border-left: 6px solid #D50F0D; /* Rot 100% */
-    background-color: rgba(213, 15, 13, 0.6); /* 60% roter Hintergrund */
-}
-
-.match-entry.tisch-2 {
-    border-left: 6px solid #FF6600; /* Orange 100% */
-    background-color: rgba(255, 102, 0, 0.6); /* 60% oranger Hintergrund */
-}
-
-.match-entry.tisch-3 {
-    border-left: 6px solid #8E91DF; /* Blau 100% */
-    background-color: rgba(142, 145, 223, 0.6); /* 60% blauer Hintergrund */
-}
-
-.match-entry.tisch-4 {
-    border-left: 6px solid #ADDDC8; /* Grün 100% */
-    background-color: rgba(173, 221, 200, 0.6); /* 60% grüner Hintergrund */
-}
-
-.match-entry.tisch-5 {
-    border-left: 6px solid #A48876; /* Braun 100% */
-    background-color: rgba(164, 136, 118, 0.6); /* 60% brauner Hintergrund */
-}
-
-.match-entry.tisch-6 {
-    border-left: 6px solid #666666; /* Grau 100% */
-    background-color: rgba(102, 102, 102, 0.6); /* 60% grauer Hintergrund */
-}
-
-.match-entry:last-child {
-    margin-bottom: 0;
-}
-
-/* Match-Info (Runde und Hälfte) */
-.match-info {
-    font-size: 1.25rem;
-    font-weight: 500;
-    display: flex;
-    flex-direction: column;
-    padding: 0.2rem;
-    justify-content: center; /* Center the content vertically */
-    align-items: center; /* Center horizontally too */
-}
-/* Neue Klasse für Rundeninfo (obere Zeile) */
-.round-half-info {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-radius: 4px;
-}
-
-/* Base container for both half symbols */
-.half-symbol {
-    display: flex;
-    flex-direction: column; /* Stacked layout for dots */
-    align-items: center;
-    justify-content: center;
-    gap: 3px; /* Space between dots for the second half */
-    height: 100%;
-    padding: 2px 0; /* Small padding for visual balance */
-}
-
-/* Basic dot styling */
-.dot {
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    background-color: #555; /* Slightly lighter than black for a more subtle look */
+/* Trennlinie unter ZULETZT – Gradient-Balken */
+.section-last::after {
+    content: '';
     display: block;
-}
-
-
-
-/* Tisch-Info als zweite Zeile */
-.tisch-info {
-    font-size: 1rem;
-    color: black;
-        font-weight: bold;
-
-}
-
-/* Gegner-Name und Ergebnis nebeneinander */
-.match-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: rgba(255, 255, 255, 0.2);
-    border-radius: 4px;
-}
-
-/* Gegner-Name */
-.opponent-name {
-    font-weight: 600;
-    font-size: 1.25rem;
-    color: var(--color-dark-gray);
-}
-
-/* Match-Ergebnis */
-.match-score {
-    font-weight: bold;
-    padding: 0.2rem;
-    border-radius: 3px;
-    font-size: 1.5rem;
-    background-color: rgba(255, 255, 255, 0.8);
-    padding: 0.2rem;
-}
-
-.no-result {
-    font-style: italic;
-    color: var(--color-dark-gray);
-    font-size: 1.5rem;
-    background-color: rgba(255, 255, 255, 0.5);
-    padding: 0.2rem;
-    border-radius: 3px;
-}
-
-/* Ergebnis-Stile */
-.team-won {
-    background-color: rgba(173, 221, 200, 0.9);
-    color: var(--color-dark-gray);
-}
-
-.team-lost {
-    background-color: rgba(213, 15, 13, 0.8);
-    color: white;
-}
-
-.team-draw {
-    background-color: rgba(255, 255, 255, 0.8);
-    color: var(--color-dark-gray);
-}
-
-/* Wenn keine Matches vorhanden sind */
-.no-matches {
-    padding: 0.2rem;
-    text-align: center;
-    color: var(--color-medium-gray);
-    font-style: italic;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-}
-
-/* Marker für gespielte Matches */
-.played-marker {
     position: absolute;
-    top: 0;
-    right: 0;
-    width: 0;
-    height: 0;
-    border-style: solid;
-    border-width: 0 20px 20px 0;
-    border-color: transparent rgba(255, 255, 255, 0.9) transparent transparent;
+    bottom: 0; left: 8%; right: 8%;
+    height: 2px;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(255,255,255,0.45) 30%,
+        rgba(255,255,255,0.45) 70%,
+        transparent 100%);
+    border-radius: 1px;
 }
 
-/* Remove any JavaScript-added equalizing classes */
-.round-groups-equalized .round-group {
-    min-height: 0 !important; /* Force override any JavaScript-set height */
-    height: auto !important;
-}
-        
-/* Responsive Design */
-@media (max-width: 1600px) {
-    .teams-overview-container {
-        grid-template-columns: repeat(6, 1fr);
-    }
+/* JETZT – helles Glas, dominant, füllt den Raum */
+.section-current {
+    background: rgba(255, 255, 255, 0.32);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    flex: 1;
+    padding: 1.1rem 1.2rem;
+    justify-content: center;
+    gap: 0.5rem;
 }
 
-@media (max-width: 1200px) {
-    .teams-overview-container {
-        grid-template-columns: repeat(4, 1fr);
-    }
+/* Trennlinie unter JETZT */
+.section-current::after {
+    content: '';
+    display: block;
+    position: absolute;
+    bottom: 0; left: 5%; right: 5%;
+    height: 2px;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(255,255,255,0.55) 20%,
+        rgba(255,255,255,0.55) 80%,
+        transparent 100%);
+    border-radius: 1px;
 }
 
-@media (max-width: 900px) {
-    .teams-overview-container {
-        grid-template-columns: repeat(3, 1fr);
-    }
-    
-    .gegner-header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    
-    .connection-status {
-        margin-bottom: 0.5rem;
-    }
+/* NÄCHSTES – mittlere Helligkeit */
+.section-next {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-left: 3px solid rgba(255, 255, 255, 0.5);
+    flex: 0 0 auto;
+    padding: 0.85rem 1.1rem;
 }
 
-@media (max-width: 600px) {
-    .teams-overview-container {
-        grid-template-columns: repeat(2, 1fr);
-    }
-    
-    .connection-status {
-        font-size: 0.8rem;
-        padding: 0.2rem 0.4rem;
-    }
+/* ─── Sektions-Labels ─── */
+.section-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    margin-bottom: 0.5rem;
 }
 
-@media (max-width: 400px) {
-    .teams-overview-container {
-        grid-template-columns: 1fr;
-    }
+/* ZULETZT-Label komplett ausblenden */
+.section-last    .section-label { display: none; }
+.section-current .section-label { color: rgba(255, 255, 255, 0.72); }
+.section-next    .section-label { color: rgba(255, 255, 255, 0.62); }
+
+/* ─── Match-Zeilen ─── */
+.match-teams-row,
+.match-result-row {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-wrap: nowrap;
 }
 
-/* Tabellen-Stile von vorrunde.css */
+/* JETZT: Teams vertikal gestapelt – füllt den Raum */
+.section-current .match-teams-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.15rem;
+}
+
+/* ─── Teamnamen – je Sektion unterschiedliche Gewichtung ─── */
+.team-name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 700;
+}
+
+/* JETZT: groß, vertikal, füllt Raum */
+.section-current .team-name {
+    color: #fff;
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+/* NÄCHSTES: uppercase, gut sichtbar */
+.section-next .team-name {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1.05rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+/* ZULETZT: winzig, 35% opak – fast unsichtbar */
+.section-last .team-name {
+    color: rgba(255, 255, 255, 0.35);
+    font-size: 0.68rem;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.team-name.winner {
+    color: rgba(255, 255, 255, 0.96) !important;
+    font-weight: 900;
+}
+
+/* ─── Trennzeichen ─── */
+.vs-sep {
+    font-weight: 400;
+    font-style: italic;   /* kursiv für Kontrast zur Monospace-Gerade */
+    flex-shrink: 0;
+}
+
+/* JETZT: vs steht jetzt zwischen den gestapelten Teams – kleiner Einzug */
+.section-current .vs-sep {
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 0.75rem;
+    padding-left: 0.2rem;
+    letter-spacing: 0.1em;
+}
+.section-next    .vs-sep { color: rgba(255, 255, 255, 0.35); font-size: 0.75rem; }
+.section-last    .vs-sep { color: rgba(255, 255, 255, 0.22); font-size: 0.65rem; }
+
+/* ─── Ergebnis-Badge – im ZULETZT kein Badge, nur Text ─── */
+.result-score {
+    font-weight: 700;
+    font-size: 0.95rem;
+    background: rgba(0, 0, 0, 0.28);
+    color: rgba(255, 255, 255, 0.85);
+    padding: 0.1rem 0.4rem;
+    border-radius: 5px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    flex-shrink: 0;
+}
+
+/* Im ZULETZT: kein Badge, purer Text */
+.section-last .result-score {
+    background: transparent;
+    border: none;
+    padding: 0;
+    color: rgba(255, 255, 255, 0.38);
+    font-size: 0.68rem;
+    font-weight: 700;
+}
+
+/* ─── Runden-Info mit Klammern ─── */
+.round-info {
+    font-size: 0.62rem;
+    color: rgba(255, 255, 255, 0.45);
+    margin-top: 0.15rem;
+    letter-spacing: 0.06em;
+}
+
+.round-info::before { content: '['; }
+.round-info::after  { content: ']'; }
+
+.section-last .round-info {
+    color: rgba(255, 255, 255, 0.22);
+    font-size: 0.55rem;
+}
+
+/* ─── Leer-/Pause-Zustände ─── */
+.pause-text {
+    font-style: italic;
+    font-size: 0.95rem;
+}
+.section-current .pause-text { color: rgba(255, 255, 255, 0.62); }
+.section-next    .pause-text { color: rgba(255, 255, 255, 0.4); }
+.section-last    .pause-text { color: rgba(255, 255, 255, 0.28); font-size: 0.68rem; }
+
+.no-games-text {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.28);
+}
+
+/* ─── Standings-Sektion (rechts) – Glassmorphism ─── */
 .standings-section {
-    border-radius: 8px;
-    margin-bottom: 2rem;
+    /* Dunkles Glas-Panel – Dunkelgrau (Standardfarbe) */
+    background: linear-gradient(160deg, #333333 0%, #111111 100%);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    font-family: 'Space Mono', 'Courier New', monospace;
+    /* Höhe füllt die Grid-Zelle komplett */
+    align-self: stretch;
 }
 
-/* Aktualisierte Stile für die Tabelle */
 .standings-table {
     width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    font-size: 1.25rem;
-    overflow: hidden;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    background-color: #f9f9f9;
-    border-radius: 8px;
-        font-weight: 1500;
-    font-weight: bold;
+    border-collapse: collapse;
+    font-size: 0.78rem;
+    font-family: 'Space Mono', monospace;
+    background: transparent;
 }
 
-/* Nur äußere Ecken abgerundet */
-.standings-table thead tr:first-child th:first-child {
-    border-top-left-radius: 8px;
+/* ─── Tabellen-Header ─── */
+.standings-table thead tr {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(6px);
 }
 
-.standings-table thead tr:first-child th:last-child {
-    border-top-right-radius: 8px;
-}
-
-.standings-table tbody tr:last-child td:first-child {
-    border-bottom-left-radius: 8px;
-}
-
-.standings-table tbody tr:last-child td:last-child {
-    border-bottom-right-radius: 8px;
-}
-
-.standings-table th,
-.standings-table td {
-    padding: 0.2rem;
-    text-align: center;
-    border-bottom: 1px solid #e5e5e5;
-}
-
-/* Hover-Effekt für Zeilen */
-.standings-table tbody tr:hover {
-    background-color: #dd3f3d;
-    transition: background-color 0.2s ease;
-}
-
-/* Kopfzeile mit der gewünschten Farbe */
 .standings-table th {
-    background-color: #c8b8ad;
-    color: #ffffff;
-    font-weight: 1500;
-    font-weight: bold;
-    border-bottom: 2px solid #b8a89d;
+    color: rgba(255, 255, 255, 0.55);
+    font-weight: 700;
+    font-size: 0.58rem;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    padding: 0.7rem 0.4rem;
+    text-align: center;
+    border-bottom: none;
+    position: relative;
 }
 
-.standings-table .team-col {
-    text-align: left;
-    min-width: 120px;
+/* Gradient-Trennlinie unter dem Header */
+.standings-table thead tr::after {
+    content: '';
+    display: block;
+    position: absolute;
+    bottom: 0; left: 5%; right: 5%;
+    height: 1px;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(255,255,255,0.35) 25%,
+        rgba(255,255,255,0.35) 75%,
+        transparent 100%);
 }
 
-.standings-table .pos-col {
-    width: 40px;
+/* ─── Tabellenzeilen ─── */
+.standings-table td {
+    padding: 0.45rem 0.4rem;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.75);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-.standings-table .stat-col {
-    width: 60px;
+.standings-table tbody tr:hover td {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    transition: background 0.15s ease, color 0.15s ease;
 }
 
-/* Dickere Linie zwischen Platz 4 und 5 */
-.standings-table tbody tr:nth-child(4) td {
-    border-bottom: 3px solid #b8a89d;
-}
-
-/* Dickere Linie zwischen Platz 12 und 13 */
-.standings-table tbody tr:nth-child(12) td {
-    border-bottom: 3px solid #b8a89d;
-}
-
-/* Dezentere Farbgebung für qualifizierte Teams */
-.standings-table .direct-qualifier {
-    background-color: rgba(200, 184, 173, 0.2);
+/* ─── Qualifikations-Zonen ─── */
+.standings-table .direct-qualifier td {
+    background: rgba(255, 255, 255, 0.07);
+    color: rgba(255, 255, 255, 0.9);
 }
 
 .standings-table .direct-qualifier .pos-col {
-    background-color: rgba(180, 164, 153, 0.6);
-    color: #333;
-    font-weight: bold;
+    color: #fff;
+    font-weight: 700;
 }
 
-.standings-table .playoff-qualifier {
-    background-color: rgba(200, 184, 173, 0.1);
+.standings-table .playoff-qualifier td {
+    background: rgba(255, 255, 255, 0.03);
+    color: rgba(255, 255, 255, 0.7);
 }
 
-.standings-table .playoff-qualifier .pos-col {
-    background-color: rgba(180, 164, 153, 0.3);
-    color: #333;
+/* Gradient-Trennlinie nach Direktqualifikanten (4. Platz) */
+.standings-table tbody tr:nth-child(4) td {
+    border-bottom: none;
+    position: relative;
+}
+.standings-table tbody tr:nth-child(4) td::after {
+    content: '';
+    display: block;
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(255,255,255,0.4) 20%,
+        rgba(255,255,255,0.4) 80%,
+        transparent 100%);
 }
 
-/* Gleichstand-Marker in der Tabelle */
+/* Gradient-Trennlinie nach Playoff-Qualifikanten (12. Platz) */
+.standings-table tbody tr:nth-child(12) td {
+    border-bottom: none;
+    position: relative;
+}
+.standings-table tbody tr:nth-child(12) td::after {
+    content: '';
+    display: block;
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(255,255,255,0.25) 20%,
+        rgba(255,255,255,0.25) 80%,
+        transparent 100%);
+}
+
+/* ─── Spaltenbreiten ─── */
+.standings-table .team-col { text-align: left; }
+.standings-table .pos-col  { width: 28px; }
+.standings-table .stat-col { width: 36px; }
+
 .tie-marker {
     display: inline-block;
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
     background-color: #FFD700;
     border-radius: 50%;
-    margin-right: 5px;
+    margin-right: 4px;
+    vertical-align: middle;
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 900px) {
+    .gegner-header { flex-direction: column; align-items: flex-start; }
+}
+
+@media (max-width: 800px) {
+    .table-cards-container { grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(3, 1fr); }
+}
+
+@media (max-width: 500px) {
+    .table-cards-container { grid-template-columns: 1fr; grid-template-rows: repeat(6, auto); }
 }
