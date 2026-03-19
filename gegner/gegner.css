@@ -1,6 +1,7 @@
 /*
 * LAOS 2.0 - Gegner-Übersicht CSS
-* Glassmorphism-Design: Karte = Tischfarb-Gradient, Sektionen = Glas-Panels
+* Glassmorphism + Space Mono: Karte = Tischfarb-Gradient, Sektionen = Glas-Panels
+* Font: Space Mono (Google Fonts) – technisch, terminal-artig
 */
 
 /* ─── CSS-Variablen je Tisch ─── */
@@ -72,6 +73,8 @@
     flex-direction: column;
     height: 100%;
     transition: box-shadow 0.2s ease, transform 0.2s ease;
+    /* Space Mono für alle Karten-Inhalte */
+    font-family: 'Space Mono', 'Courier New', monospace;
 }
 
 .table-card:hover {
@@ -88,12 +91,13 @@
     -webkit-backdrop-filter: blur(6px);
     border-bottom: 1px solid rgba(255, 255, 255, 0.18);
     color: #fff;
-    font-weight: 900;
-    font-size: 1.4rem;
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;           /* Space Mono: nur 400 und 700 */
+    font-size: 1.15rem;         /* Monospace braucht etwas weniger */
     text-align: center;
     padding: 0.65rem 0.5rem;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.15em;
     text-shadow: 0 1px 6px rgba(0, 0, 0, 0.4);
     flex: 0 0 auto;
 }
@@ -107,13 +111,14 @@
     position: relative;
 }
 
-/* ZULETZT – dunkles Glas, zurückhaltend */
+/* ZULETZT – fast unsichtbar, archiviert */
 .section-last {
-    background: rgba(0, 0, 0, 0.28);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.10);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     flex: 0 0 auto;
+    padding: 0.28rem 1rem;  /* sehr kompakt */
 }
 
 /* JETZT – helles Glas, dominant, füllt den Raum */
@@ -142,13 +147,14 @@
 /* ─── Sektions-Labels ─── */
 .section-label {
     font-size: 0.58rem;
-    font-weight: 800;
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.18em;
     margin-bottom: 0.35rem;
 }
 
-.section-last    .section-label { color: rgba(255, 255, 255, 0.45); }
+/* ZULETZT-Label komplett ausblenden */
+.section-last    .section-label { display: none; }
 .section-current .section-label { color: rgba(255, 255, 255, 0.75); }
 .section-next    .section-label { color: rgba(255, 255, 255, 0.62); }
 
@@ -171,27 +177,32 @@
     font-weight: 700;
 }
 
-/* JETZT: groß, weiß, sehr fett */
+/* JETZT: uppercase, Monospace, dominant */
 .section-current .team-name {
     color: #fff;
-    font-size: 1.35rem;
-    font-weight: 900;
-    letter-spacing: 0.01em;
+    font-size: 1.15rem;         /* kleiner als vorher – Space Mono ist breiter */
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
     text-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
 }
 
-/* NÄCHSTES: gut sichtbar, leicht transparent */
+/* NÄCHSTES: uppercase, gut sichtbar */
 .section-next .team-name {
     color: rgba(255, 255, 255, 0.88);
-    font-size: 1.05rem;
+    font-size: 0.9rem;
     font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
 }
 
-/* ZULETZT: kleiner, gedämpft */
+/* ZULETZT: winzig, 35% opak – fast unsichtbar */
 .section-last .team-name {
-    color: rgba(255, 255, 255, 0.62);
-    font-size: 0.9rem;
-    font-weight: 600;
+    color: rgba(255, 255, 255, 0.35);
+    font-size: 0.68rem;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
 }
 
 .team-name.winner {
@@ -202,16 +213,17 @@
 /* ─── Trennzeichen ─── */
 .vs-sep {
     font-weight: 400;
+    font-style: italic;   /* kursiv für Kontrast zur Monospace-Gerade */
     flex-shrink: 0;
 }
 
-.section-current .vs-sep { color: rgba(255, 255, 255, 0.45); font-size: 0.95rem; }
-.section-next    .vs-sep { color: rgba(255, 255, 255, 0.35); font-size: 0.8rem; }
-.section-last    .vs-sep { color: rgba(255, 255, 255, 0.3);  font-size: 0.75rem; }
+.section-current .vs-sep { color: rgba(255, 255, 255, 0.42); font-size: 0.8rem; }
+.section-next    .vs-sep { color: rgba(255, 255, 255, 0.32); font-size: 0.72rem; }
+.section-last    .vs-sep { color: rgba(255, 255, 255, 0.22); font-size: 0.65rem; }
 
-/* ─── Ergebnis-Badge ─── */
+/* ─── Ergebnis-Badge – im ZULETZT kein Badge, nur Text ─── */
 .result-score {
-    font-weight: 800;
+    font-weight: 700;
     font-size: 0.95rem;
     background: rgba(0, 0, 0, 0.28);
     color: rgba(255, 255, 255, 0.85);
@@ -221,26 +233,44 @@
     flex-shrink: 0;
 }
 
-/* ─── Runden-Info ─── */
+/* Im ZULETZT: kein Badge, purer Text */
+.section-last .result-score {
+    background: transparent;
+    border: none;
+    padding: 0;
+    color: rgba(255, 255, 255, 0.38);
+    font-size: 0.68rem;
+    font-weight: 700;
+}
+
+/* ─── Runden-Info mit Klammern ─── */
 .round-info {
-    font-size: 0.65rem;
-    color: rgba(255, 255, 255, 0.48);
+    font-size: 0.62rem;
+    color: rgba(255, 255, 255, 0.45);
     margin-top: 0.15rem;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.06em;
+}
+
+.round-info::before { content: '['; }
+.round-info::after  { content: ']'; }
+
+.section-last .round-info {
+    color: rgba(255, 255, 255, 0.22);
+    font-size: 0.55rem;
 }
 
 /* ─── Leer-/Pause-Zustände ─── */
 .pause-text {
     font-style: italic;
-    font-size: 1rem;
+    font-size: 0.95rem;
 }
-.section-current .pause-text { color: rgba(255, 255, 255, 0.65); }
+.section-current .pause-text { color: rgba(255, 255, 255, 0.62); }
 .section-next    .pause-text { color: rgba(255, 255, 255, 0.4); }
-.section-last    .pause-text { color: rgba(255, 255, 255, 0.35); }
+.section-last    .pause-text { color: rgba(255, 255, 255, 0.28); font-size: 0.68rem; }
 
 .no-games-text {
-    font-size: 0.85rem;
-    color: rgba(255, 255, 255, 0.32);
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.28);
 }
 
 /* ─── Standings-Sektion (rechts) ─── */
