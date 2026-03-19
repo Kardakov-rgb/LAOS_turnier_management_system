@@ -268,7 +268,7 @@ async function refreshData() {
 
         // ZULETZT-Sektion
         const zuletztSection = document.createElement('div');
-        zuletztSection.className = 'table-card-section';
+        zuletztSection.className = 'table-card-section section-last';
         const zuletztLabel = document.createElement('div');
         zuletztLabel.className = 'section-label last';
         zuletztLabel.textContent = 'Zuletzt';
@@ -291,7 +291,7 @@ async function refreshData() {
 
         // JETZT-Sektion
         const jetztSection = document.createElement('div');
-        jetztSection.className = 'table-card-section';
+        jetztSection.className = 'table-card-section section-current';
         const jetztLabel = document.createElement('div');
         jetztLabel.className = 'section-label current';
         jetztLabel.textContent = 'Jetzt';
@@ -312,7 +312,7 @@ async function refreshData() {
 
         // NÄCHSTES-Sektion
         const naechstesSection = document.createElement('div');
-        naechstesSection.className = 'table-card-section';
+        naechstesSection.className = 'table-card-section section-next';
         const naechstesLabel = document.createElement('div');
         naechstesLabel.className = 'section-label next';
         naechstesLabel.textContent = 'Nächstes';
