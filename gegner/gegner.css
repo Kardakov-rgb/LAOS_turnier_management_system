@@ -317,67 +317,138 @@
     color: rgba(255, 255, 255, 0.28);
 }
 
-/* ─── Standings-Sektion (rechts) ─── */
+/* ─── Standings-Sektion (rechts) – Glassmorphism ─── */
 .standings-section {
-    border-radius: 8px;
-    margin-bottom: 2rem;
+    /* Dunkles Glas-Panel – neutrales Dunkelblau */
+    background: linear-gradient(160deg, #1e2240 0%, #0b0c18 100%);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    font-family: 'Space Mono', 'Courier New', monospace;
 }
 
 .standings-table {
     width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    font-size: 1.25rem;
-    overflow: hidden;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    font-weight: bold;
+    border-collapse: collapse;
+    font-size: 0.78rem;
+    font-family: 'Space Mono', monospace;
+    background: transparent;
 }
 
-.standings-table thead tr:first-child th:first-child { border-top-left-radius: 8px; }
-.standings-table thead tr:first-child th:last-child  { border-top-right-radius: 8px; }
-.standings-table tbody tr:last-child td:first-child  { border-bottom-left-radius: 8px; }
-.standings-table tbody tr:last-child td:last-child   { border-bottom-right-radius: 8px; }
-
-.standings-table th,
-.standings-table td {
-    padding: 0.2rem;
-    text-align: center;
-    border-bottom: 1px solid #e5e5e5;
-}
-
-.standings-table tbody tr:hover {
-    background-color: #dd3f3d;
-    transition: background-color 0.2s ease;
+/* ─── Tabellen-Header ─── */
+.standings-table thead tr {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(6px);
 }
 
 .standings-table th {
-    background-color: #c8b8ad;
-    color: #ffffff;
-    font-weight: bold;
-    border-bottom: 2px solid #b8a89d;
+    color: rgba(255, 255, 255, 0.55);
+    font-weight: 700;
+    font-size: 0.58rem;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    padding: 0.7rem 0.4rem;
+    text-align: center;
+    border-bottom: none;
+    position: relative;
 }
 
-.standings-table .team-col { text-align: left; min-width: 120px; }
-.standings-table .pos-col  { width: 40px; }
-.standings-table .stat-col { width: 60px; }
+/* Gradient-Trennlinie unter dem Header */
+.standings-table thead tr::after {
+    content: '';
+    display: block;
+    position: absolute;
+    bottom: 0; left: 5%; right: 5%;
+    height: 1px;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(255,255,255,0.35) 25%,
+        rgba(255,255,255,0.35) 75%,
+        transparent 100%);
+}
 
-.standings-table tbody tr:nth-child(4)  td { border-bottom: 3px solid #b8a89d; }
-.standings-table tbody tr:nth-child(12) td { border-bottom: 3px solid #b8a89d; }
+/* ─── Tabellenzeilen ─── */
+.standings-table td {
+    padding: 0.45rem 0.4rem;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.75);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
 
-.standings-table .direct-qualifier { background-color: rgba(200, 184, 173, 0.2); }
-.standings-table .direct-qualifier .pos-col { background-color: rgba(180, 164, 153, 0.6); color: #333; font-weight: bold; }
-.standings-table .playoff-qualifier { background-color: rgba(200, 184, 173, 0.1); }
-.standings-table .playoff-qualifier .pos-col { background-color: rgba(180, 164, 153, 0.3); color: #333; }
+.standings-table tbody tr:hover td {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+/* ─── Qualifikations-Zonen ─── */
+.standings-table .direct-qualifier td {
+    background: rgba(255, 255, 255, 0.07);
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.standings-table .direct-qualifier .pos-col {
+    color: #fff;
+    font-weight: 700;
+}
+
+.standings-table .playoff-qualifier td {
+    background: rgba(255, 255, 255, 0.03);
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* Gradient-Trennlinie nach Direktqualifikanten (4. Platz) */
+.standings-table tbody tr:nth-child(4) td {
+    border-bottom: none;
+    position: relative;
+}
+.standings-table tbody tr:nth-child(4) td::after {
+    content: '';
+    display: block;
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(255,255,255,0.4) 20%,
+        rgba(255,255,255,0.4) 80%,
+        transparent 100%);
+}
+
+/* Gradient-Trennlinie nach Playoff-Qualifikanten (12. Platz) */
+.standings-table tbody tr:nth-child(12) td {
+    border-bottom: none;
+    position: relative;
+}
+.standings-table tbody tr:nth-child(12) td::after {
+    content: '';
+    display: block;
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(255,255,255,0.25) 20%,
+        rgba(255,255,255,0.25) 80%,
+        transparent 100%);
+}
+
+/* ─── Spaltenbreiten ─── */
+.standings-table .team-col { text-align: left; }
+.standings-table .pos-col  { width: 28px; }
+.standings-table .stat-col { width: 36px; }
 
 .tie-marker {
     display: inline-block;
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
     background-color: #FFD700;
     border-radius: 50%;
-    margin-right: 5px;
+    margin-right: 4px;
+    vertical-align: middle;
 }
 
 /* ─── Responsive ─── */
