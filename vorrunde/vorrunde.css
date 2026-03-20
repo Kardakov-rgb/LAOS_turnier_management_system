@@ -1075,8 +1075,340 @@
         max-width: 300px;
         margin: 0 1rem;
     }
-    
+
     .overlay-message h3 {
         font-size: 1.2rem;
     }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+ * GLASMORPHISM – Vorrunde
+ * Überträgt den Look der Gegner-Übersicht auf Vorrunde-Karten & Tabelle
+ * Space Mono + Tischfarb-Gradienten + backdrop-filter
+ * ═══════════════════════════════════════════════════════════════════ */
+
+/* ─── CSS-Variablen je Tisch ─── */
+.paarung-card.tisch-1 { --tisch-color: #D50F0D; --tisch-color-dark: #7a0908; --tisch-text: #fff; }
+.paarung-card.tisch-2 { --tisch-color: #FF6600; --tisch-color-dark: #b34600; --tisch-text: #fff; }
+.paarung-card.tisch-3 { --tisch-color: #6e72c4; --tisch-color-dark: #3d4196; --tisch-text: #fff; }
+.paarung-card.tisch-4 { --tisch-color: #4d9e7f; --tisch-color-dark: #286652; --tisch-text: #fff; }
+.paarung-card.tisch-5 { --tisch-color: #A48876; --tisch-color-dark: #6d5546; --tisch-text: #fff; }
+.paarung-card.tisch-6 { --tisch-color: #666666; --tisch-color-dark: #2e2e2e; --tisch-text: #fff; }
+
+/* ─── Paarung-Karte – Tischfarb-Gradient ─── */
+.paarung-card {
+    background: linear-gradient(160deg, var(--tisch-color, #555) 0%, var(--tisch-color-dark, #222) 100%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.22) !important;
+    border-left: none !important;
+    border-radius: 14px !important;
+    overflow: hidden;
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.32),
+        inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
+    font-family: 'Space Mono', 'Courier New', monospace;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+    padding: 0 !important;
+}
+
+.paarung-card:hover {
+    box-shadow:
+        0 14px 40px rgba(0, 0, 0, 0.38),
+        inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
+    transform: translateY(-3px);
+}
+
+/* ─── Paarung-Header – Glas-Effekt ─── */
+.paarung-header {
+    background: rgba(0, 0, 0, 0.22) !important;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.18) !important;
+    color: #fff !important;
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    padding: 0.5rem 0.8rem !important;
+    margin-bottom: 0 !important;
+}
+
+.paarung-header .paarung-number,
+.paarung-header .tisch-number {
+    color: #fff !important;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.9rem;
+}
+
+/* ─── Header-Buttons – Glas ─── */
+.paarung-header .header-btn,
+.header-btn {
+    background: rgba(255, 255, 255, 0.2) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    color: #fff !important;
+    border-radius: 5px;
+}
+
+.header-btn.save-btn:hover  { background: rgba(46, 204, 113, 0.7) !important; }
+.header-btn.edit-btn:hover  { background: rgba(52, 152, 219, 0.7) !important; }
+.header-btn.reset-btn:hover { background: rgba(231, 76, 60, 0.7) !important; }
+
+/* ─── Team-Bereich – helles Glas ─── */
+.paarung-teams {
+    background: rgba(255, 255, 255, 0.28) !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;
+    padding: 0.6rem 0.8rem !important;
+    margin-bottom: 0 !important;
+}
+
+.paarung-team {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border-radius: 6px;
+    padding: 0.4rem 0.6rem !important;
+    margin-bottom: 0.35rem !important;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.paarung-team:last-child { margin-bottom: 0 !important; }
+
+.paarung-teams .team-name {
+    color: #fff !important;
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    font-size: 1.3rem !important;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+
+.paarung-team.winner .team-name {
+    color: #fff !important;
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+}
+
+.paarung-team.loser .team-name {
+    color: rgba(255, 255, 255, 0.55) !important;
+}
+
+/* ─── Score-Inputs – Glas ─── */
+.paarung-teams .score-input {
+    background: rgba(255, 255, 255, 0.85) !important;
+    border: 1px solid rgba(255, 255, 255, 0.5) !important;
+    color: #222 !important;
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    border-radius: 5px;
+}
+
+.paarung-teams .score-input:disabled {
+    background: rgba(255, 255, 255, 0.45) !important;
+    color: #333 !important;
+}
+
+/* ─── Aktionen-Bereich – dunkles Glas ─── */
+.paarung-card .paarung-actions {
+    display: flex !important;
+    background: rgba(0, 0, 0, 0.12) !important;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    padding: 0.4rem 0.8rem !important;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+.paarung-card .save-btn,
+.paarung-card .edit-btn,
+.paarung-card .reset-btn {
+    background: rgba(255, 255, 255, 0.2) !important;
+    color: #fff !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    box-shadow: none !important;
+}
+
+/* ─── Hälfte-Header – Glas ─── */
+.halfte-header {
+    background: rgba(0, 0, 0, 0.30) !important;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    color: rgba(255, 255, 255, 0.85) !important;
+    border-radius: 8px !important;
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+/* ─── Runden-Navigation Buttons – Glas ─── */
+.round-nav-btn,
+.golden-cup-btn {
+    background: rgba(255, 255, 255, 0.12) !important;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+    color: rgba(255, 255, 255, 0.85) !important;
+    border-radius: 8px !important;
+    font-family: 'Space Mono', monospace;
+    font-size: 1rem !important;
+    transition: all 0.2s ease;
+}
+
+.round-nav-btn:hover,
+.golden-cup-btn:hover {
+    background: rgba(255, 255, 255, 0.22) !important;
+    color: #fff !important;
+    transform: translateY(-1px);
+}
+
+.round-nav-btn.active,
+.golden-cup-btn.active {
+    background: rgba(255, 255, 255, 0.28) !important;
+    color: #fff !important;
+    border-color: rgba(255, 255, 255, 0.5) !important;
+    box-shadow: 0 0 12px rgba(255, 255, 255, 0.15);
+}
+
+/* ─── Standings-Sektion – dunkles Glas-Panel ─── */
+.standings-section {
+    background: linear-gradient(160deg, #333333 0%, #111111 100%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    border-radius: 14px !important;
+    overflow: hidden;
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+    font-family: 'Space Mono', 'Courier New', monospace;
+}
+
+/* ─── Standings-Tabelle – Glas-Stil ─── */
+.standings-section .standings-table {
+    background: transparent !important;
+    font-size: 0.78rem !important;
+    font-family: 'Space Mono', monospace;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+.standings-section .standings-table thead tr {
+    background: rgba(255, 255, 255, 0.1) !important;
+    backdrop-filter: blur(6px);
+}
+
+.standings-section .standings-table th {
+    background: transparent !important;
+    color: rgba(255, 255, 255, 0.55) !important;
+    font-weight: 700;
+    font-size: 0.58rem !important;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    padding: 0.7rem 0.4rem !important;
+    border-bottom: none !important;
+}
+
+/* Gradient-Trennlinie unter dem Header */
+.standings-section .standings-table thead tr::after {
+    content: '';
+    display: block;
+    position: absolute;
+    bottom: 0; left: 5%; right: 5%;
+    height: 1px;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(255,255,255,0.35) 25%,
+        rgba(255,255,255,0.35) 75%,
+        transparent 100%);
+}
+
+.standings-section .standings-table td {
+    padding: 0.45rem 0.4rem !important;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.75) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+    background: transparent !important;
+}
+
+.standings-section .standings-table tbody tr:hover td {
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: #fff !important;
+}
+
+.standings-section .standings-table .direct-qualifier td {
+    background: rgba(255, 255, 255, 0.07) !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.standings-section .standings-table .direct-qualifier .pos-col {
+    color: #fff !important;
+    font-weight: 700 !important;
+    background: transparent !important;
+}
+
+.standings-section .standings-table .playoff-qualifier td {
+    background: rgba(255, 255, 255, 0.03) !important;
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.standings-section .standings-table .playoff-qualifier .pos-col {
+    background: transparent !important;
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* Gradient-Trennlinie nach Direktqualifikanten (4. Platz) */
+.standings-section .standings-table tbody tr:nth-child(4) td {
+    border-bottom: none !important;
+    position: relative;
+}
+.standings-section .standings-table tbody tr:nth-child(4) td::after {
+    content: '';
+    display: block;
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(255,255,255,0.4) 20%,
+        rgba(255,255,255,0.4) 80%,
+        transparent 100%);
+}
+
+/* Gradient-Trennlinie nach Playoff-Qualifikanten (12. Platz) */
+.standings-section .standings-table tbody tr:nth-child(12) td {
+    border-bottom: none !important;
+    position: relative;
+}
+.standings-section .standings-table tbody tr:nth-child(12) td::after {
+    content: '';
+    display: block;
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(255,255,255,0.25) 20%,
+        rgba(255,255,255,0.25) 80%,
+        transparent 100%);
+}
+
+.standings-section .standings-table .team-col { text-align: left; }
+.standings-section .standings-table .pos-col  { width: 28px; }
+.standings-section .standings-table .stat-col { width: 36px; }
+
+/* Highlight-Animation für Glasmorphism */
+@keyframes teamPulseGlass {
+    0%   { background: rgba(255, 255, 255, 0.0); }
+    10%  { background: rgba(255, 255, 255, 0.22); }
+    20%  { background: rgba(255, 255, 255, 0.18); }
+    70%  { background: rgba(255, 255, 255, 0.08); }
+    100% { background: rgba(255, 255, 255, 0.0); }
+}
+
+.standings-section .standings-table tbody tr.highlight-pulse td {
+    animation: teamPulseGlass 3s ease-out forwards;
+}
+
+/* ─── Paarung-Karte – hover ohne weißen Hintergrund ─── */
+.paarung-card:hover {
+    background: linear-gradient(160deg, var(--tisch-color, #555) 0%, var(--tisch-color-dark, #222) 100%) !important;
 }

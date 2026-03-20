@@ -632,3 +632,204 @@
     -webkit-appearance: none;
     margin: 0;
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+ * GLASMORPHISM – Ko-Runde
+ * Überträgt den Look der Gegner-Übersicht auf Ko-Runden-Karten
+ * Space Mono + Tischfarb-Gradienten + backdrop-filter
+ * ═══════════════════════════════════════════════════════════════════ */
+
+/* ─── CSS-Variablen je Tisch ─── */
+.match-card.tisch-1 { --tisch-color: #D50F0D; --tisch-color-dark: #7a0908; --tisch-text: #fff; }
+.match-card.tisch-2 { --tisch-color: #FF6600; --tisch-color-dark: #b34600; --tisch-text: #fff; }
+.match-card.tisch-3 { --tisch-color: #6e72c4; --tisch-color-dark: #3d4196; --tisch-text: #fff; }
+.match-card.tisch-4 { --tisch-color: #4d9e7f; --tisch-color-dark: #286652; --tisch-text: #fff; }
+
+/* ─── Match-Karte – Tischfarb-Gradient ─── */
+.match-card {
+    background: linear-gradient(160deg, var(--tisch-color, #3a3a4a) 0%, var(--tisch-color-dark, #1a1a2a) 100%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.22) !important;
+    border-left: none !important;
+    border-radius: 14px !important;
+    overflow: hidden;
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.32),
+        inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
+    font-family: 'Space Mono', 'Courier New', monospace;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+    padding: 0 !important;
+}
+
+.match-card:hover {
+    box-shadow:
+        0 14px 40px rgba(0, 0, 0, 0.38),
+        inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
+    transform: translateY(-3px);
+}
+
+/* ─── Match-Header – Glas-Effekt ─── */
+.match-card .match-header {
+    background: rgba(0, 0, 0, 0.22) !important;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.18) !important;
+    color: #fff !important;
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 0.5rem 0.8rem !important;
+}
+
+/* ─── Header-Buttons – Glas ─── */
+.match-card .header-btn {
+    background: rgba(255, 255, 255, 0.2) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    color: #fff !important;
+    border-radius: 5px;
+}
+
+.match-card .header-btn.save-result-btn:hover  { background: rgba(46, 204, 113, 0.7) !important; }
+.match-card .header-btn.edit-result-btn:hover  { background: rgba(52, 152, 219, 0.7) !important; }
+.match-card .header-btn.reset-result-btn:hover { background: rgba(231, 76, 60, 0.7) !important; }
+
+/* ─── Team-Bereich – helles Glas ─── */
+.match-card .match-teams {
+    background: rgba(255, 255, 255, 0.28) !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    margin: 0 !important;
+    padding: 0.6rem 0.8rem !important;
+    gap: 0.35rem;
+}
+
+/* ─── Team-Zeilen – Glas ─── */
+.match-card .team-row {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border-radius: 6px;
+    padding: 0.35rem 0.6rem !important;
+}
+
+.match-card .team-row.winner {
+    background: rgba(255, 255, 255, 0.25) !important;
+}
+
+.match-card .team-row.loser {
+    opacity: 0.7;
+}
+
+/* ─── Teamnamen – weiß, Space Mono ─── */
+.match-card .team-name {
+    color: #fff !important;
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    font-size: 1.2rem !important;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* ─── Team-Seed Badge ─── */
+.match-card .team-seed {
+    background: rgba(255, 255, 255, 0.25) !important;
+    color: #fff !important;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+}
+
+/* ─── Score-Inputs – Glas ─── */
+.match-card .score-input {
+    background: rgba(255, 255, 255, 0.85) !important;
+    border: 1px solid rgba(255, 255, 255, 0.5) !important;
+    color: #222 !important;
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    border-radius: 5px;
+}
+
+.match-card .score-input:disabled {
+    background: rgba(255, 255, 255, 0.45) !important;
+    color: #333 !important;
+    border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* ─── Match-Aktionen – dunkles Glas ─── */
+.match-card .match-actions {
+    display: flex !important;
+    background: rgba(0, 0, 0, 0.12) !important;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    padding: 0.4rem 0.8rem !important;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+.match-card .save-result-btn,
+.match-card .edit-result-btn,
+.match-card .reset-result-btn {
+    background: rgba(255, 255, 255, 0.2) !important;
+    color: #fff !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    box-shadow: none !important;
+}
+
+/* ─── TBD-Platzhalter – Glas ─── */
+.tbd-placeholder {
+    background: rgba(255, 255, 255, 0.1) !important;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* ─── Nicht-initialisiert Nachricht ─── */
+.not-initialized-message {
+    background: rgba(0, 0, 0, 0.3) !important;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    border-radius: 12px !important;
+    color: rgba(255, 255, 255, 0.7) !important;
+    font-family: 'Space Mono', monospace;
+}
+
+/* ─── Runden-Titel – weiß, Space Mono ─── */
+.round-title {
+    color: rgba(255, 255, 255, 0.9) !important;
+    font-family: 'Space Mono', monospace;
+    font-size: 1rem !important;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.round-title:after {
+    background: rgba(255, 255, 255, 0.35) !important;
+}
+
+/* ─── Sieger-Anzeige – Space Mono ─── */
+.winner-display {
+    font-family: 'Space Mono', monospace;
+}
+
+.winner-team {
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 0.05em;
+}
+
+/* ─── Played-Marker ─── */
+.match-card .played-marker {
+    border-color: transparent rgba(255, 255, 255, 0.8) transparent transparent;
+}
+
+/* ─── Highlighted Match (Pulse) ─── */
+.match-card.highlighted {
+    animation: pulseGlass 1.5s infinite;
+    border-color: rgba(255, 255, 255, 0.5) !important;
+}
+
+@keyframes pulseGlass {
+    0%   { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.3); }
+    70%  { box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+}
