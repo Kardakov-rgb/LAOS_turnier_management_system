@@ -152,7 +152,7 @@ body {
     padding-top: 5rem;
     position: relative;
     z-index: 5; /* Höher als Footer, niedriger als Header */
-    background: transparent;
+    background: linear-gradient(120deg, var(--color-green-light), var(--color-blue-light));
     justify-content: center;
 }
 
