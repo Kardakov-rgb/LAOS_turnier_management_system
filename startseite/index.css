@@ -12,7 +12,7 @@
     min-height: 80vh; /* Mindesthöhe für den Inhaltsbereich */
 }
 
-/* Willkommenscontainer – Glassmorphism Card */
+/* Willkommenscontainer – Gradient Card */
 .welcome-container {
     text-align: center;
     padding: 4rem;
@@ -24,10 +24,8 @@
     perspective: 1000px;
     animation: float 6s ease-in-out infinite;
 
-    /* Glassmorphism */
-    background: rgba(142, 145, 223, 0.12);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    /* Farbverlauf: Dunkel-Lila → Lila → Hell-Lila */
+    background: linear-gradient(135deg, #6c70d7 0%, #8E91DF 50%, #b0b2eb 100%);
     border: 1px solid rgba(142, 145, 223, 0.45);
     box-shadow:
         0 8px 32px rgba(142, 145, 223, 0.25),
