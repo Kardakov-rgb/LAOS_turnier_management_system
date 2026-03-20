@@ -12,17 +12,26 @@
     min-height: 80vh; /* Mindesthöhe für den Inhaltsbereich */
 }
 
-/* Willkommenscontainer */
+/* Willkommenscontainer – Glassmorphism Card */
 .welcome-container {
     text-align: center;
     padding: 4rem;
-    border-radius: 12px;
-    max-width: 1000px; /* Verbreitert für größeren Text */
+    border-radius: 20px;
+    max-width: 1000px;
     width: 90%;
-    margin: 0 auto; /* Horizontale Zentrierung */
+    margin: 0 auto;
     transform-style: preserve-3d;
     perspective: 1000px;
     animation: float 6s ease-in-out infinite;
+
+    /* Glassmorphism */
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 102, 0, 0.35);
+    box-shadow:
+        0 8px 32px rgba(255, 102, 0, 0.2),
+        inset 0 0 24px rgba(255, 255, 255, 0.05);
 }
 
 /* Animation für den schwebenden Effekt */
@@ -40,13 +49,14 @@
 
 /* Textgestaltung für die Willkommensnachricht */
 .welcome-text {
-    font-size: 5rem; /* Vergrößert von 3rem auf 5rem */
+    font-size: 5rem;
     font-weight: 700;
     color: var(--color-orange);
     position: relative;
     display: inline-block;
     margin: 0;
     animation: textReveal 1.5s ease-out;
+    text-shadow: 0 0 30px rgba(255, 102, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.5);
 }
 
 /* Etwas Abstand zwischen den beiden Willkommenstexten */
@@ -107,4 +117,71 @@
     font-size: 0.8em;
     margin-left: 10px;
     display: none;
+}
+
+/* ---- Hintergrund-Blobs (nur Startseite) ---- */
+body {
+    background-color: #1a0800;
+}
+
+.bg-blobs {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(130px);
+    opacity: 0.38;
+}
+
+/* Orange Blob – oben links */
+.blob-orange {
+    width: 600px;
+    height: 600px;
+    background: var(--color-orange);
+    top: -150px;
+    left: -100px;
+    animation: blobMove1 14s ease-in-out infinite;
+}
+
+/* Rot Blob – unten rechts */
+.blob-red {
+    width: 500px;
+    height: 500px;
+    background: var(--color-red);
+    bottom: -100px;
+    right: -80px;
+    animation: blobMove2 18s ease-in-out infinite;
+}
+
+/* Blau Blob – mittig oben */
+.blob-blue {
+    width: 450px;
+    height: 450px;
+    background: var(--color-blue);
+    top: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0.25;
+    animation: blobMove3 22s ease-in-out infinite;
+}
+
+@keyframes blobMove1 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50%       { transform: translate(70px, -50px) scale(1.12); }
+}
+
+@keyframes blobMove2 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50%       { transform: translate(-50px, 40px) scale(0.92); }
+}
+
+@keyframes blobMove3 {
+    0%, 100% { transform: translateX(-50%) scale(1); }
+    50%       { transform: translateX(-50%) scale(1.15) translateY(30px); }
 }
