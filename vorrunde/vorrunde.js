@@ -679,10 +679,10 @@ function getMatchPatternForGroups(roundIndex) {
         console.log("pairingNumber:", roundMatches[0].pairingNumber);
         console.log("isSecondHalf:", roundMatches[0].isSecondHalf);
         
-        // Sortieren nach Tischnummer und Hälfte
+        // Sortieren nach Hälfte und Tischnummer
         roundMatches.sort((a, b) => {
             if (a.isSecondHalf !== b.isSecondHalf) return a.isSecondHalf ? 1 : -1;
-            return a.pairingNumber - b.pairingNumber;
+            return a.tableNumber - b.tableNumber;
         });
         
         // Erste Hälfte
