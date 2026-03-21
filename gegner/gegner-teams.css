@@ -61,11 +61,17 @@
     align-items: start;
 }
 
-/* ─── Einzelne Team-Karte – transparentes Glas (paarung-card-Form) ─── */
+/* ─── Tischfarben je Karte – identisch zu paarung-card ─── */
+.team-overview-card.tisch-1 { --tisch-color: #D50F0D; --tisch-color-dark: #7a0908; }
+.team-overview-card.tisch-2 { --tisch-color: #FF6600; --tisch-color-dark: #b34600; }
+.team-overview-card.tisch-3 { --tisch-color: #6e72c4; --tisch-color-dark: #3d4196; }
+.team-overview-card.tisch-4 { --tisch-color: #4d9e7f; --tisch-color-dark: #286652; }
+.team-overview-card.tisch-5 { --tisch-color: #A48876; --tisch-color-dark: #6d5546; }
+.team-overview-card.tisch-6 { --tisch-color: #666666; --tisch-color-dark: #2e2e2e; }
+
+/* ─── Einzelne Team-Karte – kräftiger Tischfarb-Gradient (wie paarung-card) ─── */
 .team-overview-card {
-    background: rgba(255, 255, 255, 0.12);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
+    background: linear-gradient(160deg, var(--tisch-color) 0%, var(--tisch-color-dark) 100%);
     border: 1px solid rgba(255, 255, 255, 0.22);
     border-radius: 14px;
     overflow: hidden;
@@ -85,7 +91,7 @@
     transform: translateY(-3px);
 }
 
-/* ─── Team-Header – dunkles Glas-Panel ─── */
+/* ─── Team-Header – dunkles Glas-Panel über dem Gradient ─── */
 .team-overview-header {
     background: rgba(0, 0, 0, 0.22);
     backdrop-filter: blur(6px);

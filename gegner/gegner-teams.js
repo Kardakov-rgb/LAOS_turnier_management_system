@@ -225,8 +225,9 @@ function renderTeamsOverview() {
     const teamMatches = groupMatchesByTeam();
     
     // Team-Karten erstellen
-    teams.forEach(team => {
-        const teamCard = createTeamOverviewCard(team, teamMatches[team] || []);
+    teams.forEach((team, index) => {
+        const tischIndex = (index % 6) + 1;
+        const teamCard = createTeamOverviewCard(team, teamMatches[team] || [], tischIndex);
         teamsOverviewContainer.appendChild(teamCard);
     });
     
@@ -279,10 +280,10 @@ function renderTeamsOverview() {
      * @param {Array} teamMatches - Die Matches dieses Teams
      * @returns {HTMLElement} - Die erstellte Karte
      */
-    function createTeamOverviewCard(teamName, teamMatches) {
+    function createTeamOverviewCard(teamName, teamMatches, tischIndex) {
         // Team-Karte erstellen
         const teamCard = document.createElement('div');
-        teamCard.className = 'team-overview-card';
+        teamCard.className = `team-overview-card tisch-${tischIndex}`;
         
         // Header mit Team-Namen
         const teamHeader = document.createElement('div');
