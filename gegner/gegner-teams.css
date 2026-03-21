@@ -61,17 +61,17 @@
     align-items: start;
 }
 
-/* ─── Tischfarben: kräftig für round-group, dezent für Karte ─── */
-.team-overview-card.tisch-1 { --tisch-color: #D50F0D; --tisch-color-dark: #7a0908; --card-bg: #1a0504; --card-bg-dark: #0d0202; }
-.team-overview-card.tisch-2 { --tisch-color: #FF6600; --tisch-color-dark: #b34600; --card-bg: #1f0e00; --card-bg-dark: #110700; }
-.team-overview-card.tisch-3 { --tisch-color: #6e72c4; --tisch-color-dark: #3d4196; --card-bg: #0d0e1f; --card-bg-dark: #060711; }
-.team-overview-card.tisch-4 { --tisch-color: #4d9e7f; --tisch-color-dark: #286652; --card-bg: #07150f; --card-bg-dark: #030a07; }
-.team-overview-card.tisch-5 { --tisch-color: #A48876; --tisch-color-dark: #6d5546; --card-bg: #18100c; --card-bg-dark: #0d0806; }
-.team-overview-card.tisch-6 { --tisch-color: #666666; --tisch-color-dark: #2e2e2e; --card-bg: #111111; --card-bg-dark: #080808; }
+/* ─── Team-Karte – neutral dunkel für alle, tisch-X nur für match-entry Farben ─── */
+.team-overview-card.tisch-1 { --tisch-color: #D50F0D; --tisch-color-dark: #7a0908; }
+.team-overview-card.tisch-2 { --tisch-color: #FF6600; --tisch-color-dark: #b34600; }
+.team-overview-card.tisch-3 { --tisch-color: #6e72c4; --tisch-color-dark: #3d4196; }
+.team-overview-card.tisch-4 { --tisch-color: #4d9e7f; --tisch-color-dark: #286652; }
+.team-overview-card.tisch-5 { --tisch-color: #A48876; --tisch-color-dark: #6d5546; }
+.team-overview-card.tisch-6 { --tisch-color: #666666; --tisch-color-dark: #2e2e2e; }
 
-/* ─── Team-Karte – dezente LAOS-Farbe als dunkler Hintergrund ─── */
+/* ─── Team-Karte – gleiches Dunkelgrau für alle ─── */
 .team-overview-card {
-    background: linear-gradient(160deg, var(--card-bg) 0%, var(--card-bg-dark) 100%);
+    background: linear-gradient(160deg, #1e1e1e 0%, #0a0a0a 100%);
     border: 1px solid rgba(255, 255, 255, 0.14);
     border-radius: 14px;
     overflow: hidden;
@@ -91,13 +91,13 @@
     transform: translateY(-3px);
 }
 
-/* ─── Team-Header – dezentes Glas-Panel passend zur Kartenfarbe ─── */
+/* ─── Team-Header – Glas-Panel ─── */
 .team-overview-header {
     background: rgba(255, 255, 255, 0.07);
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
     border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-    color: rgba(255, 255, 255, 0.85);
+    color: rgba(255, 255, 255, 0.9);
     font-family: 'Space Mono', monospace;
     font-weight: 700;
     font-size: 0.85rem;
@@ -118,40 +118,38 @@
     gap: 0.3rem;
 }
 
-/* ─── Runden-Gruppe – kräftiger Tischfarb-Gradient ─── */
+/* ─── Runden-Gruppe – reiner Layout-Container ─── */
 .round-group {
-    background: linear-gradient(160deg, var(--tisch-color) 0%, var(--tisch-color-dark) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.15);
     display: flex;
     flex-direction: column;
-    gap: 0;
+    gap: 0.2rem;
 }
 
-/* ─── Match-Eintrag – Glas-Panel auf dem kräftigen round-group-Gradient ─── */
+/* ─── Match-Eintrag – Basis ─── */
 .match-entry {
     display: grid;
     grid-template-columns: auto 1fr;
     gap: 0.3rem;
     padding: 0.3rem 0.5rem;
-    background: rgba(0, 0, 0, 0.22);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-    border-left: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
     align-items: center;
-    transition: background 0.15s ease;
-}
-
-.match-entry:last-child {
-    border-bottom: none;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 .match-entry:hover {
-    background: rgba(0, 0, 0, 0.35);
+    transform: translateX(2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
+
+/* ─── Match-Eintrag – voller Tischfarb-Gradient wie paarung-card ─── */
+.match-entry.tisch-1 { background: linear-gradient(135deg, #D50F0D 0%, #7a0908 100%); }
+.match-entry.tisch-2 { background: linear-gradient(135deg, #FF6600 0%, #b34600 100%); }
+.match-entry.tisch-3 { background: linear-gradient(135deg, #6e72c4 0%, #3d4196 100%); }
+.match-entry.tisch-4 { background: linear-gradient(135deg, #4d9e7f 0%, #286652 100%); }
+.match-entry.tisch-5 { background: linear-gradient(135deg, #A48876 0%, #6d5546 100%); }
+.match-entry.tisch-6 { background: linear-gradient(135deg, #666666 0%, #2e2e2e 100%); }
 
 /* ─── Halbzeit-Symbol ─── */
 .match-info {
