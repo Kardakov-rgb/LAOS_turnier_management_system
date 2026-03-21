@@ -478,6 +478,11 @@
 }
 
 /* ─── Gleichstand-Marker ─── */
+@keyframes tie-marker-pulse {
+    0%, 100% { transform: scale(1);   opacity: 1;    box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.6); }
+    50%       { transform: scale(1.3); opacity: 0.85; box-shadow: 0 0 0 5px rgba(255, 215, 0, 0); }
+}
+
 .tie-marker {
     display: none;
     width: 8px;
@@ -490,6 +495,7 @@
 
 body.golden-cup-active .tie-marker {
     display: inline-block;
+    animation: tie-marker-pulse 1.4s ease-in-out infinite;
 }
 
 /* ─── Golden Cup Tiebreaker-Zeile ─── */
