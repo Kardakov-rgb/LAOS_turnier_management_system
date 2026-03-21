@@ -1,6 +1,6 @@
-/* 
+/*
 * LAOS 2.0 - Teams-spezifisches CSS
-* Dieses Stylesheet enthält Stile, die nur auf der Teams-Seite verwendet werden.
+* Glassmorphism + Space Mono – analog zur Gegner-Übersicht
 */
 
 /* Teams Container */
@@ -9,8 +9,6 @@
     margin: 0 auto;
     padding: 1.5rem;
     background-color: transparent;
-    border-radius: 12px;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
 }
 
 .teams-header {
@@ -37,12 +35,21 @@
     border-radius: 2px;
 }
 
-/* Formular für Teams */
+/* ─── Formular – Glas-Container ─── */
 .team-form-container {
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.75rem;
     display: flex;
     flex-direction: column;
     gap: 0.8rem;
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 14px;
+    box-shadow:
+        0 4px 16px rgba(0, 0, 0, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    padding: 0.75rem 1rem;
 }
 
 .form-group {
@@ -50,125 +57,138 @@
     gap: 0.8rem;
 }
 
+/* ─── Action-Buttons-Leiste – Glas-Container ─── */
 .team-actions {
     display: flex;
-    margin-top: 0.8rem;
+    margin-top: 0.75rem;
     gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 12px;
+    padding: 0.4rem 0.75rem;
+    width: fit-content;
 }
 
-/* Teams Grid - geändert auf genau 6 Kacheln pro Zeile mit weniger Abstand */
+/* ─── Teams Grid ─── */
 .teams-grid {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
-    gap: 0.5rem;
+    gap: 0.6rem;
     margin-top: 1.5rem;
 }
 
-/* Responsive Anpassung für kleinere Bildschirme */
+/* Responsive Anpassung */
 @media (max-width: 1200px) {
-    .teams-grid {
-        grid-template-columns: repeat(4, 1fr);
-    }
+    .teams-grid { grid-template-columns: repeat(4, 1fr); }
 }
 
 @media (max-width: 800px) {
-    .teams-grid {
-        grid-template-columns: repeat(3, 1fr);
-    }
+    .teams-grid { grid-template-columns: repeat(3, 1fr); }
 }
 
 @media (max-width: 600px) {
-    .teams-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
+    .teams-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (max-width: 400px) {
-    .teams-grid {
-        grid-template-columns: 1fr;
-    }
+    .teams-grid { grid-template-columns: 1fr; }
 }
 
-/* Team-Karten mit einfarbigem Hintergrund und reduziertem Padding */
+/* ─── Team-Karte – blauer Gradient + Glassmorphism ─── */
 .team-card {
-    border-radius: 8px;
-    padding: 0.5rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-    position: relative;
+    background: linear-gradient(160deg, var(--color-blue) 0%, var(--color-blue-dark) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.32),
+        inset 0 1px 0 rgba(255, 255, 255, 0.18);
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    min-height: 60px;
-    color: white;
-}
-
-/* Einfarbige Varianten für Team-Karten */
-.team-card:nth-child(6n+1) {
-    background-color: var(--color-blue-light
-    );
-}
-.team-card:nth-child(6n+2) {
-    background-color: var(--color-blue-light
-    );
-}
-
-.team-card:nth-child(6n+3) {
-    background-color: var(--color-blue-light
-    );
-}
-
-.team-card:nth-child(6n+4) {
-    background-color: var(--color-blue-light
-    );
-}
-
-.team-card:nth-child(6n+5) {
-    background-color: var(--color-blue-light
-    );
-}
-
-.team-card:nth-child(6n+6) {
-    background-color: var(--color-blue-light
-    );
+    font-family: 'Space Mono', 'Courier New', monospace;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+    animation: fadeIn 0.5s ease forwards;
 }
 
 .team-card:hover {
+    box-shadow:
+        0 14px 40px rgba(0, 0, 0, 0.38),
+        inset 0 1px 0 rgba(255, 255, 255, 0.22);
     transform: translateY(-3px);
-    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
 }
 
+/* ─── Team-Name – helles Glas-Panel ─── */
 .team-name {
-    font-size: 2.3rem;
-    font-weight: 600;
-    margin-bottom: 0.2rem;
+    background: rgba(255, 255, 255, 0.28);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    font-family: 'Space Mono', monospace;
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
     text-align: center;
-}
-
-.team-card-actions {
-    display: flex;
-    justify-content: center;
-    gap: 0.6rem;
-}
-
-/* Button-Stile - NUR EMOJIS */
-.edit-team-btn, .delete-team-btn {
-    background: none;
-    border: none;
-    font-size: 2rem;
-    cursor: pointer;
-    transition: transform 0.3s ease;
+    color: #fff;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    padding: 0.75rem 0.5rem;
+    margin: 0;
+    flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0.3rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    position: relative;
+}
+
+/* Gradient-Trennlinie unter dem Team-Namen */
+.team-name::after {
+    content: '';
+    display: block;
+    position: absolute;
+    bottom: 0;
+    left: 8%;
+    right: 8%;
+    height: 2px;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.45) 30%,
+        rgba(255, 255, 255, 0.45) 70%,
+        transparent 100%);
+    border-radius: 1px;
+}
+
+/* ─── Team-Card-Actions – dunkles Glas-Panel ─── */
+.team-card-actions {
+    background: rgba(0, 0, 0, 0.18);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    display: flex;
+    justify-content: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.5rem;
+}
+
+/* ─── Button-Stile – NUR EMOJIS ─── */
+.edit-team-btn, .delete-team-btn {
+    background: none;
+    border: none;
+    font-size: 1.4rem;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.2rem;
 }
 
 .edit-team-btn:hover, .delete-team-btn:hover {
     transform: scale(1.2);
 }
 
-/* Emojis für Buttons */
 .edit-team-btn::after {
     content: "✏️";
 }
@@ -177,25 +197,25 @@
     content: "🗑️";
 }
 
-/* Animation für neue Karten */
+/* ─── Animation für neue Karten ─── */
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 
-.team-card {
-    animation: fadeIn 0.5s ease forwards;
-}
-
-/* Leer-Status */
+/* ─── Leer-Status ─── */
 .empty-teams {
     text-align: center;
     padding: 2rem;
-    color: var(--color-medium-gray);
-    font-style: italic;
-    background-color: rgba(255, 255, 255, 0.5);
-    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.14);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 14px;
     grid-column: 1 / -1;
+    color: rgba(255, 255, 255, 0.7);
+    font-family: 'Space Mono', monospace;
+    font-style: italic;
 }
 
 .connection-status {
@@ -207,8 +227,6 @@
     font-size: 0.9em;
 }
 
-
-
 .pending-badge {
     background-color: #ff7700;
     color: white;
@@ -218,4 +236,3 @@
     margin-left: 10px;
     display: none;
 }
-
