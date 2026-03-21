@@ -1,7 +1,6 @@
 /*
 * LAOS 2.0 - Gegner-Übersicht CSS
-* Glassmorphism + Space Mono: Karte = Tischfarb-Gradient, Sektionen = Glas-Panels
-* Font: Space Mono (Google Fonts) – technisch, terminal-artig
+* Glassmorphism + Space Mono: Tischkarten-View + Team-Ansicht + Tab-Navigation
 */
 
 /* ─── CSS-Variablen je Tisch ─── */
@@ -464,4 +463,268 @@
 
 @media (max-width: 500px) {
     .table-cards-container { grid-template-columns: 1fr; grid-template-rows: repeat(6, auto); }
+}
+
+/* ════════════════════════════════════════════════════════
+   TAB-NAVIGATION
+   ════════════════════════════════════════════════════════ */
+
+.gegner-left {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.gegner-tab-selection {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+    padding: 0.25rem 0;
+}
+
+.gegner-tab-btn {
+    padding: 0.7rem 1.6rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgba(255, 255, 255, 0.65);
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.gegner-tab-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+.gegner-tab-btn.active {
+    background: rgba(255, 255, 255, 0.22);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.35);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.gegner-tab-content {
+    flex: 1;
+}
+
+/* ════════════════════════════════════════════════════════
+   TEAM-ANSICHT (aus gegner-teams.css)
+   ════════════════════════════════════════════════════════ */
+
+/* ─── Tischfarben als CSS-Variablen ─── */
+:root {
+    --tisch-1: #D50F0D;
+    --tisch-2: #FF6600;
+    --tisch-3: #6e72c4;
+    --tisch-4: #4d9e7f;
+    --tisch-5: #A48876;
+    --tisch-6: #666666;
+}
+
+/* ─── Team-Karten-Grid ─── */
+.teams-overview-container {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 0.6rem;
+    align-items: start;
+}
+
+/* ─── Tischfarben je Team-Karte ─── */
+.team-overview-card.tisch-1 { --tisch-color: #D50F0D; --tisch-color-dark: #7a0908; }
+.team-overview-card.tisch-2 { --tisch-color: #FF6600; --tisch-color-dark: #b34600; }
+.team-overview-card.tisch-3 { --tisch-color: #6e72c4; --tisch-color-dark: #3d4196; }
+.team-overview-card.tisch-4 { --tisch-color: #4d9e7f; --tisch-color-dark: #286652; }
+.team-overview-card.tisch-5 { --tisch-color: #A48876; --tisch-color-dark: #6d5546; }
+.team-overview-card.tisch-6 { --tisch-color: #666666; --tisch-color-dark: #2e2e2e; }
+
+/* ─── Team-Karte – neutral dunkel ─── */
+.team-overview-card {
+    background: linear-gradient(160deg, #1e1e1e 0%, #0a0a0a 100%);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    display: flex;
+    flex-direction: column;
+    font-family: 'Space Mono', 'Courier New', monospace;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.team-overview-card:hover {
+    box-shadow:
+        0 14px 40px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    transform: translateY(-3px);
+}
+
+/* ─── Team-Header ─── */
+.team-overview-header {
+    background: rgba(255, 255, 255, 0.07);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.9);
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-align: center;
+    padding: 0.6rem 0.4rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+    word-break: break-word;
+    hyphens: auto;
+}
+
+/* ─── Matches-Container ─── */
+.team-matches-container {
+    padding: 0.3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+/* ─── Runden-Gruppe – reiner Layout-Container ─── */
+.round-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+/* ─── Match-Eintrag – voller Tischfarb-Gradient ─── */
+.match-entry {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.3rem;
+    padding: 0.3rem 0.5rem;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    align-items: center;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.match-entry:hover {
+    transform: translateX(2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.match-entry.tisch-1 { background: linear-gradient(135deg, #D50F0D 0%, #7a0908 100%); }
+.match-entry.tisch-2 { background: linear-gradient(135deg, #FF6600 0%, #b34600 100%); }
+.match-entry.tisch-3 { background: linear-gradient(135deg, #6e72c4 0%, #3d4196 100%); }
+.match-entry.tisch-4 { background: linear-gradient(135deg, #4d9e7f 0%, #286652 100%); }
+.match-entry.tisch-5 { background: linear-gradient(135deg, #A48876 0%, #6d5546 100%); }
+.match-entry.tisch-6 { background: linear-gradient(135deg, #666666 0%, #2e2e2e 100%); }
+
+/* ─── Halbzeit-Symbol ─── */
+.match-info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 0.15rem;
+}
+
+.round-half-info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.half-symbol {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    padding: 2px 0;
+}
+
+.dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.5);
+    display: block;
+}
+
+/* ─── Match-Content ─── */
+.match-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.3rem;
+    min-width: 0;
+}
+
+.opponent-name {
+    font-weight: 700;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.9);
+    font-family: 'Space Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+    min-width: 0;
+}
+
+.match-score {
+    font-weight: 700;
+    font-size: 0.8rem;
+    font-family: 'Space Mono', monospace;
+    padding: 0.1rem 0.3rem;
+    border-radius: 5px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.85);
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+.no-result {
+    font-family: 'Space Mono', monospace;
+    font-style: italic;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.3);
+    flex-shrink: 0;
+}
+
+.team-won  { background: rgba(77, 158, 127, 0.55) !important; border-color: rgba(77, 158, 127, 0.6) !important; color: #fff !important; }
+.team-lost { background: rgba(213, 15, 13, 0.55)  !important; border-color: rgba(213, 15, 13, 0.5)  !important; color: #fff !important; }
+.team-draw { background: rgba(255, 255, 255, 0.18) !important; border-color: rgba(255,255,255,0.25)  !important; color: rgba(255,255,255,0.85) !important; }
+
+.no-matches {
+    padding: 0.5rem;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.3);
+    font-style: italic;
+    font-size: 0.72rem;
+}
+
+/* ─── Responsive Team-Ansicht ─── */
+@media (max-width: 1200px) {
+    .teams-overview-container { grid-template-columns: repeat(4, 1fr); }
+}
+
+@media (max-width: 900px) {
+    .teams-overview-container { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 600px) {
+    .teams-overview-container { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 400px) {
+    .teams-overview-container { grid-template-columns: 1fr; }
 }

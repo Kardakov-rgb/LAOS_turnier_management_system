@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="../global/favicon.png">
     <title>LAOS 2.0 - Gegner-Übersicht</title>
-    
+
     <!-- Google Fonts: Space Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -23,7 +23,6 @@
                 <img src="../global/favicon.png" alt="Logo" class="site-logo">
                 <h1 class="site-title">LAOS 2.0</h1>
             </div>
-            
 
             <nav class="main-nav">
                 <ul class="nav-list">
@@ -32,38 +31,51 @@
                     <li class="nav-item"><a href="../vorrunde/vorrunde.html" class="nav-link">Vorrunde</a></li>
                     <li class="nav-item"><a href="../korunde/ko-runde.html" class="nav-link">KO-Runde</a></li>
                     <li class="nav-item"><a href="../gegner/gegner.html" class="nav-link active">Gegner-Übersicht</a></li>
-                    <li class="nav-item"><a href="../gegner/gegner-teams.html" class="nav-link">Gegner-Teams</a></li>
                     <li class="nav-item"><a href="../statistik/statistik.html" class="nav-link">Statistik</a></li>
                     <li class="nav-item"><a href="../wetten/wetten.html" class="nav-link">Wetten</a></li>
                 </ul>
             </nav>
         </header>
+
         <!-- Hauptinhalt der Seite -->
         <main class="main-content">
-            <div class="gegner-container">               
-                <!-- Container für Team-Übersichten -->
-                <div id="tableCardsContainer" class="table-cards-container">
-                    <!-- Team-Karten werden hier dynamisch eingefügt -->
+            <div class="gegner-container">
+
+                <!-- Linker Bereich: Tab-Navigation + Inhalte -->
+                <div class="gegner-left">
+                    <div class="gegner-tab-selection">
+                        <button class="gegner-tab-btn active" data-tab="tischkarten">Tischkarten</button>
+                        <button class="gegner-tab-btn" data-tab="teams">Team-Ansicht</button>
+                    </div>
+
+                    <div id="tischkarten-content" class="gegner-tab-content">
+                        <div id="tableCardsContainer" class="table-cards-container"></div>
+                    </div>
+
+                    <div id="teams-content" class="gegner-tab-content" style="display:none">
+                        <div id="teamsOverviewContainer" class="teams-overview-container"></div>
+                    </div>
                 </div>
-    <!-- Container für Tabelle hinzufügen -->
-    <div class="standings-section">
-    <div id="standingsContainer" class="standings-container">
-        <!-- Tabelle wird hier dynamisch eingefügt -->
-    </div>
-    </div>
-                <div class="gegner-header">
-                    <div class="last-update">Letzte Aktualisierung: <span id="updateTime">-</span></div>
+
+                <!-- Rechter Bereich: Standings (immer sichtbar) -->
+                <div class="standings-section">
+                    <div id="standingsContainer" class="standings-container"></div>
                 </div>
-                <!-- Status-Container für Hinweise -->
-                <div id="statusContainer" class="status-container"></div>
+
             </div>
+
+            <div class="gegner-header">
+                <div class="last-update">Letzte Aktualisierung: <span id="updateTime">-</span></div>
+            </div>
+            <div id="statusContainer" class="status-container"></div>
         </main>
-    <!-- Footer-Bereich -->
-    <footer class="overlay-footer">
-        <img src="../global/Footer.png" alt="Footer">
-    </footer>
+
+        <!-- Footer-Bereich -->
+        <footer class="overlay-footer">
+            <img src="../global/Footer.png" alt="Footer">
+        </footer>
     </div>
-    
+
     <!-- JavaScript -->
     <script type="module" src="./gegner.js"></script>
     <script type="module" src="https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js"></script>

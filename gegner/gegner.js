@@ -1,216 +1,176 @@
 /**
- * LAOS 2.0 - JavaScript für die Gegner-Übersicht
- * Dieses Script zeigt die Spiele nach Teams sortiert an mit regelmäßigen Aktualisierungen
- * Aktualisiert, um den dataService für Firebase-Integration zu verwenden
+ * LAOS 2.0 - Gegner-Übersicht (kombiniert: Tischkarten + Team-Ansicht)
  */
 
-// Importiere dataService für Firebase-Zugriff
 import dataService from '../global/data-service.js';
-// Warten bis das DOM vollständig geladen ist
+
 document.addEventListener('DOMContentLoaded', async function() {
 
-    // DOM-Elemente
-// DOM-Elemente
-const statusContainer = document.getElementById('statusContainer');
-const tableCardsContainer = document.getElementById('tableCardsContainer');
-const updateTimeElement = document.getElementById('updateTime');
-const connectionStatusElement = document.getElementById('connection-status');
-const statusIconElement = document.getElementById('status-icon');
-const statusTextElement = document.getElementById('status-text');
-const pendingUpdatesElement = document.getElementById('pending-updates');
-const standingsContainer = document.getElementById('standingsContainer'); // Neu hinzugefügt
-// Daten-Variablen
-let teams = [];
-let matches = [];
-let standings = []; // Neu hinzugefügt
-let goldenCupResults = []; // Neu hinzugefügt
-    
-    // Update-Intervall in Millisekunden (5 Sekunden)
+    // ─── DOM-Elemente ───
+    const statusContainer       = document.getElementById('statusContainer');
+    const tableCardsContainer   = document.getElementById('tableCardsContainer');
+    const teamsOverviewContainer = document.getElementById('teamsOverviewContainer');
+    const updateTimeElement     = document.getElementById('updateTime');
+    const standingsContainer    = document.getElementById('standingsContainer');
+    const tabButtons            = document.querySelectorAll('.gegner-tab-btn');
+
+    // ─── Daten-Variablen ───
+    let teams           = [];
+    let matches         = [];
+    let standings       = [];
+    let goldenCupResults = [];
+
+    // ─── Tab-Status ───
+    let activeTab = 'tischkarten';
+
+    // ─── Timer ───
     const updateInterval = 5000;
-    
-    // Timer für die regelmäßige Aktualisierung
     let updateTimer;
-    
-    // Seite initialisieren
+
     init();
-    
-    /**
-     * Initialisiert die Seite und lädt die Daten
-     */
-async function init() {
-    console.log('Initialisiere Gegner-Übersicht-Seite');
-    
-    
-    // Verbindungsstatus überwachen
-    dataService.addStatusListener(isOnline => {
 
-    });
-    
-    // Erste Daten laden
-    await loadData();
-    
-    // Prüfen ob Teams vorhanden sind
-    if (teams.length === 0) {
-        setStatus('Keine Teams gefunden. Bitte füge Teams auf der Teams-Seite hinzu.', 'error');
-        return;
-    }
-    
-    // Prüfen ob Matches bereits generiert wurden
-    if (matches.length === 0) {
-        setStatus('Keine Spiele gefunden. Bitte initialisiere die Vorrunde.', 'warning');
-        return;
-    }
-    
-    // Erste Anzeige der Daten
-    renderTableCards();
-    renderStandings();
-    updateLastUpdateTime();
+    // ════════════════════════════════════════
+    // INITIALISIERUNG
+    // ════════════════════════════════════════
 
-    // Timer für regelmäßige Aktualisierungen starten
-    startUpdateTimer();
+    async function init() {
+        console.log('Initialisiere Gegner-Übersicht-Seite');
 
-    // Echtzeit-Updates für Daten einrichten
-    setupRealtimeUpdates();
+        dataService.addStatusListener(isOnline => {});
 
-    
-}
-    
-    /**
-     * Lädt Daten über den dataService
-     */
-async function loadData() {
-    try {
-        // Daten laden
-        teams = await dataService.getData('tournamentTeams') || [];
-        matches = await dataService.getData('vorrundeMatches') || [];
-        standings = await dataService.getData('vorrundeStandings') || []; // Neu hinzugefügt
-        goldenCupResults = await dataService.getData('goldenCupResults') || []; // Neu hinzugefügt
-        
-        console.log('Daten geladen:', {
-            teamsCount: teams.length,
-            matchesCount: matches.length,
-            standingsCount: standings.length // Neu hinzugefügt
-        });
-    } catch (error) {
-        console.error("Fehler beim Laden der Daten:", error);
-        setStatus('Fehler beim Laden der Daten. Verwende lokale Daten falls verfügbar.', 'error');
-    }
-}
-    
-    /**
-     * Richtet Echtzeit-Updates für die Daten ein
-     */
-function setupRealtimeUpdates() {
-    // Echtzeit-Updates für Teams
-    dataService.subscribeToData('tournamentTeams', updatedTeams => {
-        if (JSON.stringify(teams) !== JSON.stringify(updatedTeams)) {
-            console.log('Teams wurden aktualisiert');
-            teams = updatedTeams;
-            renderTableCards();
-            updateLastUpdateTime();
-        }
-    });
+        await loadData();
 
-    // Echtzeit-Updates für Matches
-    dataService.subscribeToData('vorrundeMatches', updatedMatches => {
-        if (JSON.stringify(matches) !== JSON.stringify(updatedMatches)) {
-            console.log('Matches wurden aktualisiert');
-            matches = updatedMatches;
-            renderTableCards();
-            updateLastUpdateTime();
+        if (teams.length === 0) {
+            setStatus('Keine Teams gefunden. Bitte füge Teams auf der Teams-Seite hinzu.', 'error');
+            return;
         }
-    });
-    
-    // Echtzeit-Updates für Standings (Neu hinzugefügt)
-    dataService.subscribeToData('vorrundeStandings', updatedStandings => {
-        if (JSON.stringify(standings) !== JSON.stringify(updatedStandings)) {
-            console.log('Standings wurden aktualisiert');
-            standings = updatedStandings;
-            renderStandings(); // Neue Funktion, die wir später hinzufügen
-            updateLastUpdateTime();
+        if (matches.length === 0) {
+            setStatus('Keine Spiele gefunden. Bitte initialisiere die Vorrunde.', 'warning');
+            return;
         }
-    });
-    
-    // Echtzeit-Updates für Golden Cup (Neu hinzugefügt)
-    dataService.subscribeToData('goldenCupResults', updatedResults => {
-        if (JSON.stringify(goldenCupResults) !== JSON.stringify(updatedResults)) {
-            console.log('Golden Cup Ergebnisse wurden aktualisiert');
-            goldenCupResults = updatedResults;
-            renderStandings(); // Aktualisiere die Tabelle, wenn sich GoldenCup-Ergebnisse ändern
-        }
-    });
-}
-    
-    /**
-     * Startet den Timer für regelmäßige Aktualisierungen
-     */
-    function startUpdateTimer() {
-        // Bestehenden Timer ggf. löschen
-        if (updateTimer) {
-            clearInterval(updateTimer);
-        }
-        
-        // Neuen Timer starten
-        updateTimer = setInterval(function() {
-            refreshData();
-        }, updateInterval);
-        
-        console.log(`Timer für Aktualisierung alle ${updateInterval/1000} Sekunden gestartet`);
-    }
-    
-    /**
-     * Aktualisiert die Daten über den dataService
-     */
-async function refreshData() {
-    try {
-        // Aktuelle Daten laden
-        const currentTeams = await dataService.getData('tournamentTeams') || [];
-        const currentMatches = await dataService.getData('vorrundeMatches') || [];
-        const currentStandings = await dataService.getData('vorrundeStandings') || []; // Neu
-        const currentGoldenCupResults = await dataService.getData('goldenCupResults') || []; // Neu
-        
-        // Prüfen, ob sich die Daten geändert haben
-        const teamsChanged = JSON.stringify(teams) !== JSON.stringify(currentTeams);
-        const matchesChanged = JSON.stringify(matches) !== JSON.stringify(currentMatches);
-        const standingsChanged = JSON.stringify(standings) !== JSON.stringify(currentStandings); // Neu
-        const goldenCupChanged = JSON.stringify(goldenCupResults) !== JSON.stringify(currentGoldenCupResults); // Neu
-        
-        // Daten aktualisieren, wenn Änderungen vorhanden
-        if (teamsChanged || matchesChanged) {
-            console.log('Teams oder Matches haben sich geändert, aktualisiere Anzeige');
-            teams = currentTeams;
-            matches = currentMatches;
-            renderTableCards();
-        }
-        
-        if (standingsChanged || goldenCupChanged) { // Neu
-            console.log('Standings oder Golden Cup haben sich geändert, aktualisiere Tabelle');
-            standings = currentStandings;
-            goldenCupResults = currentGoldenCupResults;
-            renderStandings();
-        }
-        
-        // Aktualisierungszeit immer aktualisieren
+
+        // Tab-Buttons verdrahten
+        tabButtons.forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
+
+        // Erste Anzeige
+        renderActiveTab();
+        renderStandings();
         updateLastUpdateTime();
-        
-    } catch (error) {
-        console.error("Fehler beim Aktualisieren der Daten:", error);
+
+        startUpdateTimer();
+        setupRealtimeUpdates();
+
+        // Höhenangleichung regelmäßig entfernen (für Teams-Tab)
+        setInterval(höhenAngleichungEntfernen, 2000);
     }
-}
-    
-    
-    /**
-     * Aktualisiert die Anzeige der letzten Aktualisierungszeit
-     */
+
+    // ════════════════════════════════════════
+    // TAB-LOGIK
+    // ════════════════════════════════════════
+
+    function switchTab(tabName) {
+        activeTab = tabName;
+        tabButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tabName));
+        document.getElementById('tischkarten-content').style.display = tabName === 'tischkarten' ? '' : 'none';
+        document.getElementById('teams-content').style.display       = tabName === 'teams'        ? '' : 'none';
+        renderActiveTab();
+        if (tabName === 'teams') höhenAngleichungEntfernen();
+    }
+
+    function renderActiveTab() {
+        if (activeTab === 'tischkarten') renderTableCards();
+        else renderTeamsOverview();
+    }
+
+    // ════════════════════════════════════════
+    // DATEN LADEN & ECHTZEIT-UPDATES
+    // ════════════════════════════════════════
+
+    async function loadData() {
+        try {
+            teams            = await dataService.getData('tournamentTeams')  || [];
+            matches          = await dataService.getData('vorrundeMatches')  || [];
+            standings        = await dataService.getData('vorrundeStandings') || [];
+            goldenCupResults = await dataService.getData('goldenCupResults') || [];
+            console.log('Daten geladen:', { teamsCount: teams.length, matchesCount: matches.length, standingsCount: standings.length });
+        } catch (error) {
+            console.error('Fehler beim Laden der Daten:', error);
+            setStatus('Fehler beim Laden der Daten. Verwende lokale Daten falls verfügbar.', 'error');
+        }
+    }
+
+    function setupRealtimeUpdates() {
+        dataService.subscribeToData('tournamentTeams', updatedTeams => {
+            if (JSON.stringify(teams) !== JSON.stringify(updatedTeams)) {
+                teams = updatedTeams;
+                renderActiveTab();
+                updateLastUpdateTime();
+            }
+        });
+        dataService.subscribeToData('vorrundeMatches', updatedMatches => {
+            if (JSON.stringify(matches) !== JSON.stringify(updatedMatches)) {
+                matches = updatedMatches;
+                renderActiveTab();
+                updateLastUpdateTime();
+            }
+        });
+        dataService.subscribeToData('vorrundeStandings', updatedStandings => {
+            if (JSON.stringify(standings) !== JSON.stringify(updatedStandings)) {
+                standings = updatedStandings;
+                renderStandings();
+                updateLastUpdateTime();
+            }
+        });
+        dataService.subscribeToData('goldenCupResults', updatedResults => {
+            if (JSON.stringify(goldenCupResults) !== JSON.stringify(updatedResults)) {
+                goldenCupResults = updatedResults;
+                renderStandings();
+            }
+        });
+    }
+
+    function startUpdateTimer() {
+        if (updateTimer) clearInterval(updateTimer);
+        updateTimer = setInterval(refreshData, updateInterval);
+        console.log(`Timer für Aktualisierung alle ${updateInterval / 1000} Sekunden gestartet`);
+    }
+
+    async function refreshData() {
+        try {
+            const currentTeams            = await dataService.getData('tournamentTeams')  || [];
+            const currentMatches          = await dataService.getData('vorrundeMatches')  || [];
+            const currentStandings        = await dataService.getData('vorrundeStandings') || [];
+            const currentGoldenCupResults = await dataService.getData('goldenCupResults') || [];
+
+            const teamsChanged      = JSON.stringify(teams)            !== JSON.stringify(currentTeams);
+            const matchesChanged    = JSON.stringify(matches)          !== JSON.stringify(currentMatches);
+            const standingsChanged  = JSON.stringify(standings)        !== JSON.stringify(currentStandings);
+            const goldenCupChanged  = JSON.stringify(goldenCupResults) !== JSON.stringify(currentGoldenCupResults);
+
+            if (teamsChanged || matchesChanged) {
+                teams   = currentTeams;
+                matches = currentMatches;
+                renderActiveTab();
+            }
+            if (standingsChanged || goldenCupChanged) {
+                standings        = currentStandings;
+                goldenCupResults = currentGoldenCupResults;
+                renderStandings();
+            }
+            updateLastUpdateTime();
+        } catch (error) {
+            console.error('Fehler beim Aktualisieren der Daten:', error);
+        }
+    }
+
     function updateLastUpdateTime() {
-        const now = new Date();
-        const timeString = now.toLocaleTimeString();
-        updateTimeElement.textContent = timeString;
+        updateTimeElement.textContent = new Date().toLocaleTimeString();
     }
-    
-    /**
-     * Gibt für jeden Tisch (1–6) das letzte gespielte, das nächste und übernächste Spiel zurück.
-     */
+
+    // ════════════════════════════════════════
+    // TISCHKARTEN-VIEW
+    // ════════════════════════════════════════
+
     function getMatchesPerTable() {
         const result = {};
         for (let table = 1; table <= 6; table++) {
@@ -221,41 +181,27 @@ async function refreshData() {
                     return (a.isSecondHalf ? 1 : 0) - (b.isSecondHalf ? 1 : 0);
                 });
             const lastPlayed = [...tableMatches].reverse().find(m => m.played) || null;
-            const unplayed = tableMatches.filter(m => !m.played);
-            result[table] = {
-                lastPlayed,
-                current: unplayed[0] || null,
-                next: unplayed[1] || null
-            };
+            const unplayed   = tableMatches.filter(m => !m.played);
+            result[table] = { lastPlayed, current: unplayed[0] || null, next: unplayed[1] || null };
         }
         return result;
     }
 
-    /**
-     * Gibt ein lesbares Runden-Label zurück, z.B. "Rd. 3 · 1. H"
-     */
     function getBatchLabel(match) {
         if (!match) return '';
         const half = match.isSecondHalf ? '2. H' : '1. H';
         return `Rd. ${match.round} · ${half}`;
     }
 
-    /**
-     * Rendert die 6 Tischkarten (ersetzt renderTeamsOverview).
-     */
     function renderTableCards() {
         tableCardsContainer.innerHTML = '';
         const perTable = getMatchesPerTable();
         for (let table = 1; table <= 6; table++) {
             const { lastPlayed, current, next } = perTable[table];
-            const card = createTableCard(table, lastPlayed, current, next);
-            tableCardsContainer.appendChild(card);
+            tableCardsContainer.appendChild(createTableCard(table, lastPlayed, current, next));
         }
     }
 
-    /**
-     * Erstellt eine Tischkarte mit drei Sektionen: ZULETZT, JETZT, NÄCHSTES.
-     */
     function createTableCard(tableNumber, lastPlayed, current, next) {
         const card = document.createElement('div');
         card.className = `table-card tisch-${tableNumber}`;
@@ -266,7 +212,7 @@ async function refreshData() {
         header.textContent = `Tisch ${tableNumber}`;
         card.appendChild(header);
 
-        // ZULETZT-Sektion
+        // ZULETZT
         const zuletztSection = document.createElement('div');
         zuletztSection.className = 'table-card-section section-last';
         const zuletztLabel = document.createElement('div');
@@ -289,7 +235,7 @@ async function refreshData() {
         }
         card.appendChild(zuletztSection);
 
-        // JETZT-Sektion
+        // JETZT
         const jetztSection = document.createElement('div');
         jetztSection.className = 'table-card-section section-current';
         const jetztLabel = document.createElement('div');
@@ -310,7 +256,7 @@ async function refreshData() {
         }
         card.appendChild(jetztSection);
 
-        // NÄCHSTES-Sektion
+        // NÄCHSTES
         const naechstesSection = document.createElement('div');
         naechstesSection.className = 'table-card-section section-next';
         const naechstesLabel = document.createElement('div');
@@ -333,212 +279,271 @@ async function refreshData() {
 
         return card;
     }
-    
-    /**
-     * Setzt einen Status-Text
-     * @param {string} message - Die anzuzeigende Nachricht
-     * @param {string} type - Der Typ der Nachricht ('info', 'success', 'warning', 'error')
-     */
+
+    // ════════════════════════════════════════
+    // TEAM-ANSICHT
+    // ════════════════════════════════════════
+
+    function renderTeamsOverview() {
+        teamsOverviewContainer.innerHTML = '';
+        const teamMatches = groupMatchesByTeam();
+        teams.forEach((team, index) => {
+            const tischIndex = (index % 6) + 1;
+            teamsOverviewContainer.appendChild(createTeamOverviewCard(team, teamMatches[team] || [], tischIndex));
+        });
+        höhenAngleichungEntfernen();
+    }
+
+    function groupMatchesByTeam() {
+        const teamMatches = {};
+        teams.forEach(team => { teamMatches[team] = []; });
+        matches.forEach(match => {
+            if (teamMatches[match.team1]) teamMatches[match.team1].push({ ...match, isTeam1: true });
+            if (teamMatches[match.team2]) teamMatches[match.team2].push({ ...match, isTeam1: false });
+        });
+        for (const team in teamMatches) {
+            teamMatches[team].sort((a, b) => a.round - b.round);
+        }
+        return teamMatches;
+    }
+
+    function createTeamOverviewCard(teamName, teamMatches, tischIndex) {
+        const teamCard = document.createElement('div');
+        teamCard.className = `team-overview-card tisch-${tischIndex}`;
+
+        const teamHeader = document.createElement('div');
+        teamHeader.className = 'team-overview-header';
+        teamHeader.textContent = teamName;
+        teamCard.appendChild(teamHeader);
+
+        const matchesContainer = document.createElement('div');
+        matchesContainer.className = 'team-matches-container';
+
+        if (teamMatches.length === 0) {
+            const noMatches = document.createElement('div');
+            noMatches.className = 'no-matches';
+            noMatches.textContent = 'Keine Spiele für dieses Team gefunden.';
+            matchesContainer.appendChild(noMatches);
+        } else {
+            const matchesByRound = groupMatchesByRound(teamMatches);
+            for (const round in matchesByRound) {
+                matchesContainer.appendChild(createRoundGroup(round, matchesByRound[round], teamName));
+            }
+        }
+
+        teamCard.appendChild(matchesContainer);
+        return teamCard;
+    }
+
+    function groupMatchesByRound(matches) {
+        const matchesByRound = {};
+        matches.forEach(match => {
+            if (!matchesByRound[match.round]) matchesByRound[match.round] = [];
+            matchesByRound[match.round].push(match);
+        });
+        return matchesByRound;
+    }
+
+    function createRoundGroup(round, matches, teamName) {
+        const roundGroup = document.createElement('div');
+        roundGroup.className = 'round-group';
+        matches.forEach(match => roundGroup.appendChild(createMatchEntry(match, teamName, round)));
+        return roundGroup;
+    }
+
+    function createMatchEntry(match, teamName, round) {
+        const matchEntry = document.createElement('div');
+        matchEntry.className = `match-entry tisch-${match.tableNumber || 1}`;
+
+        const matchInfo = document.createElement('div');
+        matchInfo.className = 'match-info';
+
+        const roundHalfInfo = document.createElement('div');
+        roundHalfInfo.className = 'round-half-info';
+        if (match.isSecondHalf) {
+            roundHalfInfo.innerHTML = `
+                <div class="half-symbol second-half-symbol">
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                </div>
+            `;
+        } else {
+            roundHalfInfo.innerHTML = `
+                <div class="half-symbol first-half-symbol">
+                    <span class="dot"></span>
+                </div>
+            `;
+        }
+        matchInfo.appendChild(roundHalfInfo);
+        matchEntry.appendChild(matchInfo);
+
+        const matchContent = document.createElement('div');
+        matchContent.className = 'match-content';
+
+        const isTeam1      = match.isTeam1;
+        const opponentName = isTeam1 ? match.team2 : match.team1;
+        const ownScore     = isTeam1 ? match.score1 : match.score2;
+        const opponentScore = isTeam1 ? match.score2 : match.score1;
+
+        if (match.played) {
+            const resultClass = ownScore > opponentScore ? 'team-won' : ownScore < opponentScore ? 'team-lost' : 'team-draw';
+            matchContent.innerHTML = `
+                <span class="opponent-name">${opponentName}</span>
+                <span class="match-score ${resultClass}">${ownScore}:${opponentScore}</span>
+            `;
+        } else {
+            matchContent.innerHTML = `
+                <span class="opponent-name">${opponentName}</span>
+                <span class="no-result">-:-</span>
+            `;
+        }
+
+        matchEntry.appendChild(matchContent);
+        return matchEntry;
+    }
+
+    function höhenAngleichungEntfernen() {
+        document.querySelectorAll('.round-groups-equalized').forEach(el => el.classList.remove('round-groups-equalized'));
+        document.querySelectorAll('.round-group, .team-matches-container, .team-overview-card').forEach(el => {
+            el.style.height    = 'auto';
+            el.style.minHeight = '0';
+        });
+    }
+
+    // ════════════════════════════════════════
+    // HILFSFUNKTIONEN
+    // ════════════════════════════════════════
+
     function setStatus(message, type = 'info') {
         statusContainer.className = 'status-container';
         statusContainer.classList.add(`status-${type}`);
         statusContainer.textContent = message;
     }
-    
-    // Bei Verlassen der Seite den Timer stoppen
-    window.addEventListener('beforeunload', function() {
-        if (updateTimer) {
-            clearInterval(updateTimer);
-        }
-    });
-/**
- * Rendert die Tabelle
- */
-function renderStandings() {
-    if (!standingsContainer) return;
-    
-    // Container leeren
-    standingsContainer.innerHTML = '';
-    
-    // Gleichstände finden
-    const sortedForTies = [...standings].sort((a, b) => {
-        if (a.points !== b.points) return b.points - a.points;
-        if (a.goalDifference !== b.goalDifference) return b.goalDifference - a.goalDifference;
-        return b.goalsFor - a.goalsFor;
-    });
-    
-    const ties = findTies(sortedForTies);
-    
-    // Tabelle mit Golden Cup Berücksichtigung sortieren
-    let sortedStandings = [...standings].sort((a, b) => {
-        // Primäre Kriterien: Punkte, Tordifferenz, erzielte Tore
-        if (a.points !== b.points) return b.points - a.points;
-        if (a.goalDifference !== b.goalDifference) return b.goalDifference - a.goalDifference;
-        if (a.goalsFor !== b.goalsFor) return b.goalsFor - a.goalsFor;
-        
-        // Wenn alle Kriterien gleich sind, prüfe Golden Cup Ergebnisse
-        for (const tie of ties) {
-            if (tie.result) {
-                const isAInTie = tie.teams.some(t => t.team === a.team);
-                const isBInTie = tie.teams.some(t => t.team === b.team);
-                
-                if (isAInTie && isBInTie) {
-                    // Finde die entsprechenden Scores im Tie-Ergebnis
-                    const aScore = tie.result.teams.find(t => t.team === a.team)?.score || 0;
-                    const bScore = tie.result.teams.find(t => t.team === b.team)?.score || 0;
-                    
-                    // Sortiere absteigend nach Score (höhere Scores zuerst)
-                    return bScore - aScore;
+
+    window.addEventListener('beforeunload', () => { if (updateTimer) clearInterval(updateTimer); });
+
+    // ════════════════════════════════════════
+    // STANDINGS
+    // ════════════════════════════════════════
+
+    function renderStandings() {
+        if (!standingsContainer) return;
+        standingsContainer.innerHTML = '';
+
+        const sortedForTies = [...standings].sort((a, b) => {
+            if (a.points !== b.points) return b.points - a.points;
+            if (a.goalDifference !== b.goalDifference) return b.goalDifference - a.goalDifference;
+            return b.goalsFor - a.goalsFor;
+        });
+        const ties = findTies(sortedForTies);
+
+        let sortedStandings = [...standings].sort((a, b) => {
+            if (a.points !== b.points) return b.points - a.points;
+            if (a.goalDifference !== b.goalDifference) return b.goalDifference - a.goalDifference;
+            if (a.goalsFor !== b.goalsFor) return b.goalsFor - a.goalsFor;
+            for (const tie of ties) {
+                if (tie.result) {
+                    const isAInTie = tie.teams.some(t => t.team === a.team);
+                    const isBInTie = tie.teams.some(t => t.team === b.team);
+                    if (isAInTie && isBInTie) {
+                        const aScore = tie.result.teams.find(t => t.team === a.team)?.score || 0;
+                        const bScore = tie.result.teams.find(t => t.team === b.team)?.score || 0;
+                        return bScore - aScore;
+                    }
                 }
             }
-        }
-        
-        // Alphabetische Sortierung als letztes Kriterium
-        return a.team.localeCompare(b.team);
-    });
-    
-    // Tabelle erstellen
-    const table = document.createElement('table');
-    table.className = 'standings-table';
-    
-    // Tabellenkopf
-    const thead = document.createElement('thead');
-    thead.innerHTML = `
-        <tr>
-            <th class="pos-col">Pos</th>
-            <th class="team-col">Team</th>
-            <th class="stat-col">Sp</th>
-            <th class="stat-col">Diff</th>
-            <th class="stat-col">Pkt</th>
-        </tr>
-    `;
-    table.appendChild(thead);
-    
-    // Tabellenkörper
-    const tbody = document.createElement('tbody');
-    
-    // Aktuelle Position und Werte für Vergleich initialisieren
-    let currentPosition = 1;
-    let positionCounter = 0;
-    let lastTeamValues = null;
-    
-    sortedStandings.forEach((team, index) => {
-        const row = document.createElement('tr');
-        
-        // Aktuelle Werte des Teams
-        const teamValues = {
-            points: team.points,
-            goalDifference: team.goalDifference,
-            goalsFor: team.goalsFor
-        };
-        
-        // Für Golden Cup-Entscheidungen prüfen, ob dies den gleichen Platz beeinträchtigt
-        let isAffectedByGoldenCup = false;
-        for (const tie of ties) {
-            if (tie.result && tie.teams.some(t => t.team === team.team)) {
-                isAffectedByGoldenCup = true;
-                break;
+            return a.team.localeCompare(b.team);
+        });
+
+        const table = document.createElement('table');
+        table.className = 'standings-table';
+        const thead = document.createElement('thead');
+        thead.innerHTML = `
+            <tr>
+                <th class="pos-col">Pos</th>
+                <th class="team-col">Team</th>
+                <th class="stat-col">Sp</th>
+                <th class="stat-col">Diff</th>
+                <th class="stat-col">Pkt</th>
+            </tr>
+        `;
+        table.appendChild(thead);
+
+        const tbody = document.createElement('tbody');
+        let currentPosition = 1;
+        let positionCounter = 0;
+        let lastTeamValues  = null;
+
+        sortedStandings.forEach((team, index) => {
+            const row = document.createElement('tr');
+            const teamValues = { points: team.points, goalDifference: team.goalDifference, goalsFor: team.goalsFor };
+
+            let isAffectedByGoldenCup = false;
+            for (const tie of ties) {
+                if (tie.result && tie.teams.some(t => t.team === team.team)) {
+                    isAffectedByGoldenCup = true;
+                    break;
+                }
+            }
+
+            if (index === 0) {
+                currentPosition = 1;
+            } else if (isAffectedByGoldenCup) {
+                currentPosition = positionCounter + 1;
+            } else if (JSON.stringify(teamValues) !== JSON.stringify(lastTeamValues)) {
+                currentPosition = positionCounter + 1;
+            }
+            positionCounter = index + 1;
+            lastTeamValues  = teamValues;
+
+            if (index < 4)       row.className = 'direct-qualifier';
+            else if (index < 12) row.className = 'playoff-qualifier';
+
+            const teamCell = document.createElement('td');
+            teamCell.className   = 'team-col';
+            teamCell.textContent = team.team;
+
+            row.innerHTML = `<td class="pos-col">${currentPosition}</td>`;
+            row.appendChild(teamCell);
+            row.innerHTML += `
+                <td class="stat-col">${team.played}</td>
+                <td class="stat-col">${team.goalsFor - team.goalsAgainst}</td>
+                <td class="stat-col">${team.points}</td>
+            `;
+            tbody.appendChild(row);
+        });
+
+        table.appendChild(tbody);
+        standingsContainer.appendChild(table);
+    }
+
+    function findTies(sortedStandings) {
+        const teamsByValues = {};
+        sortedStandings.forEach(team => {
+            const key = `${team.points}-${team.goalDifference}-${team.goalsFor}`;
+            if (!teamsByValues[key]) teamsByValues[key] = [];
+            teamsByValues[key].push(team);
+        });
+
+        const ties = [];
+        for (const key in teamsByValues) {
+            if (teamsByValues[key].length > 1) {
+                const teamsSorted = teamsByValues[key].map(t => t.team).sort().join('_');
+                const tieId = btoa(teamsSorted).replace(/=/g, '');
+                ties.push({ teams: teamsByValues[key], id: tieId });
             }
         }
-        
-        // Position bestimmen
-        if (index === 0) {
-            // Erste Position ist immer 1
-            currentPosition = 1;
-        } else if (isAffectedByGoldenCup) {
-            // Bei Golden Cup-Entscheidungen inkrementieren wir den Counter
-            currentPosition = positionCounter + 1;
-        } else if (JSON.stringify(teamValues) === JSON.stringify(lastTeamValues)) {
-            // Gleiche Werte -> gleiche Position (keine Änderung)
-        } else {
-            // Unterschiedliche Werte -> neue Position basierend auf aktuellem Counter
-            currentPosition = positionCounter + 1;
-        }
-        
-        // Zähler für die nächste Position aktualisieren
-        positionCounter = index + 1;
-        
-        // Werte für den nächsten Vergleich speichern
-        lastTeamValues = teamValues;
-        
-        // CSS-Klasse für direkte Qualifikation und Playoff-Qualifikation
-        // Basierend auf tatsächlicher Position in der sortierten Tabelle
-        if (index < 4) {
-            row.className = 'direct-qualifier';
-        } else if (index < 12) {
-            row.className = 'playoff-qualifier';
-        }
-        
-        // Team-Zelle OHNE Marker für Gleichstand in der normalen Ansicht
-        const teamCell = document.createElement('td');
-        teamCell.className = 'team-col';
-        teamCell.textContent = team.team;
-        
-        // Restliche Zellen
-        row.innerHTML = `
-            <td class="pos-col">${currentPosition}</td>
-        `;
-        row.appendChild(teamCell);
-        row.innerHTML += `
-            <td class="stat-col">${team.played}</td>
-            <td class="stat-col">${team.goalsFor - team.goalsAgainst}</td>
-            <td class="stat-col">${team.points}</td>
-        `;
-        
-        tbody.appendChild(row);
-    });
-    
-    table.appendChild(tbody);
-    standingsContainer.appendChild(table);
-}
 
-/**
- * Findet Gleichstände in der Tabelle
- */
-function findTies(sortedStandings) {
-    // Gruppiere Teams nach ihren Sortierkriterien
-    const teamsByValues = {};
-    
-    sortedStandings.forEach(team => {
-        // Erstelle einen Schlüssel aus den Sortierkriterien
-        const key = `${team.points}-${team.goalDifference}-${team.goalsFor}`;
-        
-        if (!teamsByValues[key]) {
-            teamsByValues[key] = [];
-        }
-        
-        teamsByValues[key].push(team);
-    });
-    
-    // Nur Gruppen mit mehr als einem Team sind Gleichstände
-    const ties = [];
-    
-    for (const key in teamsByValues) {
-        if (teamsByValues[key].length > 1) {
-            // Erstelle eine stabile ID für diesen Gleichstand
-            const teamsSorted = teamsByValues[key].map(t => t.team).sort().join('_');
-            const tieId = btoa(teamsSorted).replace(/=/g, ''); // Base64-kodierte eindeutige ID
-            
-            ties.push({
-                teams: teamsByValues[key],
-                id: tieId
-            });
-        }
+        ties.forEach(tie => {
+            const result = goldenCupResults.find(result =>
+                result.id === tie.id ||
+                (result.teams.every(team => tie.teams.some(t => t.team === team.team)) &&
+                 tie.teams.every(team => result.teams.some(t => t.team === team.team)))
+            );
+            tie.result = result || null;
+        });
+
+        return ties;
     }
-    
-    // Überprüfen, ob es Golden Cup Ergebnisse für diese Ties gibt
-    ties.forEach(tie => {
-        const result = goldenCupResults.find(result => 
-            result.id === tie.id || 
-            (result.teams.every(team => tie.teams.some(t => t.team === team.team)) &&
-             tie.teams.every(team => result.teams.some(t => t.team === team.team)))
-        );
-        
-        tie.result = result || null;
-    });
-    
-    return ties;
-}
-
 
 });
