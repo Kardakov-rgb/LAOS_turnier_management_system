@@ -50,12 +50,20 @@ class KoTournamentModel {
   ensureValidMatches() {
     ['playoff', 'quarterfinal', 'semifinal', 'final'].forEach(round => {
       this.koMatches[round].forEach(match => {
-        if (!match.teams) {
+        if (!match.teams || !Array.isArray(match.teams)) {
           match.teams = [
             { name: null, seed: null, score: null },
             { name: null, seed: null, score: null }
           ];
         }
+        // Firebase drops null-valued keys, so slots can go missing → restore them
+        while (match.teams.length < 2) {
+          match.teams.push({ name: null, seed: null, score: null });
+        }
+        // Ensure each slot is a proper object (not null/undefined)
+        match.teams = match.teams.map(team =>
+          (team && typeof team === 'object') ? team : { name: null, seed: null, score: null }
+        );
       });
     });
   }
