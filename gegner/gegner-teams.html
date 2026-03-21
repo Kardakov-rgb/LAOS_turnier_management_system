@@ -4,16 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="../global/favicon.png">
-    <title>LAOS 2.0 - Gegner-Übersicht</title>
-    
-    <!-- Google Fonts: Space Mono -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    <title>LAOS 2.0 - Gegner-Teams</title>
 
     <!-- CSS-Datei -->
     <link rel="stylesheet" href="../global/global.css">
-    <link rel="stylesheet" href="./gegner.css">
+    <link rel="stylesheet" href="./gegner-teams.css">
 </head>
 <body>
     <div class="page-container">
@@ -23,7 +18,7 @@
                 <img src="../global/favicon.png" alt="Logo" class="site-logo">
                 <h1 class="site-title">LAOS 2.0</h1>
             </div>
-            
+
 
             <nav class="main-nav">
                 <ul class="nav-list">
@@ -31,8 +26,8 @@
                     <li class="nav-item"><a href="../teams/teams.html" class="nav-link">Teams</a></li>
                     <li class="nav-item"><a href="../vorrunde/vorrunde.html" class="nav-link">Vorrunde</a></li>
                     <li class="nav-item"><a href="../korunde/ko-runde.html" class="nav-link">KO-Runde</a></li>
-                    <li class="nav-item"><a href="../gegner/gegner.html" class="nav-link active">Gegner-Übersicht</a></li>
-                    <li class="nav-item"><a href="../gegner/gegner-teams.html" class="nav-link">Gegner-Teams</a></li>
+                    <li class="nav-item"><a href="../gegner/gegner.html" class="nav-link">Gegner-Übersicht</a></li>
+                    <li class="nav-item"><a href="../gegner/gegner-teams.html" class="nav-link active">Gegner-Teams</a></li>
                     <li class="nav-item"><a href="../statistik/statistik.html" class="nav-link">Statistik</a></li>
                     <li class="nav-item"><a href="../wetten/wetten.html" class="nav-link">Wetten</a></li>
                 </ul>
@@ -40,9 +35,9 @@
         </header>
         <!-- Hauptinhalt der Seite -->
         <main class="main-content">
-            <div class="gegner-container">               
+            <div class="gegner-container">
                 <!-- Container für Team-Übersichten -->
-                <div id="tableCardsContainer" class="table-cards-container">
+                <div id="teamsOverviewContainer" class="teams-overview-container">
                     <!-- Team-Karten werden hier dynamisch eingefügt -->
                 </div>
     <!-- Container für Tabelle hinzufügen -->
@@ -63,9 +58,9 @@
         <img src="../global/Footer.png" alt="Footer">
     </footer>
     </div>
-    
+
     <!-- JavaScript -->
-    <script type="module" src="./gegner.js"></script>
+    <script type="module" src="./gegner-teams.js"></script>
     <script type="module" src="https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js"></script>
     <script type="module" src="https://www.gstatic.com/firebasejs/10.6.0/firebase-database.js"></script>
     <script type="module" src="../global/firebase-config.js"></script>

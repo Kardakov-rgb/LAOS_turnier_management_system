@@ -1,0 +1,499 @@
+/* 
+* LAOS 2.0 - Gegner-Übersicht-spezifisches CSS mit Vorrunden-Match-Karten-Design
+* Dieses Stylesheet enthält Stile, die nur auf der Gegner-Übersicht-Seite verwendet werden.
+* Aktualisiert mit einheitlicher Größe für round-group-Elemente und Verbindungsstatus
+*/
+
+/* Gegner-Übersicht Container */
+.gegner-container {
+    display: grid;
+    grid-template-columns: 80fr 20fr; /* Verhältnis 5:1 wie gewünscht */
+    gap: 0.5rem; /* Kleiner Abstand zwischen Teams und Tabelle */
+    width: 100%;
+    margin: 0 auto;
+    background-color: transparent;
+    border-radius: 12px;
+}
+
+
+.gegner-header {
+    display: flex;
+    justify-content: right;
+    align-items: right;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding-top:1rem;
+}
+
+.gegner-title {
+    color: var(--color-blue-dark);
+    font-size: 2.5rem;
+    position: relative;
+    display: inline-block;
+}
+
+.gegner-title:after {
+    content: "";
+    position: absolute;
+    bottom: -10px;
+    left: 0;
+    width: 100px;
+    height: 3px;
+    background: linear-gradient(to right, var(--color-blue), var(--color-orange));
+    border-radius: 2px;
+}
+
+.last-update {
+    font-size: 0.9rem;
+    color: var(--color-medium-gray);
+    font-style: italic;
+    align-items: right;
+}
+
+.pending-badge {
+    display: inline-block;
+    background-color: #ffc107;
+    color: #000;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    text-align: center;
+    font-size: 0.8rem;
+    line-height: 20px;
+    margin-left: 0.5rem;
+}
+
+/* Status-Container */
+.status-container {
+    margin: 1rem 0;
+    padding: 1rem;
+    border-radius: 8px;
+    background-color: transparent;
+}
+
+.status-warning {
+    background-color: #fff3cd;
+    color: #856404;
+    border-left: 5px solid #ffeeba;
+}
+
+.status-error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border-left: 5px solid #f5c6cb;
+}
+
+.status-success {
+    background-color: #d4edda;
+    color: #155724;
+    border-left: 5px solid #c3e6cb;
+}
+
+.status-info {
+    background-color: #cce5ff;
+    color: #004085;
+    border-left: 5px solid #b8daff;
+}
+
+/* Teams-Übersicht-Grid */
+.teams-overview-container {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr); /* Genau 8 gleich breite Karten pro Zeile */
+    gap: 0.1rem; /* Minimaler Abstand zwischen Karten */
+    margin-top: 0.1rem;
+    align-items: start !important;
+}
+
+/* Team-Karte */
+.team-overview-card {
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    border-radius: 6px;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+    overflow: visible;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    font-size: 0.75rem;
+    height: auto; /* Let the card take only the space it needs */
+}
+
+.team-overview-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* Team-Header */
+.team-overview-header {
+    background-color: var(--color-blue);
+    color: white;
+    font-weight: bold;
+    font-size: 1.5rem;
+    text-align: center;
+    border-radius: 6px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    word-wrap: break-word; /* Wichtig für Zeilenumbrüche */
+    overflow-wrap: break-word;
+    hyphens: auto;
+}
+
+
+/* Matches-Container */
+.team-matches-container {
+    padding: 0.2rem;
+    display: flex;
+    flex-direction: column;
+    overflow-y: visible; /* Kein Scrollen */
+        flex: 0 0 auto !important;
+    height: auto !important;
+}
+
+/* Runden-Gruppe mit einheitlicher Größe */
+.round-group {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 0; /* Prevent expanding beyond content */
+        min-height: 0 !important;
+}
+
+/* Match-Eintrag im Vorrunden-Stil */
+.match-entry {
+    display: grid;
+    grid-template-columns: 1fr 20fr; /* Match-info 2fr, Match-content 3fr */
+    padding: 0.2rem;
+    border-radius: 8px;
+    position: relative;
+    background-color: white;
+    color: var(--color-dark-gray);
+    transition: all 0.3s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    align-items: center; /* Vertikale Zentrierung */
+}
+
+.match-entry:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+}
+
+/* Tisch-Farben mit 60% Hintergrund und 100% Rand */
+.match-entry.tisch-1 {
+    border-left: 6px solid #D50F0D; /* Rot 100% */
+    background-color: rgba(213, 15, 13, 0.6); /* 60% roter Hintergrund */
+}
+
+.match-entry.tisch-2 {
+    border-left: 6px solid #FF6600; /* Orange 100% */
+    background-color: rgba(255, 102, 0, 0.6); /* 60% oranger Hintergrund */
+}
+
+.match-entry.tisch-3 {
+    border-left: 6px solid #8E91DF; /* Blau 100% */
+    background-color: rgba(142, 145, 223, 0.6); /* 60% blauer Hintergrund */
+}
+
+.match-entry.tisch-4 {
+    border-left: 6px solid #ADDDC8; /* Grün 100% */
+    background-color: rgba(173, 221, 200, 0.6); /* 60% grüner Hintergrund */
+}
+
+.match-entry.tisch-5 {
+    border-left: 6px solid #A48876; /* Braun 100% */
+    background-color: rgba(164, 136, 118, 0.6); /* 60% brauner Hintergrund */
+}
+
+.match-entry.tisch-6 {
+    border-left: 6px solid #666666; /* Grau 100% */
+    background-color: rgba(102, 102, 102, 0.6); /* 60% grauer Hintergrund */
+}
+
+.match-entry:last-child {
+    margin-bottom: 0;
+}
+
+/* Match-Info (Runde und Hälfte) */
+.match-info {
+    font-size: 1.25rem;
+    font-weight: 500;
+    display: flex;
+    flex-direction: column;
+    padding: 0.2rem;
+    justify-content: center; /* Center the content vertically */
+    align-items: center; /* Center horizontally too */
+}
+/* Neue Klasse für Rundeninfo (obere Zeile) */
+.round-half-info {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 4px;
+}
+
+/* Base container for both half symbols */
+.half-symbol {
+    display: flex;
+    flex-direction: column; /* Stacked layout for dots */
+    align-items: center;
+    justify-content: center;
+    gap: 3px; /* Space between dots for the second half */
+    height: 100%;
+    padding: 2px 0; /* Small padding for visual balance */
+}
+
+/* Basic dot styling */
+.dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background-color: #555; /* Slightly lighter than black for a more subtle look */
+    display: block;
+}
+
+
+
+/* Tisch-Info als zweite Zeile */
+.tisch-info {
+    font-size: 1rem;
+    color: black;
+        font-weight: bold;
+
+}
+
+/* Gegner-Name und Ergebnis nebeneinander */
+.match-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+}
+
+/* Gegner-Name */
+.opponent-name {
+    font-weight: 600;
+    font-size: 1.25rem;
+    color: var(--color-dark-gray);
+}
+
+/* Match-Ergebnis */
+.match-score {
+    font-weight: bold;
+    padding: 0.2rem;
+    border-radius: 3px;
+    font-size: 1.5rem;
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 0.2rem;
+}
+
+.no-result {
+    font-style: italic;
+    color: var(--color-dark-gray);
+    font-size: 1.5rem;
+    background-color: rgba(255, 255, 255, 0.5);
+    padding: 0.2rem;
+    border-radius: 3px;
+}
+
+/* Ergebnis-Stile */
+.team-won {
+    background-color: rgba(173, 221, 200, 0.9);
+    color: var(--color-dark-gray);
+}
+
+.team-lost {
+    background-color: rgba(213, 15, 13, 0.8);
+    color: white;
+}
+
+.team-draw {
+    background-color: rgba(255, 255, 255, 0.8);
+    color: var(--color-dark-gray);
+}
+
+/* Wenn keine Matches vorhanden sind */
+.no-matches {
+    padding: 0.2rem;
+    text-align: center;
+    color: var(--color-medium-gray);
+    font-style: italic;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+/* Marker für gespielte Matches */
+.played-marker {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 0 20px 20px 0;
+    border-color: transparent rgba(255, 255, 255, 0.9) transparent transparent;
+}
+
+/* Remove any JavaScript-added equalizing classes */
+.round-groups-equalized .round-group {
+    min-height: 0 !important; /* Force override any JavaScript-set height */
+    height: auto !important;
+}
+        
+/* Responsive Design */
+@media (max-width: 1600px) {
+    .teams-overview-container {
+        grid-template-columns: repeat(6, 1fr);
+    }
+}
+
+@media (max-width: 1200px) {
+    .teams-overview-container {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (max-width: 900px) {
+    .teams-overview-container {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .gegner-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .connection-status {
+        margin-bottom: 0.5rem;
+    }
+}
+
+@media (max-width: 600px) {
+    .teams-overview-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .connection-status {
+        font-size: 0.8rem;
+        padding: 0.2rem 0.4rem;
+    }
+}
+
+@media (max-width: 400px) {
+    .teams-overview-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Tabellen-Stile von vorrunde.css */
+.standings-section {
+    border-radius: 8px;
+    margin-bottom: 2rem;
+}
+
+/* Aktualisierte Stile für die Tabelle */
+.standings-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 1.25rem;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    background-color: #f9f9f9;
+    border-radius: 8px;
+        font-weight: 1500;
+    font-weight: bold;
+}
+
+/* Nur äußere Ecken abgerundet */
+.standings-table thead tr:first-child th:first-child {
+    border-top-left-radius: 8px;
+}
+
+.standings-table thead tr:first-child th:last-child {
+    border-top-right-radius: 8px;
+}
+
+.standings-table tbody tr:last-child td:first-child {
+    border-bottom-left-radius: 8px;
+}
+
+.standings-table tbody tr:last-child td:last-child {
+    border-bottom-right-radius: 8px;
+}
+
+.standings-table th,
+.standings-table td {
+    padding: 0.2rem;
+    text-align: center;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+/* Hover-Effekt für Zeilen */
+.standings-table tbody tr:hover {
+    background-color: #dd3f3d;
+    transition: background-color 0.2s ease;
+}
+
+/* Kopfzeile mit der gewünschten Farbe */
+.standings-table th {
+    background-color: #c8b8ad;
+    color: #ffffff;
+    font-weight: 1500;
+    font-weight: bold;
+    border-bottom: 2px solid #b8a89d;
+}
+
+.standings-table .team-col {
+    text-align: left;
+    min-width: 120px;
+}
+
+.standings-table .pos-col {
+    width: 40px;
+}
+
+.standings-table .stat-col {
+    width: 60px;
+}
+
+/* Dickere Linie zwischen Platz 4 und 5 */
+.standings-table tbody tr:nth-child(4) td {
+    border-bottom: 3px solid #b8a89d;
+}
+
+/* Dickere Linie zwischen Platz 12 und 13 */
+.standings-table tbody tr:nth-child(12) td {
+    border-bottom: 3px solid #b8a89d;
+}
+
+/* Dezentere Farbgebung für qualifizierte Teams */
+.standings-table .direct-qualifier {
+    background-color: rgba(200, 184, 173, 0.2);
+}
+
+.standings-table .direct-qualifier .pos-col {
+    background-color: rgba(180, 164, 153, 0.6);
+    color: #333;
+    font-weight: bold;
+}
+
+.standings-table .playoff-qualifier {
+    background-color: rgba(200, 184, 173, 0.1);
+}
+
+.standings-table .playoff-qualifier .pos-col {
+    background-color: rgba(180, 164, 153, 0.3);
+    color: #333;
+}
+
+/* Gleichstand-Marker in der Tabelle */
+.tie-marker {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background-color: #FFD700;
+    border-radius: 50%;
+    margin-right: 5px;
+}
