@@ -497,6 +497,10 @@ tr.golden-cup-decided {
     border-left: 3px solid #FFD700;
 }
 
+tr.golden-cup-decided td:first-child {
+    padding-left: 0.5rem;
+}
+
 .golden-cup-legend {
     margin-top: 0.6rem;
     font-size: 0.8rem;
