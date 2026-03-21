@@ -516,10 +516,10 @@
 .tiebreaker-container {
     margin-top: 1.5rem;
     padding: 1rem;
-    background: linear-gradient(160deg, rgba(200, 150, 12, 0.25) 0%, rgba(80, 60, 0, 0.25) 100%);
+    background: linear-gradient(160deg, rgba(255, 102, 0, 0.2) 0%, rgba(180, 70, 0, 0.2) 100%);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 215, 0, 0.25);
+    border: 1px solid rgba(255, 102, 0, 0.25);
     border-radius: 14px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25),
                 inset 0 1px 0 rgba(255, 255, 255, 0.12);
@@ -551,10 +551,10 @@
     .tiebreaker-matches { grid-template-columns: 1fr; }
 }
 
-/* ─── Einzelne Tiebreaker-Karte – wie paarung-card (goldener Gradient) ─── */
+/* ─── Einzelne Tiebreaker-Karte – wie paarung-card (LAOS Orange) ─── */
 .tiebreaker-match {
-    background: linear-gradient(160deg, #5a4a00 0%, #2a2000 100%);
-    border: 1px solid rgba(255, 215, 0, 0.3);
+    background: linear-gradient(160deg, #FF6600 0%, #b34600 100%);
+    border: 1px solid rgba(255, 160, 50, 0.4);
     border-radius: 14px;
     overflow: hidden;
     box-shadow:
@@ -593,23 +593,6 @@
     letter-spacing: 0.1em;
     white-space: nowrap;
 }
-
-.tie-teams-label {
-    font-family: 'Space Mono', monospace;
-    font-size: 0.7rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    flex: 1;
-    min-width: 0;
-}
-
-.tie-position-direct  { color: #7dffb3; }
-.tie-position-playoff { color: #7db8ff; }
-.tie-position-default { color: rgba(255, 255, 255, 0.75); }
 
 .tiebreaker-match-actions {
     display: flex;

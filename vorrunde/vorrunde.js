@@ -1512,12 +1512,6 @@ function showGoldenCup() {
     title.textContent = '🏆 Golden Cup - Gleichstand-Entscheidungen';
     goldenCupContainer.appendChild(title);
     
-    // Erklärung hinzufügen
-    const explanation = document.createElement('div');
-    explanation.className = 'tiebreaker-info';
-    explanation.innerHTML = 'Hier werden die Gleichstand-Entscheidungen angezeigt.';
-    goldenCupContainer.appendChild(explanation);
-    
     // Sortierte Tabelle erstellen (ALLE Teams)
     const sortedStandings = [...standings].sort((a, b) => {
         if (a.points !== b.points) return b.points - a.points;
@@ -1648,33 +1642,28 @@ function createTiebreakerMatch(tie, index) {
     matchTitle.textContent = `Gleichstand ${index + 1}`;
     headerInfo.appendChild(matchTitle);
 
-    const teamsLabel = document.createElement('span');
-    teamsLabel.className = `tie-teams-label ${positionClass}`;
-    teamsLabel.textContent = teamNames;
-    headerInfo.appendChild(teamsLabel);
-
     matchHeader.appendChild(headerInfo);
 
-    // Emoji-Buttons im Header
+    // Buttons im Header
     const headerActions = document.createElement('div');
     headerActions.className = 'tiebreaker-match-actions';
 
     if (tie.result) {
         const editBtn = document.createElement('button');
-        editBtn.className = 'action-emoji-btn';
+        editBtn.className = 'header-btn';
         editBtn.innerHTML = '✏️';
         editBtn.addEventListener('click', () => editTiebreakerResult(tie.id));
         headerActions.appendChild(editBtn);
     } else {
         const saveBtn = document.createElement('button');
-        saveBtn.className = 'action-emoji-btn';
+        saveBtn.className = 'header-btn';
         saveBtn.innerHTML = '💾';
         saveBtn.addEventListener('click', () => saveTiebreakerResult(tie.id));
         headerActions.appendChild(saveBtn);
     }
 
     const resetBtn = document.createElement('button');
-    resetBtn.className = 'action-emoji-btn';
+    resetBtn.className = 'header-btn';
     resetBtn.innerHTML = '🔄';
     resetBtn.addEventListener('click', () => resetTiebreakerResult(tie.id));
     headerActions.appendChild(resetBtn);
