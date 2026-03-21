@@ -345,8 +345,9 @@
 }
 
 .score-input:disabled {
-    background: rgba(255, 255, 255, 0.45);
-    color: #333;
+    background: rgba(255, 255, 255, 0.75);
+    color: #222;
+    opacity: 1;
 }
 
 /* Entfernt Spinner bei number inputs */
