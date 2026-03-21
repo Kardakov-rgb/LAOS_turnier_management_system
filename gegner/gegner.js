@@ -180,9 +180,8 @@ document.addEventListener('DOMContentLoaded', async function() {
                     if (a.round !== b.round) return a.round - b.round;
                     return (a.isSecondHalf ? 1 : 0) - (b.isSecondHalf ? 1 : 0);
                 });
-            const lastPlayed = [...tableMatches].reverse().find(m => m.played) || null;
             const unplayed   = tableMatches.filter(m => !m.played);
-            result[table] = { lastPlayed, current: unplayed[0] || null, next: unplayed[1] || null };
+            result[table] = { current: unplayed[0] || null, next: unplayed[1] || null, afterNext: unplayed[2] || null };
         }
         return result;
     }
@@ -197,12 +196,12 @@ document.addEventListener('DOMContentLoaded', async function() {
         tableCardsContainer.innerHTML = '';
         const perTable = getMatchesPerTable();
         for (let table = 1; table <= 6; table++) {
-            const { lastPlayed, current, next } = perTable[table];
-            tableCardsContainer.appendChild(createTableCard(table, lastPlayed, current, next));
+            const { current, next, afterNext } = perTable[table];
+            tableCardsContainer.appendChild(createTableCard(table, current, next, afterNext));
         }
     }
 
-    function createTableCard(tableNumber, lastPlayed, current, next) {
+    function createTableCard(tableNumber, current, next, afterNext) {
         const card = document.createElement('div');
         card.className = `table-card tisch-${tableNumber}`;
 
@@ -212,36 +211,19 @@ document.addEventListener('DOMContentLoaded', async function() {
         header.textContent = `Tisch ${tableNumber}`;
         card.appendChild(header);
 
-        // ZULETZT
-        const zuletztSection = document.createElement('div');
-        zuletztSection.className = 'table-card-section section-last';
-        const zuletztLabel = document.createElement('div');
-        zuletztLabel.className = 'section-label last';
-        zuletztLabel.textContent = 'Zuletzt';
-        zuletztSection.appendChild(zuletztLabel);
-        if (lastPlayed) {
-            const team1Won = lastPlayed.score1 > lastPlayed.score2;
-            const team2Won = lastPlayed.score2 > lastPlayed.score1;
-            zuletztSection.innerHTML += `
-                <div class="match-result-row">
-                    <span class="team-name ${team1Won ? 'winner' : ''}">${lastPlayed.team1}</span>
-                    <span class="result-score">${lastPlayed.score1}:${lastPlayed.score2}</span>
-                    <span class="team-name ${team2Won ? 'winner' : ''}">${lastPlayed.team2}</span>
-                </div>
-                <div class="round-info">${getBatchLabel(lastPlayed)}</div>
-            `;
-        } else {
-            zuletztSection.innerHTML += `<div class="no-games-text">–</div>`;
-        }
-        card.appendChild(zuletztSection);
-
         // JETZT
         const jetztSection = document.createElement('div');
         jetztSection.className = 'table-card-section section-current';
+        const jetztLabelRow = document.createElement('div');
+        jetztLabelRow.className = 'section-label-row';
         const jetztLabel = document.createElement('div');
         jetztLabel.className = 'section-label current';
         jetztLabel.textContent = 'Jetzt';
-        jetztSection.appendChild(jetztLabel);
+        const liveDot = document.createElement('span');
+        liveDot.className = 'live-dot';
+        jetztLabelRow.appendChild(jetztLabel);
+        jetztLabelRow.appendChild(liveDot);
+        jetztSection.appendChild(jetztLabelRow);
         if (current) {
             jetztSection.innerHTML += `
                 <div class="match-teams-row">
@@ -276,6 +258,27 @@ document.addEventListener('DOMContentLoaded', async function() {
             naechstesSection.innerHTML += `<div class="no-games-text">–</div>`;
         }
         card.appendChild(naechstesSection);
+
+        // ÜBERNÄCHSTES
+        const afterNextSection = document.createElement('div');
+        afterNextSection.className = 'table-card-section section-afternext';
+        const afterNextLabel = document.createElement('div');
+        afterNextLabel.className = 'section-label afternext';
+        afterNextLabel.textContent = 'Übernächstes';
+        afterNextSection.appendChild(afterNextLabel);
+        if (afterNext) {
+            afterNextSection.innerHTML += `
+                <div class="match-teams-row">
+                    <span class="team-name">${afterNext.team1}</span>
+                    <span class="vs-sep">vs</span>
+                    <span class="team-name">${afterNext.team2}</span>
+                </div>
+                <div class="round-info">${getBatchLabel(afterNext)}</div>
+            `;
+        } else {
+            afterNextSection.innerHTML += `<div class="no-games-text">–</div>`;
+        }
+        card.appendChild(afterNextSection);
 
         return card;
     }

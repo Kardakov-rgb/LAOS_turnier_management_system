@@ -110,36 +110,12 @@
     position: relative;
 }
 
-/* ZULETZT – fast unsichtbar, archiviert */
-.section-last {
-    background: rgba(0, 0, 0, 0.10);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-    flex: 0 0 auto;
-    padding: 0.3rem 1.1rem;
-}
-
-/* Trennlinie unter ZULETZT – Gradient-Balken */
-.section-last::after {
-    content: '';
-    display: block;
-    position: absolute;
-    bottom: 0; left: 8%; right: 8%;
-    height: 2px;
-    background: linear-gradient(90deg,
-        transparent 0%,
-        rgba(255,255,255,0.45) 30%,
-        rgba(255,255,255,0.45) 70%,
-        transparent 100%);
-    border-radius: 1px;
-}
-
-/* JETZT – helles Glas, dominant, füllt den Raum */
+/* JETZT – helles Glas, dominant (50%) */
 .section-current {
     background: rgba(255, 255, 255, 0.32);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    flex: 1;
+    flex: 5;
     padding: 1.1rem 1.2rem;
     justify-content: center;
     gap: 0.5rem;
@@ -160,14 +136,61 @@
     border-radius: 1px;
 }
 
-/* NÄCHSTES – mittlere Helligkeit */
+/* NÄCHSTES – mittlere Helligkeit (30%) */
 .section-next {
     background: rgba(255, 255, 255, 0.15);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     border-left: 3px solid rgba(255, 255, 255, 0.5);
-    flex: 0 0 auto;
+    flex: 3;
     padding: 0.85rem 1.1rem;
+}
+
+/* Trennlinie unter NÄCHSTES */
+.section-next::after {
+    content: '';
+    display: block;
+    position: absolute;
+    bottom: 0; left: 8%; right: 8%;
+    height: 2px;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(255,255,255,0.35) 30%,
+        rgba(255,255,255,0.35) 70%,
+        transparent 100%);
+    border-radius: 1px;
+}
+
+/* ÜBERNÄCHSTES – dunkel (20%) */
+.section-afternext {
+    background: rgba(0, 0, 0, 0.12);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    flex: 2;
+    padding: 0.5rem 1.1rem;
+}
+
+/* ─── Pulsierender roter Live-Dot ─── */
+@keyframes live-pulse {
+    0%, 100% { transform: scale(1);   opacity: 1; box-shadow: 0 0 0 0 rgba(255, 30, 30, 0.7); }
+    50%       { transform: scale(1.3); opacity: 0.85; box-shadow: 0 0 0 5px rgba(255, 30, 30, 0); }
+}
+
+.live-dot {
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background-color: #ff1e1e;
+    animation: live-pulse 1.4s ease-in-out infinite;
+    flex-shrink: 0;
+}
+
+.section-label-row {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin-bottom: 0.5rem;
 }
 
 /* ─── Sektions-Labels ─── */
@@ -179,10 +202,9 @@
     margin-bottom: 0.5rem;
 }
 
-/* ZULETZT-Label komplett ausblenden */
-.section-last    .section-label { display: none; }
-.section-current .section-label { color: rgba(255, 255, 255, 0.72); }
-.section-next    .section-label { color: rgba(255, 255, 255, 0.62); }
+.section-current  .section-label { color: rgba(255, 255, 255, 0.72); }
+.section-next     .section-label { color: rgba(255, 255, 255, 0.62); }
+.section-afternext .section-label { color: rgba(255, 255, 255, 0.42); }
 
 /* ─── Match-Zeilen ─── */
 .match-teams-row,
@@ -233,10 +255,10 @@
     letter-spacing: 0.03em;
 }
 
-/* ZULETZT: winzig, 35% opak – fast unsichtbar */
-.section-last .team-name {
-    color: rgba(255, 255, 255, 0.35);
-    font-size: 0.68rem;
+/* ÜBERNÄCHSTES: klein, dezent */
+.section-afternext .team-name {
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 0.72rem;
     font-weight: 400;
     text-transform: uppercase;
     letter-spacing: 0.04em;
@@ -261,8 +283,8 @@
     padding-left: 0.2rem;
     letter-spacing: 0.1em;
 }
-.section-next    .vs-sep { color: rgba(255, 255, 255, 0.35); font-size: 0.75rem; }
-.section-last    .vs-sep { color: rgba(255, 255, 255, 0.22); font-size: 0.65rem; }
+.section-next      .vs-sep { color: rgba(255, 255, 255, 0.35); font-size: 0.75rem; }
+.section-afternext .vs-sep { color: rgba(255, 255, 255, 0.22); font-size: 0.65rem; }
 
 /* ─── Ergebnis-Badge – im ZULETZT kein Badge, nur Text ─── */
 .result-score {
@@ -276,16 +298,6 @@
     flex-shrink: 0;
 }
 
-/* Im ZULETZT: kein Badge, purer Text */
-.section-last .result-score {
-    background: transparent;
-    border: none;
-    padding: 0;
-    color: rgba(255, 255, 255, 0.38);
-    font-size: 0.68rem;
-    font-weight: 700;
-}
-
 /* ─── Runden-Info mit Klammern ─── */
 .round-info {
     font-size: 0.62rem;
@@ -297,8 +309,8 @@
 .round-info::before { content: '['; }
 .round-info::after  { content: ']'; }
 
-.section-last .round-info {
-    color: rgba(255, 255, 255, 0.22);
+.section-afternext .round-info {
+    color: rgba(255, 255, 255, 0.28);
     font-size: 0.55rem;
 }
 
@@ -307,9 +319,9 @@
     font-style: italic;
     font-size: 0.95rem;
 }
-.section-current .pause-text { color: rgba(255, 255, 255, 0.62); }
-.section-next    .pause-text { color: rgba(255, 255, 255, 0.4); }
-.section-last    .pause-text { color: rgba(255, 255, 255, 0.28); font-size: 0.68rem; }
+.section-current   .pause-text { color: rgba(255, 255, 255, 0.62); }
+.section-next      .pause-text { color: rgba(255, 255, 255, 0.4); }
+.section-afternext .pause-text { color: rgba(255, 255, 255, 0.28); font-size: 0.68rem; }
 
 .no-games-text {
     font-size: 0.75rem;
