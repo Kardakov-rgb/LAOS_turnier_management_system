@@ -222,6 +222,15 @@
     transform: scale(1.25);
 }
 
+.header-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.header-btn:disabled:hover {
+    transform: none;
+}
+
 /* Entfernt originalen match-actions Container */
 .match-actions {
     display: none !important;

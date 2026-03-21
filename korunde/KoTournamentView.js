@@ -139,21 +139,17 @@ class KoTournamentView {
       const isEditable = teamsExist && match.teams.length >= 2 && 
                        match.teams.every(team => team && team.name !== null);
       
-      if (isEditable) {
-        headerContent += '<div class="header-actions">';
-        
-        if (match.winner === null) {
-          // Speichern-Button
-          headerContent += '<button class="save-result-btn header-btn" title="Ergebnis speichern">💾</button>';
-        } else {
-          // Bearbeiten-Button
-          headerContent += '<button class="edit-result-btn header-btn" title="Ergebnis bearbeiten">✏️</button>';
-        }
-        
-        // Zurücksetzen-Button
-        headerContent += '<button class="reset-result-btn header-btn" title="Ergebnis zurücksetzen">🔄</button>';
-        headerContent += '</div>';
+      // Buttons immer anzeigen, disabled wenn Teams noch nicht feststehen
+      headerContent += '<div class="header-actions">';
+      if (isEditable && match.winner !== null) {
+        // Match abgeschlossen: Bearbeiten + Zurücksetzen aktiv
+        headerContent += '<button class="edit-result-btn header-btn" title="Ergebnis bearbeiten">✏️</button>';
+      } else {
+        // Match offen oder Teams noch unbekannt: Speichern (ggf. disabled)
+        headerContent += `<button class="save-result-btn header-btn" title="Ergebnis speichern" ${!isEditable ? 'disabled' : ''}>💾</button>`;
       }
+      headerContent += `<button class="reset-result-btn header-btn" title="Ergebnis zurücksetzen" ${!isEditable ? 'disabled' : ''}>🔄</button>`;
+      headerContent += '</div>';
       
       headerContent += '</div>';
       
@@ -181,7 +177,7 @@ class KoTournamentView {
                   <span class="team-name">${team.name}</span>
                 </div>
                 <div class="team-score">
-                  <span>-</span>
+                  <input type="number" class="score-input" data-team-index="${index}" value="" min="0" disabled>
                 </div>
               </div>
             `;
@@ -192,7 +188,7 @@ class KoTournamentView {
                   <span class="team-name tba-placeholder">TBA</span>
                 </div>
                 <div class="team-score">
-                  <span>-</span>
+                  <input type="number" class="score-input" data-team-index="${index}" value="" min="0" disabled>
                 </div>
               </div>
             `;
