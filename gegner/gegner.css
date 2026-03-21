@@ -141,7 +141,6 @@
     background: rgba(255, 255, 255, 0.15);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-    border-left: 3px solid rgba(255, 255, 255, 0.5);
     flex: 3;
     padding: 0.85rem 1.1rem;
 }
@@ -177,19 +176,19 @@
 }
 
 .live-dot {
-    display: inline-block;
+    position: absolute;
+    top: 0.65rem;
+    right: 0.75rem;
     width: 9px;
     height: 9px;
     border-radius: 50%;
     background-color: #ff1e1e;
     animation: live-pulse 1.4s ease-in-out infinite;
-    flex-shrink: 0;
 }
 
 .section-label-row {
     display: flex;
     align-items: center;
-    gap: 0.45rem;
     margin-bottom: 0.5rem;
 }
 
