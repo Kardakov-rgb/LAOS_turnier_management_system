@@ -506,6 +506,7 @@ tr.golden-cup-decided td:first-child {
     font-size: 0.8rem;
     color: #FFD700;
     opacity: 0.8;
+    text-align: center;
 }
 
 /* ─── Highlight-Animation für Tabellen-Zeilen ─── */
