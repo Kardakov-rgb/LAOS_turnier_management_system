@@ -139,13 +139,13 @@
     transform: translateX(2px);
 }
 
-/* Tischfarben als linker Rand + leichter Hintergrund-Tint */
-.match-entry.tisch-1 { border-left-color: var(--tisch-1); background: rgba(213, 15, 13, 0.18); }
-.match-entry.tisch-2 { border-left-color: var(--tisch-2); background: rgba(255, 102, 0, 0.18); }
-.match-entry.tisch-3 { border-left-color: var(--tisch-3); background: rgba(110, 114, 196, 0.18); }
-.match-entry.tisch-4 { border-left-color: var(--tisch-4); background: rgba(77, 158, 127, 0.18); }
-.match-entry.tisch-5 { border-left-color: var(--tisch-5); background: rgba(164, 136, 118, 0.18); }
-.match-entry.tisch-6 { border-left-color: var(--tisch-6); background: rgba(102, 102, 102, 0.18); }
+/* Tischfarben als linker Rand + kräftiger Hintergrund */
+.match-entry.tisch-1 { border-left-color: var(--tisch-1); background: rgba(213, 15, 13, 0.6); }
+.match-entry.tisch-2 { border-left-color: var(--tisch-2); background: rgba(255, 102, 0, 0.6); }
+.match-entry.tisch-3 { border-left-color: var(--tisch-3); background: rgba(110, 114, 196, 0.6); }
+.match-entry.tisch-4 { border-left-color: var(--tisch-4); background: rgba(77, 158, 127, 0.6); }
+.match-entry.tisch-5 { border-left-color: var(--tisch-5); background: rgba(164, 136, 118, 0.6); }
+.match-entry.tisch-6 { border-left-color: var(--tisch-6); background: rgba(102, 102, 102, 0.6); }
 
 /* ─── Halbzeit-Symbol ─── */
 .match-info {
