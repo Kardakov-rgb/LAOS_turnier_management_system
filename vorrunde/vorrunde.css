@@ -1,669 +1,290 @@
-/* 
-* LAOS 2.0 - Vorrunde-spezifisches CSS
-* Vereinfachte Version für das Tischplan-Layout
+/*
+* LAOS 2.0 - Vorrunde CSS
+* Glassmorphism + Space Mono – analog zur Gegner-Übersicht und Teams-Seite
 */
 
-/* Vorrunde Container */
+/* ─── Tischfarben als CSS-Variablen ─── */
+.paarung-card.tisch-1 { --tisch-color: #D50F0D; --tisch-color-dark: #7a0908; }
+.paarung-card.tisch-2 { --tisch-color: #FF6600; --tisch-color-dark: #b34600; }
+.paarung-card.tisch-3 { --tisch-color: #6e72c4; --tisch-color-dark: #3d4196; }
+.paarung-card.tisch-4 { --tisch-color: #4d9e7f; --tisch-color-dark: #286652; }
+.paarung-card.tisch-5 { --tisch-color: #A48876; --tisch-color-dark: #6d5546; }
+.paarung-card.tisch-6 { --tisch-color: #666666; --tisch-color-dark: #2e2e2e; }
+
+/* ─── Haupt-Container ─── */
 .vorrunde-container {
     max-width: 100%;
     margin: 0 auto;
     padding: 1.5rem;
-    background-color:transparent;
-    border-radius: 12px;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    background-color: transparent;
 }
 
+/* ─── Zwei-Spalten-Layout ─── */
+.vorrunde-content {
+    display: grid;
+    grid-template-columns: 66fr 34fr;
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+@media (max-width: 768px) {
+    .vorrunde-content { grid-template-columns: 1fr; }
+}
+
+/* ─── Vorrunde-Header (Actions-Leiste unten) ─── */
 .vorrunde-header {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
-    margin-bottom: 0.5rem;
-    flex-wrap: wrap;
-    gap: 1rem;
-    margin-top: 0.2rem;
-}
-
-
-.vorrunde-title:after {
-    content: "";
-    position: absolute;
-    bottom: -10px;
-    left: 0;
-    width: 100px;
-    height: 3px;
-    background: linear-gradient(to right, var(--color-blue), var(--color-orange));
-    border-radius: 2px;
+    margin-top: 0.75rem;
 }
 
 .vorrunde-actions {
     display: flex;
-    gap: 0.8rem;
-    flex-wrap: wrap;
+    gap: 0.5rem;
+    background: linear-gradient(160deg, rgba(142, 145, 223, 0.38) 0%, rgba(108, 112, 215, 0.38) 100%);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
+    box-shadow:
+        0 4px 16px rgba(0, 0, 0, 0.18),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    padding: 0.4rem 0.75rem;
 }
 
-/* Status-Container */
-.status-container {
-    margin: 1rem 0;
-    padding: 1rem;
-    border-radius: 8px;
-    background-color:transparent;
+/* ─── Action-Emoji-Buttons ─── */
+.action-emoji-btn {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.2rem;
 }
 
-.status-warning {
-    background-color: #fff3cd;
-    color: #856404;
-    border-left: 5px solid #ffeeba;
+.action-emoji-btn:hover {
+    transform: scale(1.2);
 }
 
-.status-error {
-    background-color: #f8d7da;
-    color: #721c24;
-    border-left: 5px solid #f5c6cb;
-}
-
-.status-success {
-    background-color: #d4edda;
-    color: #155724;
-    border-left: 5px solid #c3e6cb;
-}
-
-.status-info {
-    background-color: #cce5ff;
-    color: #004085;
-    border-left: 5px solid #b8daff;
-}
-
-/* Hinweis zu benutzerdefinierten Matchups */
-.custom-matchups-info {
-    margin-bottom: 1rem;
-    font-size: 0.9rem;
-    color: var(--color-medium-gray);
-}
-
-/* Zwei-Spalten-Layout */
-.vorrunde-content {
-    display: grid;
-    grid-template-columns: 66fr 34fr;
-    gap: 2rem;
-    margin-top: 1.5rem;
-}
-
-/* Responsive Design für kleine Bildschirme */
-@media (max-width: 768px) {
-    .vorrunde-content {
-        grid-template-columns: 1fr;
-    }
-}
-
-/* Spiele-Sektion */
-.matches-section {
-    background-color: transparent;
-    border-radius: 8px;
-    padding: 0.5rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
-/* Runden-Navigation */
+/* ─── Runden-Navigation ─── */
 .rounds-navigation {
     display: flex;
     justify-content: center;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.25rem;
     flex-wrap: wrap;
     gap: 0.5rem;
 }
 
-.round-nav-btn {
-    padding: 0.5rem 1rem;
-    background-color: var(--color-light-gray);
-    border: none;
-    border-radius: 4px;
+.round-nav-btn,
+.golden-cup-btn {
+    padding: 0.45rem 1rem;
+    background: rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.9);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.85rem;
+    font-weight: 700;
     cursor: pointer;
-    transition: all 0.3s ease;
-    font-size: 1.4rem;
-    font-weight: bolder;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
-.round-nav-btn:hover {
-    background-color: var(--color-blue-light);
-    color: white;
+.round-nav-btn:hover,
+.golden-cup-btn:hover {
+    background: rgba(255, 255, 255, 0.28);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
 }
 
 .round-nav-btn.active {
-    background-color: var(--color-blue);
-    color: white;
-    font-weight: 500;
+    background: linear-gradient(160deg, var(--color-blue) 0%, var(--color-blue-dark) 100%);
+    border-color: rgba(255, 255, 255, 0.4);
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
-/* Titel für Paarungen */
-.paarungen-title {
-    text-align: center;
+.golden-cup-btn.active {
+    background: linear-gradient(160deg, #c8960c 0%, #8a6200 100%);
+    border-color: rgba(255, 215, 0, 0.5);
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* ─── Matches-Section (braucht position:relative für Overlay) ─── */
+.matches-section {
+    position: relative;
+}
+
+/* ─── Hälfte-Header ─── */
+.halfte-container {
     margin-bottom: 1.5rem;
-    color: var(--color-blue-dark);
-    font-size: 1.5rem;
 }
 
-/* Container für Hälften */
-.half-container {
-    margin-bottom: 2rem;
-}
-
-.half-title {
-    background-color: #d4edda;
-    color: #155724;
+.halfte-header {
+    background: rgba(0, 0, 0, 0.28);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.85);
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
     padding: 0.5rem;
     text-align: center;
-    font-weight: bold;
-    margin-bottom: 0.8rem;
-    border-radius: 4px;
+    border-radius: 8px;
+    margin-bottom: 0.6rem;
 }
 
-/* Grid für Paarungen */
-.pairings-grid {
+/* ─── Paarungen-Grid ─── */
+.paarungen-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 0.8rem;
+    gap: 0.6rem;
+    margin-bottom: 1rem;
 }
 
 @media (max-width: 992px) {
-    .pairings-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
+    .paarungen-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (max-width: 576px) {
-    .pairings-grid {
-        grid-template-columns: 1fr;
-    }
+    .paarungen-grid { grid-template-columns: 1fr; }
 }
 
-/* Match Karten */
-.match-card {
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
-    position: relative;
-    animation: fadeIn 0.5s ease-out;
-}
-
-.match-header {
-    display: flex;
-    justify-content: space-between;
-    padding: 0.5rem 0.8rem;
-    font-weight: bold;
-    background-color: rgba(0, 0, 0, 0.1);
-}
-
-.match-teams {
-    padding: 0.8rem;
-}
-
-.match-team {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 0.5rem;
-    align-items: center;
-}
-
-.team-name {
-    flex-grow: 1;
-    font-weight: 500;
-}
-
-.score-input {
-    width: 50px;
-    padding: 0.2rem;
-    text-align: center;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: 4px;
-    background-color: rgba(255, 255, 255, 0.2);
-    color: white;
-}
-
-.score-input:disabled {
-    opacity: 0.7;
-}
-
-.match-actions {
-    display: flex;
-    justify-content: flex-end;
-    padding: 0.5rem 0.8rem;
-    gap: 0.5rem;
-    background-color: rgba(0, 0, 0, 0.1);
-}
-
-.save-btn, .edit-btn, .reset-btn {
-    padding: 0.3rem 0.8rem;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    background-color: rgba(255, 255, 255, 0.2);
-    color: white;
-    transition: all 0.2s ease;
-    font-size: 1.8rem;
-}
-
-.save-btn:hover, .edit-btn:hover, .reset-btn:hover {
-    background-color: rgba(255, 255, 255, 0.3);
-}
-
-
-
-/* Tabellen-Sektion */
-.standings-section {
-    border-radius: 8px;
-}
-
-
-
-
-/* Tabelle */
-
-/* Aktualisierte Stile für die Tabelle */
-.standings-table {
-    width: 100%;
-    border-collapse: separate; /* Geändert von collapse für border-radius */
-    border-spacing: 0;
-    font-size: 1.6rem;
-    overflow: hidden; /* Versteckt überlaufende Ecken */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    background-color: #f9f9f9;
-    border-radius: 8px;
-}
-
-/* Nur äußere Ecken abgerundet */
-.standings-table thead tr:first-child th:first-child {
-    border-top-left-radius: 8px;
-}
-
-.standings-table thead tr:first-child th:last-child {
-    border-top-right-radius: 8px;
-}
-
-.standings-table tbody tr:last-child td:first-child {
-    border-bottom-left-radius: 8px;
-}
-
-.standings-table tbody tr:last-child td:last-child {
-    border-bottom-right-radius: 8px;
-}
-
-.standings-table th,
-.standings-table td {
-    padding: 0.2rem;
-    text-align: center;
-    border-bottom: 1px solid #e5e5e5;
-}
-
-/* Hover-Effekt für Zeilen */
-.standings-table tbody tr:hover {
-    background-color: #dd3f3d;
-    transition: background-color 0.2s ease;
-}
-
-/* Kopfzeile mit der gewünschten Farbe */
-.standings-table th {
-    background-color: #c8b8ad;
-    color: #ffffff;
-    font-weight: 500;
-    font-weight: bold;
-    border-bottom: 2px solid #b8a89d;
-}
-
-.standings-table .team-col {
-    text-align: left;
-    min-width: 120px;
-}
-
-.standings-table .pos-col {
-    width: 40px;
-}
-
-.standings-table .stat-col {
-    width: 60px;
-}
-
-/* Dickere Linie zwischen Platz 4 und 5 */
-.standings-table tbody tr:nth-child(4) td {
-    border-bottom: 3px solid #b8a89d;
-}
-
-/* Dickere Linie zwischen Platz 12 und 13 */
-.standings-table tbody tr:nth-child(12) td {
-    border-bottom: 3px solid #b8a89d;
-}
-
-/* Dezentere Farbgebung für qualifizierte Teams */
-.standings-table .direct-qualifier {
-    background-color: rgba(200, 184, 173, 0.2);
-}
-
-.standings-table .direct-qualifier .pos-col {
-    background-color: rgba(180, 164, 153, 0.6);
-    color: #333;
-    font-weight: bold;
-}
-
-.standings-table .playoff-qualifier {
-    background-color: rgba(200, 184, 173, 0.1);
-}
-
-.standings-table .playoff-qualifier .pos-col {
-    background-color: rgba(180, 164, 153, 0.3);
-    color: #333;
-}
-
-
-
-/* Animation für neue Einträge */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Meldung wenn keine Spiele vorhanden sind */
-.no-matches {
-    text-align: center;
-    padding: 2rem;
-    color: var(--color-medium-gray);
-    font-style: italic;
-}
-/* 
-* Ergänze diese CSS-Regeln zu deiner vorrunde.css Datei 
-* Diese Regeln sorgen für die farbliche Markierung der Tische
-*/
-
-/* 
-* Angepasste Paarung-Karten im KO-Runden-Stil für vorrunde.css
-* Links farbiger Streifen, blasser Hintergrund, bestehende Struktur beibehalten
-*/
-
-
-
-.paarung-teams {
-    padding: 0.2rem;
-    border-top: none; /* Entferne die vorherige Rand-Linie */
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05); /* Subtile Trennlinie */
-}
-
-.paarung-team {
-    margin-bottom: 0.3rem;
-}
-
-.team-name {
-    color: var(--color-dark-gray); /* Dunkle Textfarbe statt weiß */
-}
-
-.score-input {
-    background-color: white; /* Weißer Hintergrund */
-    color: var(--color-dark-gray); /* Dunkle Textfarbe */
-    border: 1px solid #ddd;
-}
-
-.score-input:disabled {
-    background-color: #f5f5f5; /* Hellgrauer Hintergrund für deaktivierte Eingabefelder */
-    color: var(--color-dark-gray);
-}
-
-.paarung-actions {
-    background-color: transparent;
-}
-
-.save-btn, .edit-btn, .reset-btn {
-    background-color: #f5f5f5; /* Hellgrauer Hintergrund für Buttons */
-    color: var(--color-dark-gray);
-    border: none;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.save-btn:hover {
-    background-color: var(--color-blue); /* Blau beim Hover */
-    color: white;
-}
-
-.edit-btn:hover {
-    background-color: var(--color-medium-gray); /* Grau beim Hover */
-    color: white;
-}
-
-.reset-btn:hover {
-    background-color: var(--color-red); /* Rot beim Hover */
-    color: white;
-}
-
-/* Paarung-Karte */
-/* Dezente Gewinner-Markierung für Paarungen */
-
-/* Der Gewinner-Stil wird durch JavaScript beim Speichern des Ergebnisses gesetzt */
-.paarung-team.winner {
-    /* Maximales Schriftgewicht */
-    font-weight: 999;
-    
-    /* Text-Schatten für einen stärkeren Bold-Effekt */
-    text-shadow: 0.2px 0 0 currentColor, 
-                -0.2px 0 0 currentColor, 
-                0 0.2px 0 currentColor,
-                0 -0.2px 0 currentColor;
-    
-    /* Leicht größere Schrift */
-    font-size: 1.05em;
-    
-    /* Leicht kompaktere Buchstaben */
-    letter-spacing: -0.2px;
-}
-
-/* Kleiner Indikator am linken Rand */
-.paarung-team.winner::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 0;
-    height: 100%;
-    width: 3px;
-    border-radius: 2px;
-}
-
-/* Wenn das Spiel abgeschlossen ist, verlierende Teams leicht abdunkeln */
-.paarung-team.loser {
-    opacity: 0.85;
-}
-
-/* Bei Unentschieden beide Teams gleich markieren */
-.paarung-team.draw {
-    /* Maximales Schriftgewicht */
-    font-weight: 999;
-    
-    /* Text-Schatten für einen stärkeren Bold-Effekt */
-    text-shadow: 0.2px 0 0 currentColor, 
-                -0.2px 0 0 currentColor, 
-                0 0.2px 0 currentColor,
-                0 -0.2px 0 currentColor;
-    
-    /* Leicht größere Schrift */
-    font-size: 1.05em;
-    
-    /* Leicht kompaktere Buchstaben */
-    letter-spacing: -0.2px;
-
-}
-
-.paarung-team.draw::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 0;
-    height: 100%;
-    width: 3px;
-    border-radius: 2px;
-}
-
-.paarung-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
-}
-
-
-/* 
-* Finale Version: Paarung-Karten im KO-Runden-Stil für vorrunde.css
-* Links farbiger Streifen (100% Opazität), dunklerer Hintergrund (60%),
-* bestehende Struktur mit mehr Padding
-*/
-
-/* Paarung-Karte */
+/* ─── Paarung-Karte – Tischfarb-Gradient + Glassmorphism ─── */
 .paarung-card {
-    border-radius: 8px;
+    background: linear-gradient(160deg, var(--tisch-color) 0%, var(--tisch-color-dark) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: 14px;
     overflow: hidden;
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
-    position: relative;
-    background-color: white;
-    color: var(--color-dark-gray);
-    transition: all 0.3s ease;
-    padding: 0.2rem; /* Mehr Padding für die gesamte Karte */
-
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.32),
+        inset 0 1px 0 rgba(255, 255, 255, 0.18);
+    font-family: 'Space Mono', 'Courier New', monospace;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+    animation: fadeIn 0.4s ease forwards;
 }
 
 .paarung-card:hover {
+    box-shadow:
+        0 14px 40px rgba(0, 0, 0, 0.38),
+        inset 0 1px 0 rgba(255, 255, 255, 0.22);
     transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
 }
 
-/* Tisch-spezifische Stile - Linker Rand 100%, Hintergrund 60% */
-.paarung-card.tisch-1 {
-    border-left: 8px solid #D50F0D; /* Rot 100% */
-    background-color: rgba(213, 15, 13, 0.6); /* 60% roter Hintergrund */
-}
-
-.paarung-card.tisch-2 {
-    border-left: 8px solid #FF6600; /* Orange 100% */
-    background-color: rgba(255, 102, 0, 0.6); /* 60% oranger Hintergrund */
-}
-
-.paarung-card.tisch-3 {
-    border-left: 8px solid #8E91DF; /* Blau 100% */
-    background-color: rgba(142, 145, 223, 0.6); /* 60% blauer Hintergrund */
-}
-
-.paarung-card.tisch-4 {
-    border-left: 8px solid #ADDDC8; /* Grün 100% */
-    background-color: rgba(173, 221, 200, 0.6); /* 60% grüner Hintergrund */
-}
-
-.paarung-card.tisch-5 {
-    border-left: 8px solid #A48876; /* Braun 100% */
-    background-color: rgba(164, 136, 118, 0.6); /* 60% brauner Hintergrund */
-}
-
-.paarung-card.tisch-6 {
-    border-left: 8px solid #666666; /* Grau 100% */
-    background-color: rgba(102, 102, 102, 0.6); /* 60% grauer Hintergrund */
-}
-
-/* Header-Bereich */
+/* ─── Paarung-Header – dunkles Glas-Panel ─── */
 .paarung-header {
+    background: rgba(0, 0, 0, 0.22);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.18);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.2rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-    margin-bottom: 0.2rem;
+    padding: 0.35rem 0.6rem;
 }
 
-/* Bereich für die Header-Informationen */
 .header-info {
     display: flex;
     gap: 0.5rem;
 }
 
-/* Style für die Buttons im Header */
+.paarung-number,
+.tisch-number {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.85);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+.header-actions {
+    display: flex;
+    gap: 0.4rem;
+    margin-left: auto;
+}
+
+/* ─── Header-Buttons – reines Emoji ─── */
 .header-btn {
-    background-color: rgba(255, 255, 255, 0.7);
+    background: none;
     border: none;
-    border-radius: 4px;
-    font-size: 1rem;
-    padding: 0.3rem 0.4rem;
+    font-size: 1.1rem;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: transform 0.2s ease;
+    padding: 0.15rem;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-/* Hover-Effekte für die verschiedenen Buttons */
-.header-btn.save-btn:hover {
-    background-color: #2ecc71; /* Grün für Speichern */
-    color: white;
-    transform: translateY(-2px);
+.header-btn:hover {
+    transform: scale(1.25);
 }
 
-.header-btn.edit-btn:hover {
-    background-color: #3498db; /* Blau für Bearbeiten */
-    color: white;
-    transform: translateY(-2px);
-}
-
-.header-btn.reset-btn:hover {
-    background-color: #e74c3c; /* Rot für Zurücksetzen */
-    color: white;
-    transform: translateY(-2px);
-}
-
-/* Wir können die paarung-actions nun entfernen, da die Buttons im Header sind */
-.paarung-actions {
-    display: none;
-}
-
-/* Verbesserte Positionierung der Paarungsnummer und Tischnummer */
-.paarung-number, .tisch-number {
-    font-weight: 600;
-    font-size: 0.9rem;
-}
-
-/* Erhöhter Abstand zwischen den Team-Einträgen für bessere Lesbarkeit */
-.paarung-team {
-    margin-bottom: 0.5rem;
-    padding: 0.5rem;
-}
-
-/* Bereich für die Header-Aktionen/Buttons */
-.header-actions {
-    display: flex;
-    gap: 0.5rem;
-    margin-left: auto;
-}
-.paarung-number,
-.tisch-number {
-    font-size: 1rem; /* Etwas größere Schrift */
-    padding: 0.2rem;
-}
-
-/* Teams-Bereich */
+/* ─── Teams-Bereich ─── */
 .paarung-teams {
-    border-top: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2); /* Helle Trennlinie */
-    margin-bottom: 0.2rem; /* Mehr Abstand zum nächsten Element */
+    padding: 0.5rem 0.6rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    position: relative;
+}
+
+/* Gradient-Trennlinie unter den Teams */
+.paarung-teams::after {
+    content: '';
+    display: block;
+    position: absolute;
+    bottom: 0;
+    left: 8%;
+    right: 8%;
+    height: 2px;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.4) 30%,
+        rgba(255, 255, 255, 0.4) 70%,
+        transparent 100%);
+    border-radius: 1px;
 }
 
 .paarung-team {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: rgba(255, 255, 255, 0.2); /* Leicht hellerer Hintergrund für Teams */
+    background: rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
     border-radius: 6px;
-}
-
-.paarung-team:last-child {
-    margin-bottom: 0;
+    padding: 0.3rem 0.5rem;
 }
 
 .team-name {
-    font-weight: 600; /* Etwas fetter */
-    color: white; /* Weiße Textfarbe für besseren Kontrast */
-    font-size: 1.6rem; /* Etwas größere Schrift */
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #fff;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+    min-width: 0;
 }
 
 .team-score {
@@ -674,355 +295,378 @@
 }
 
 .score-input {
-    width: 50px; /* Etwas breiter */
-    height: 35px; /* Etwas höher */
+    width: 48px;
+    height: 32px;
     text-align: center;
     padding: 0.2rem;
-    border: 2px solid rgba(255, 255, 255, 0.4);
-    border-radius: 4px;
-    font-size: 1.4rem;
-    background-color: rgba(255, 255, 255, 0.8); /* Leicht durchscheinend */
-    color: var(--color-dark-gray);
-    font-weight: bold;
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    border-radius: 5px;
+    font-size: 1.1rem;
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    background: rgba(255, 255, 255, 0.75);
+    color: #222;
 }
 
 .score-input:disabled {
-    background-color: rgba(255, 255, 255, 0.5);
-    color: var(--color-dark-gray);
-}
-
-/* Aktionen-Bereich */
-.paarung-actions {
-    display: flex;
-    justify-content: flex-end; /* Buttons rechtsbündig */
-    gap: 1rem; /* Mehr Abstand zwischen Buttons */
-    padding: 0.2rem; /* Mehr Padding */
-    margin-top: 0.2rem;
-}
-
-.save-btn, .edit-btn, .reset-btn {
-    padding: 0.2rem; /* Größere Buttons */
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 1rem;
-    transition: all 0.2s ease;
-    border: none;
-    background-color: rgba(255, 255, 255, 0.8); /* Leicht durchscheinend */
-    color: var(--color-dark-gray);
-    font-weight: 500;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.save-btn:hover {
-    background-color: #2ecc71; /* Grün beim Hover */
-    color: white;
-    transform: translateY(-2px);
-}
-
-.edit-btn:hover {
-    background-color: #3498db; /* Blau beim Hover */
-    color: white;
-    transform: translateY(-2px);
-}
-
-.reset-btn:hover {
-    background-color: #e74c3c; /* Rot beim Hover */
-    color: white;
-    transform: translateY(-2px);
-}
-
-/* Container für Spielpaarungen */
-.spielpaarungen-container {
-    margin-top: 1rem;
-}
-
-.paarungen-header {
-    text-align: center;
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
-    color: var(--color-blue-dark);
-}
-
-.halfte-container {
-    margin-bottom: 1.5rem;
-}
-
-.halfte-header {
-    background-color: #c8b8ad;
-    color: #ffffff;
-    padding: 0.5rem;
-    text-align: center;
-    font-weight: bolder;
-    border-radius: 4px;
-    margin-bottom: 0.5rem;
-    font-size: 1rem;
-}
-
-.paarungen-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-}
-
-@media (max-width: 992px) {
-    .paarungen-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media (max-width: 576px) {
-    .paarungen-grid {
-        grid-template-columns: 1fr;
-    }
-}
-
-/* Golden Cup Button */
-.golden-cup-btn {
-    padding: 0.5rem 1rem;
-    background-color: var(--color-light-gray);
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-size: 1.4rem;
-    font-weight: bolder;
-}
-
-.golden-cup-btn:hover {
-    background-color: var(--color-blue-light);
-    color: white;
-}
-
-.golden-cup-btn.active {
-    background-color: var(--color-blue);
-    color: white;
-    font-weight: 500;
-}
-
-/* Gleichstand-Marker in der Tabelle */
-.tie-marker {
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    background-color: #FFD700;
-    border-radius: 50%;
-    margin-right: 5px;
-}
-
-/* Gleichstand-Marker in der Tabelle */
-.tie-marker {
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    background-color: #FFD700;
-    border-radius: 50%;
-    margin-right: 5px;
-}
-
-/* Container für Gleichstands-Matches */
-.tiebreaker-container {
-    margin-top: 2rem;
-    padding: 1.5rem;
-    background-color: #FFF9DB;
-    border: 2px solid #FFD700;
-    border-radius: 8px;
-}
-
-.tiebreaker-title {
-    text-align: center;
-    color: #333;
-    margin-bottom: 1.5rem;
-    font-size: 3rem;
-    font-weight: bold;
-}
-
-.tiebreaker-matches {
-    display: flex;
-    flex-direction: column;
-    gap: 3rem;
-}
-
-.tiebreaker-match {
-    background-color: white;
-    border-radius: 6px;
-    padding: 1.2rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.tiebreaker-info {
-    margin-bottom: 1rem;
-    padding: 0.8rem;
-    background-color: #f8f9fa;
-    border-radius: 4px;
-    font-size: 1.5rem;
-    color: #555;
-}
-
-.tiebreaker-teams {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 1.2rem;
-    flex-wrap: wrap;
-    gap: 1rem;
-}
-
-.tiebreaker-team {
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-    padding: 0.5rem 1rem;
-    background-color: #f0f0f0;
-    border-radius: 4px;
-    min-width: 150px;
-}
-
-.team-name {
-    font-weight: 500;
+    background: rgba(255, 255, 255, 0.45);
     color: #333;
 }
 
-/* Wichtig: Die Textfarbe für Eingabefelder schwarz machen */
-.tiebreaker-team .score-input {
-    width: 60px;
-    padding: 0.2rem;
-    text-align: center;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    background-color: white;
-    color: black;
-    font-weight: bold;
-}
-
-.tiebreaker-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.8rem;
-    margin-top: 1rem;
-    padding-top: 1rem;
-    border-top: 1px solid #eee;
-}
-
-.tiebreaker-actions button {
-    padding: 0.5rem 1.2rem;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-/* Entfernt die Pfeile/Spinner aus numerischen Eingabefeldern */
+/* Entfernt Spinner bei number inputs */
 .score-input::-webkit-outer-spin-button,
 .score-input::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
 }
 
-@keyframes completedPulse {
-    0% { background-color: rgba(0, 255, 0, 0.05); }
-    50% { background-color: rgba(0, 255, 0, 0.1); }
-    100% { background-color: rgba(0, 255, 0, 0.05); }
+/* ─── Gewinner / Verlierer / Unentschieden ─── */
+.paarung-team.winner {
+    background: rgba(255, 255, 255, 0.32);
+    font-weight: 900;
 }
 
-.match-card.completed {
-    animation: completedPulse 3s infinite;
+.paarung-team.winner .team-name {
+    color: #fff;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
-/* 
-* Verbesserte CSS-Animation mit Fade-in für das Aufleuchten der Teams in der Tabelle
-* Ersetzen Sie die bisherige Animation in Ihrer vorrunde.css-Datei mit diesem Code
-*/
+.paarung-team.loser {
+    opacity: 0.7;
+}
 
-/* Animation für das Aufleuchten von Teams in der Tabelle mit Fade-in */
+.paarung-team.draw .team-name {
+    font-weight: 900;
+}
+
+/* ─── Aktions-Bereich (paarung-actions – durch JS genutzt, versteckt) ─── */
+.paarung-actions {
+    display: none;
+}
+
+/* ─── Standings-Sektion – dunkles Glas-Panel (wie Gegner-Seite) ─── */
+.standings-section {
+    background: linear-gradient(160deg, #333333 0%, #111111 100%);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    font-family: 'Space Mono', 'Courier New', monospace;
+    align-self: start;
+}
+
+.section-title {
+    display: none;
+}
+
+/* ─── Standings-Tabelle ─── */
+.standings-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.78rem;
+    font-family: 'Space Mono', monospace;
+    background: transparent;
+}
+
+.standings-table thead tr {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(6px);
+    position: relative;
+}
+
+.standings-table th {
+    color: rgba(255, 255, 255, 0.55);
+    font-weight: 700;
+    font-size: 0.58rem;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    padding: 0.7rem 0.4rem;
+    text-align: center;
+    border-bottom: none;
+}
+
+/* Gradient-Trennlinie unter Header */
+.standings-table thead tr::after {
+    content: '';
+    display: block;
+    position: absolute;
+    bottom: 0;
+    left: 5%;
+    right: 5%;
+    height: 1px;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.35) 25%,
+        rgba(255, 255, 255, 0.35) 75%,
+        transparent 100%);
+}
+
+.standings-table td {
+    padding: 0.4rem 0.4rem;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.75);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.standings-table .team-col { text-align: left; }
+.standings-table .pos-col  { width: 28px; }
+.standings-table .stat-col { width: 36px; }
+
+.standings-table tbody tr:hover td {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    transition: background 0.15s ease;
+}
+
+.standings-table .direct-qualifier td {
+    background: rgba(255, 255, 255, 0.07);
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.standings-table .direct-qualifier .pos-col {
+    color: #fff;
+    font-weight: 700;
+}
+
+.standings-table .playoff-qualifier td {
+    background: rgba(255, 255, 255, 0.03);
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* Gradient-Trennlinie nach Platz 4 */
+.standings-table tbody tr:nth-child(4) td {
+    border-bottom: none;
+    position: relative;
+}
+
+.standings-table tbody tr:nth-child(4) td::after {
+    content: '';
+    display: block;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.4) 20%,
+        rgba(255, 255, 255, 0.4) 80%,
+        transparent 100%);
+}
+
+/* Gradient-Trennlinie nach Platz 12 */
+.standings-table tbody tr:nth-child(12) td {
+    border-bottom: none;
+    position: relative;
+}
+
+.standings-table tbody tr:nth-child(12) td::after {
+    content: '';
+    display: block;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.25) 20%,
+        rgba(255, 255, 255, 0.25) 80%,
+        transparent 100%);
+}
+
+/* ─── Gleichstand-Marker ─── */
+.tie-marker {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background-color: #FFD700;
+    border-radius: 50%;
+    margin-right: 4px;
+    vertical-align: middle;
+}
+
+/* ─── Highlight-Animation für Tabellen-Zeilen ─── */
 @keyframes teamPulseWithFadeIn {
-    0% {
-        background-color: transparent; /* Startet transparent */
-        transform: scale(1);
-    }
-    10% {
-        background-color: rgba(221, 63, 61, 0.9); /* Schnelles Fade-in zu kräftigem Rot */
-        transform: scale(1.02); /* Leicht vergrößern für subtilen "Pop"-Effekt */
-    }
-    20% {
-        background-color: rgba(221, 63, 61, 0.8);
-        transform: scale(1);
-    }
-    40% {
-        background-color: rgba(221, 63, 61, 0.7);
-    }
-    70% {
-        background-color: rgba(221, 63, 61, 0.4); /* Langsam verblassen */
-    }
-    100% {
-        background-color: transparent; /* Vollständig transparent am Ende */
-        transform: scale(1);
-    }
+    0%   { background-color: transparent; transform: scale(1); }
+    10%  { background-color: rgba(221, 63, 61, 0.9); transform: scale(1.02); }
+    20%  { background-color: rgba(221, 63, 61, 0.8); transform: scale(1); }
+    40%  { background-color: rgba(221, 63, 61, 0.7); }
+    70%  { background-color: rgba(221, 63, 61, 0.4); }
+    100% { background-color: transparent; transform: scale(1); }
 }
 
-/* Klasse für die Hervorhebung, die durch JS hinzugefügt wird */
 .standings-table tbody tr.highlight-pulse {
-    animation: teamPulseWithFadeIn 3s ease-out; /* 3 Sekunden Animation mit Ausblenden */
-    animation-fill-mode: forwards; /* Behält den Endzustand nach der Animation bei */
+    animation: teamPulseWithFadeIn 3s ease-out forwards;
 }
 
-/* Sicherstellen, dass die Animation auch bei hover-Zuständen sichtbar bleibt */
 .standings-table tbody tr.highlight-pulse:hover {
-    animation: teamPulseWithFadeIn 3s ease-out;
-    animation-fill-mode: forwards;
+    animation: teamPulseWithFadeIn 3s ease-out forwards;
 }
 
-/* Optional: Verbesserte Kontraste für den Text während der Animation */
 .standings-table tbody tr.highlight-pulse td {
     position: relative;
-    z-index: 1; /* Stellt sicher, dass der Text über der Animation bleibt */
-    transition: color 0.3s; /* Sanfter Übergang der Textfarbe */
+    z-index: 1;
+    transition: color 0.3s;
 }
 
-/* 
- * Overlay CSS für matchesContainer
- * Diese Styles zu Ihrer vorrunde.css hinzufügen oder als separate Datei einbinden
- */
-
-/* Container für das Overlay - Position relative für absolutes Positioning */
-.matches-section {
-    position: relative;
+/* ─── Tiebreaker-Container ─── */
+.tiebreaker-container {
+    margin-top: 1.5rem;
+    padding: 1.25rem;
+    background: linear-gradient(160deg, rgba(200, 150, 12, 0.35) 0%, rgba(138, 98, 0, 0.35) 100%);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 215, 0, 0.35);
+    border-radius: 14px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
-/* Das Overlay selbst */
+.tiebreaker-title {
+    text-align: center;
+    color: #fff;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    margin-bottom: 1.25rem;
+    font-size: 1.8rem;
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+}
+
+.tiebreaker-matches {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.tiebreaker-match {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    padding: 1rem;
+}
+
+.tiebreaker-info {
+    margin-bottom: 0.8rem;
+    font-size: 0.85rem;
+    font-family: 'Space Mono', monospace;
+    color: rgba(255, 255, 255, 0.75);
+}
+
+.tiebreaker-teams {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.tiebreaker-team {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.4rem 0.8rem;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    min-width: 140px;
+}
+
+.tiebreaker-team .team-name {
+    font-size: 0.85rem;
+}
+
+.tiebreaker-team .score-input {
+    width: 52px;
+}
+
+.tiebreaker-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.6rem;
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.tiebreaker-actions button {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 6px;
+    color: #fff;
+    font-family: 'Space Mono', monospace;
+    font-size: 1rem;
+    padding: 0.4rem 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.tiebreaker-actions button:hover {
+    background: rgba(255, 255, 255, 0.32);
+    transform: translateY(-2px);
+}
+
+/* ─── Keine Spiele vorhanden ─── */
+.no-matches {
+    text-align: center;
+    padding: 2rem;
+    color: rgba(255, 255, 255, 0.6);
+    font-style: italic;
+    font-family: 'Space Mono', monospace;
+}
+
+/* ─── Status-Container ─── */
+.status-container {
+    margin: 0.75rem 0;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    background-color: transparent;
+}
+
+.status-warning { background-color: #fff3cd; color: #856404; border-left: 5px solid #ffeeba; }
+.status-error   { background-color: #f8d7da; color: #721c24; border-left: 5px solid #f5c6cb; }
+.status-success { background-color: #d4edda; color: #155724; border-left: 5px solid #c3e6cb; }
+.status-info    { background-color: #cce5ff; color: #004085; border-left: 5px solid #b8daff; }
+
+/* ─── Overlay für gesperrte Eingabe ─── */
 .matches-overlay {
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.6); /* Halbtransparenter schwarzer Hintergrund */
-    backdrop-filter: blur(2px); /* Unschärfe-Effekt für moderne Browser */
-    -webkit-backdrop-filter: blur(2px); /* Safari-Unterstützung */
-    z-index: 1000; /* Hoher z-index um über allen anderen Elementen zu sein */
-    display: none; /* Standardmäßig versteckt */
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    z-index: 1000;
+    display: none;
     justify-content: center;
     align-items: center;
     border-radius: 8px;
-    transition: opacity 0.3s ease, visibility 0.3s ease; /* Sanfte Animation */
     opacity: 0;
     visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
-/* Wenn das Overlay aktiv ist */
 .matches-overlay.active {
     display: flex;
     opacity: 1;
     visibility: visible;
 }
 
-/* Nachricht im Overlay */
 .overlay-message {
-    background-color: white;
+    background: linear-gradient(160deg, #333 0%, #111 100%);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
     padding: 2rem 3rem;
-    border-radius: 8px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
     text-align: center;
-    font-size: 1.2rem;
-    color: #333;
+    font-family: 'Space Mono', monospace;
+    color: rgba(255, 255, 255, 0.85);
     max-width: 400px;
     transform: scale(0.9);
     transition: transform 0.3s ease;
@@ -1034,49 +678,35 @@
 
 .overlay-message h3 {
     margin-top: 0;
-    margin-bottom: 1rem;
-    color: #d50f0d;
-    font-size: 1.4rem;
+    margin-bottom: 0.75rem;
+    color: #ff4444;
+    font-size: 1.2rem;
 }
 
 .overlay-message p {
     margin-bottom: 0;
-    line-height: 1.5;
+    line-height: 1.6;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.7);
 }
 
-/* Alternative: Nur das Overlay ohne Nachricht (einfaches durchsichtiges Overlay) */
-.matches-overlay.simple {
-    cursor: not-allowed;
-    backdrop-filter: blur(1px);
-    -webkit-backdrop-filter: blur(1px);
-    background-color: rgba(0, 0, 0, 0.3);
+/* ─── Animationen ─── */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 
-/* Loading-Spinner im Overlay (optional) */
-.overlay-spinner {
-    border: 4px solid #f3f3f3;
-    border-top: 4px solid #d50f0d;
-    border-radius: 50%;
-    width: 50px;
-    height: 50px;
-    animation: spin 1s linear infinite;
+@keyframes completedPulse {
+    0%   { box-shadow: 0 8px 32px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.18); }
+    50%  { box-shadow: 0 8px 32px rgba(0, 200, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.22); }
+    100% { box-shadow: 0 8px 32px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.18); }
 }
 
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-/* Responsive Design */
+/* ─── Responsive ─── */
 @media (max-width: 768px) {
     .overlay-message {
         padding: 1.5rem 2rem;
-        font-size: 1rem;
         max-width: 300px;
         margin: 0 1rem;
-    }
-    
-    .overlay-message h3 {
-        font-size: 1.2rem;
     }
 }
