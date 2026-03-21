@@ -175,6 +175,23 @@
     padding: 0.35rem 0.5rem;
 }
 
+/* ─── Action-Buttons in team-actions – NUR EMOJIS ─── */
+.action-emoji-btn {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.2rem;
+}
+
+.action-emoji-btn:hover {
+    transform: scale(1.2);
+}
+
 /* ─── Button-Stile – NUR EMOJIS ─── */
 .edit-team-btn, .delete-team-btn {
     background: none;
