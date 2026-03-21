@@ -41,6 +41,27 @@
     padding: 0.4rem 0.75rem;
 }
 
+/* ─── Action-Buttons im Emoji-Stil (wie Vorrunde) ─── */
+.ko-actions .btn {
+    background: none;
+    border: none;
+    box-shadow: none;
+    font-size: 2rem;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.2rem;
+}
+
+.ko-actions .btn:hover {
+    background: none;
+    box-shadow: none;
+    transform: scale(1.2);
+    translate: none;
+}
+
 /* ─── Status-Container ─── */
 .status-container {
     margin: 0.75rem 0;
