@@ -57,6 +57,10 @@
     gap: 0.8rem;
 }
 
+.team-form-container .form-input {
+    font-family: 'Space Mono', 'Courier New', monospace;
+}
+
 /* ─── Action-Buttons-Leiste – Glas-Container ─── */
 .team-actions {
     display: flex;
