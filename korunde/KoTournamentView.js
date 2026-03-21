@@ -167,19 +167,11 @@ class KoTournamentView {
             Teams noch nicht bekannt oder unvollständig
           </div>
         `;
-      } else if (match.teams.every(team => team === null || team.name === null)) {
-        // Kein Team bekannt (TBD)
-        teamsContent = `
-          <div class="tbd-placeholder">
-            Teams noch nicht bekannt
-          </div>
-        `;
-      } else if (match.teams.some(team => team === null || team.name === null)) {
-        // Teilweise bekannte Teams
-        teamsContent = `
-          <div class="match-teams">
-        `;
-        
+      } else if (match.teams.every(team => team === null || team.name === null) ||
+                 match.teams.some(team => team === null || team.name === null)) {
+        // Kein oder nur ein Team bekannt – je Slot TBA anzeigen
+        teamsContent = `<div class="match-teams">`;
+
         match.teams.forEach((team, index) => {
           if (team && team.name) {
             teamsContent += `
@@ -197,7 +189,7 @@ class KoTournamentView {
             teamsContent += `
               <div class="team-row">
                 <div class="team-info">
-                  <span class="team-name">TBA</span>
+                  <span class="team-name tba-placeholder">TBA</span>
                 </div>
                 <div class="team-score">
                   <span>-</span>
@@ -206,7 +198,7 @@ class KoTournamentView {
             `;
           }
         });
-        
+
         teamsContent += `</div>`;
       } else {
         // Beide Teams bekannt

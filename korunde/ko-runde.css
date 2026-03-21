@@ -365,6 +365,11 @@
     margin: 0.5rem 0.6rem 0.6rem;
 }
 
+.team-name.tba-placeholder {
+    opacity: 0.5;
+    font-style: italic;
+}
+
 /* ─── Sieger-Anzeige ─── */
 .winner-container {
     margin-top: 3rem;
