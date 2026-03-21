@@ -1615,75 +1615,105 @@ function createTiebreakerMatch(tie, index) {
     const tieMatch = document.createElement('div');
     tieMatch.className = 'tiebreaker-match';
     tieMatch.dataset.tieId = tie.id;
-    
+
     // Positionsbereich für Teams
     const positions = tie.teams.map(team => {
-        // Team-Position in der Tabelle finden
         const position = standings.findIndex(s => s.team === team.team) + 1;
         return position;
     });
     const minPosition = Math.min(...positions);
-    
-    // Match-Titel mit Position und Teams
-    const matchTitle = document.createElement('h4');
-    matchTitle.style.fontSize = '1.2rem';
-    matchTitle.style.marginBottom = '0.8rem';
-    matchTitle.style.color = '#333';
-    
-    const teamNames = tie.teams.map(t => t.team).join(' vs ');
-    
-    // Je nach Position verschiedene Farben/Hinweise anzeigen
-    let positionInfo = '';
-    let titleColor = '#333';
-    
+
+    // Je nach Position Klasse und Label bestimmen
+    let positionInfo = 'Tabellenposition';
+    let positionClass = 'tie-position-default';
     if (minPosition <= 4) {
         positionInfo = 'Direkte Qualifikation';
-        titleColor = '#155724'; // Grün
+        positionClass = 'tie-position-direct';
     } else if (minPosition <= 12) {
         positionInfo = 'Playoff-Qualifikation';
-        titleColor = '#004085'; // Blau
-    } else {
-        positionInfo = 'Tabellenposition';
+        positionClass = 'tie-position-playoff';
     }
-    
-    matchTitle.innerHTML = `Gleichstand ${index + 1}: <span style="color:${titleColor}">${teamNames}</span>`;
-    matchTitle.style.borderBottom = '1px solid #eee';
-    matchTitle.style.paddingBottom = '0.5rem';
-    tieMatch.appendChild(matchTitle);
-    
-    // Match-Details
+
+    const teamNames = tie.teams.map(t => t.team).join(' vs ');
+
+    // ── Header (wie paarung-header) ──
+    const matchHeader = document.createElement('div');
+    matchHeader.className = 'tiebreaker-match-header';
+
+    const headerInfo = document.createElement('div');
+    headerInfo.className = 'header-info';
+
+    const matchTitle = document.createElement('span');
+    matchTitle.className = 'tiebreaker-match-title';
+    matchTitle.textContent = `Gleichstand ${index + 1}`;
+    headerInfo.appendChild(matchTitle);
+
+    const teamsLabel = document.createElement('span');
+    teamsLabel.className = `tie-teams-label ${positionClass}`;
+    teamsLabel.textContent = teamNames;
+    headerInfo.appendChild(teamsLabel);
+
+    matchHeader.appendChild(headerInfo);
+
+    // Emoji-Buttons im Header
+    const headerActions = document.createElement('div');
+    headerActions.className = 'tiebreaker-match-actions';
+
+    if (tie.result) {
+        const editBtn = document.createElement('button');
+        editBtn.className = 'action-emoji-btn';
+        editBtn.innerHTML = '✏️';
+        editBtn.addEventListener('click', () => editTiebreakerResult(tie.id));
+        headerActions.appendChild(editBtn);
+    } else {
+        const saveBtn = document.createElement('button');
+        saveBtn.className = 'action-emoji-btn';
+        saveBtn.innerHTML = '💾';
+        saveBtn.addEventListener('click', () => saveTiebreakerResult(tie.id));
+        headerActions.appendChild(saveBtn);
+    }
+
+    const resetBtn = document.createElement('button');
+    resetBtn.className = 'action-emoji-btn';
+    resetBtn.innerHTML = '🔄';
+    resetBtn.addEventListener('click', () => resetTiebreakerResult(tie.id));
+    headerActions.appendChild(resetBtn);
+
+    matchHeader.appendChild(headerActions);
+    tieMatch.appendChild(matchHeader);
+
+    // ── Stats-Info ──
     const matchDetails = document.createElement('div');
     matchDetails.className = 'tiebreaker-info';
     matchDetails.innerHTML = `
         <div><strong>${positionInfo}:</strong> Platz ${minPosition}</div>
-        <div><strong>Gleichwerte:</strong> 
-            Punkte: <b>${tie.teams[0].points}</b>, 
-            Tordifferenz: <b>${tie.teams[0].goalDifference}</b>, 
+        <div><strong>Gleichwerte:</strong>
+            Punkte: <b>${tie.teams[0].points}</b>,
+            Tordifferenz: <b>${tie.teams[0].goalDifference}</b>,
             Erzielte Tore: <b>${tie.teams[0].goalsFor}</b>
         </div>
     `;
     tieMatch.appendChild(matchDetails);
-    
+
+    // ── Teams (wie paarung-teams) ──
     const matchTeams = document.createElement('div');
     matchTeams.className = 'tiebreaker-teams';
-    
-    // Teams und Score-Inputs erstellen
+
     tie.teams.forEach(team => {
         const teamEl = document.createElement('div');
         teamEl.className = 'tiebreaker-team';
-        
+
         const teamName = document.createElement('span');
         teamName.className = 'team-name';
         teamName.textContent = team.team;
         teamEl.appendChild(teamName);
-        
+
         const scoreInput = document.createElement('input');
         scoreInput.type = 'number';
         scoreInput.className = 'score-input';
         scoreInput.dataset.team = team.team;
         scoreInput.min = 0;
-        
-        // Wenn ein Ergebnis existiert, dieses anzeigen
+
         if (tie.result) {
             const teamResult = tie.result.teams.find(t => t.team === team.team);
             if (teamResult) {
@@ -1691,42 +1721,13 @@ function createTiebreakerMatch(tie, index) {
                 scoreInput.disabled = true;
             }
         }
-        
+
         teamEl.appendChild(scoreInput);
         matchTeams.appendChild(teamEl);
     });
-    
+
     tieMatch.appendChild(matchTeams);
-    
-    // Aktionen
-    const matchActions = document.createElement('div');
-    matchActions.className = 'tiebreaker-actions';
-    
-    if (tie.result) {
-        // Bearbeiten-Button mit Stift-Emoji
-        const editBtn = document.createElement('button');
-        editBtn.className = 'btn btn-secondary';
-        editBtn.innerHTML = '✏️';
-        editBtn.addEventListener('click', () => editTiebreakerResult(tie.id));
-        matchActions.appendChild(editBtn);
-    } else {
-        // Speichern-Button mit Speichern-Emoji
-        const saveBtn = document.createElement('button');
-        saveBtn.className = 'btn btn-primary';
-        saveBtn.innerHTML = '💾';
-        saveBtn.addEventListener('click', () => saveTiebreakerResult(tie.id));
-        matchActions.appendChild(saveBtn);
-    }
-    
-    // Zurücksetzen-Button mit Rückgängig-Emoji
-    const resetBtn = document.createElement('button');
-    resetBtn.className = 'btn btn-danger';
-    resetBtn.innerHTML = '🔄';
-    resetBtn.addEventListener('click', () => resetTiebreakerResult(tie.id));
-    matchActions.appendChild(resetBtn);
-    
-    tieMatch.appendChild(matchActions);
-    
+
     return tieMatch;
 }
 

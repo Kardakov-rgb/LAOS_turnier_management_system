@@ -515,99 +515,146 @@
 /* ─── Tiebreaker-Container ─── */
 .tiebreaker-container {
     margin-top: 1.5rem;
-    padding: 1.25rem;
-    background: linear-gradient(160deg, rgba(200, 150, 12, 0.35) 0%, rgba(138, 98, 0, 0.35) 100%);
+    padding: 1rem;
+    background: linear-gradient(160deg, rgba(200, 150, 12, 0.25) 0%, rgba(80, 60, 0, 0.25) 100%);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 215, 0, 0.35);
+    border: 1px solid rgba(255, 215, 0, 0.25);
     border-radius: 14px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25),
-                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+                inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
 .tiebreaker-title {
     text-align: center;
-    color: #fff;
+    color: rgba(255, 255, 255, 0.9);
     text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
-    margin-bottom: 1.25rem;
-    font-size: 1.8rem;
+    margin-bottom: 1rem;
+    font-size: 1rem;
     font-family: 'Space Mono', monospace;
     font-weight: 700;
-    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
 }
 
 .tiebreaker-matches {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.6rem;
 }
 
+@media (max-width: 992px) {
+    .tiebreaker-matches { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 576px) {
+    .tiebreaker-matches { grid-template-columns: 1fr; }
+}
+
+/* ─── Einzelne Tiebreaker-Karte – wie paarung-card (goldener Gradient) ─── */
 .tiebreaker-match {
-    background: rgba(255, 255, 255, 0.15);
+    background: linear-gradient(160deg, #5a4a00 0%, #2a2000 100%);
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.32),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    font-family: 'Space Mono', monospace;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.tiebreaker-match:hover {
+    box-shadow:
+        0 14px 40px rgba(0, 0, 0, 0.38),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    transform: translateY(-3px);
+}
+
+/* ─── Tiebreaker-Header – wie paarung-header ─── */
+.tiebreaker-match-header {
+    background: rgba(0, 0, 0, 0.28);
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 10px;
-    padding: 1rem;
-}
-
-.tiebreaker-info {
-    margin-bottom: 0.8rem;
-    font-size: 0.85rem;
-    font-family: 'Space Mono', monospace;
-    color: rgba(255, 255, 255, 0.75);
-}
-
-.tiebreaker-teams {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
     display: flex;
     justify-content: space-between;
-    margin-bottom: 1rem;
-    flex-wrap: wrap;
-    gap: 0.75rem;
+    align-items: center;
+    padding: 0.35rem 0.6rem;
+    gap: 0.4rem;
+}
+
+.tiebreaker-match-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.7);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+}
+
+.tie-teams-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+    min-width: 0;
+}
+
+.tie-position-direct  { color: #7dffb3; }
+.tie-position-playoff { color: #7db8ff; }
+.tie-position-default { color: rgba(255, 255, 255, 0.75); }
+
+.tiebreaker-match-actions {
+    display: flex;
+    gap: 0.2rem;
+    flex-shrink: 0;
+}
+
+/* ─── Stats-Info ─── */
+.tiebreaker-info {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.65rem;
+    font-family: 'Space Mono', monospace;
+    color: rgba(255, 255, 255, 0.65);
+    background: rgba(0, 0, 0, 0.15);
+    line-height: 1.6;
+}
+
+.tiebreaker-info strong { color: rgba(255, 255, 255, 0.85); }
+.tiebreaker-info b      { color: #FFD700; }
+
+/* ─── Teams (wie paarung-teams) ─── */
+.tiebreaker-teams {
+    padding: 0.5rem 0.6rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
 }
 
 .tiebreaker-team {
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    gap: 0.6rem;
-    padding: 0.4rem 0.8rem;
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
     border-radius: 6px;
-    min-width: 140px;
+    padding: 0.3rem 0.5rem;
 }
 
 .tiebreaker-team .team-name {
-    font-size: 0.85rem;
+    font-size: 0.9rem;
 }
 
 .tiebreaker-team .score-input {
-    width: 52px;
-}
-
-.tiebreaker-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.6rem;
-    margin-top: 0.75rem;
-    padding-top: 0.75rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.15);
-}
-
-.tiebreaker-actions button {
-    background: rgba(255, 255, 255, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.25);
-    border-radius: 6px;
-    color: #fff;
-    font-family: 'Space Mono', monospace;
-    font-size: 1rem;
-    padding: 0.4rem 0.9rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.tiebreaker-actions button:hover {
-    background: rgba(255, 255, 255, 0.32);
-    transform: translateY(-2px);
+    width: 48px;
 }
 
 /* ─── Keine Spiele vorhanden ─── */
