@@ -1822,24 +1822,24 @@ function editTiebreakerResult(tieId) {
     });
     
     // Aktionen aktualisieren
-    const actionsDiv = tieMatch.querySelector('.tiebreaker-actions');
+    const actionsDiv = tieMatch.querySelector('.tiebreaker-match-actions');
     if (!actionsDiv) {
         console.error(`Keine Actions-Div gefunden für Tiebreaker ${tieId}`);
         return;
     }
-    
+
     actionsDiv.innerHTML = '';
-    
+
     // Speichern-Button mit Emoji
     const saveBtn = document.createElement('button');
-    saveBtn.className = 'btn btn-primary';
+    saveBtn.className = 'header-btn';
     saveBtn.innerHTML = '💾';
     saveBtn.addEventListener('click', () => saveTiebreakerResult(tieId));
     actionsDiv.appendChild(saveBtn);
-    
+
     // Zurücksetzen-Button mit Emoji
     const resetBtn = document.createElement('button');
-    resetBtn.className = 'btn btn-danger';
+    resetBtn.className = 'header-btn';
     resetBtn.innerHTML = '🔄';
     resetBtn.addEventListener('click', () => resetTiebreakerResult(tieId));
     actionsDiv.appendChild(resetBtn);
