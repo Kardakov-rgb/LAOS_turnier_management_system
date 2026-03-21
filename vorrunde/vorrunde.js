@@ -215,6 +215,8 @@ document.addEventListener('DOMContentLoaded', async function() {
         console.log(`Wechsle zu Runde ${round}`);
         
         // Navigation aktualisieren
+        document.getElementById('goldenCupBtn').classList.remove('active');
+        document.body.classList.remove('golden-cup-active');
         roundNavButtons.forEach(button => {
             if (parseInt(button.dataset.round) === round) {
                 button.classList.add('active');
@@ -1499,6 +1501,7 @@ function showGoldenCup() {
     document.querySelectorAll('.round-nav-btn').forEach(btn => {
         btn.classList.remove('active');
     });
+    document.body.classList.add('golden-cup-active');
     
     // Container leeren
     matchesContainer.innerHTML = '';

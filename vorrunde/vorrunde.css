@@ -479,13 +479,17 @@
 
 /* ─── Gleichstand-Marker ─── */
 .tie-marker {
-    display: inline-block;
+    display: none;
     width: 8px;
     height: 8px;
     background-color: #FFD700;
     border-radius: 50%;
     margin-right: 4px;
     vertical-align: middle;
+}
+
+body.golden-cup-active .tie-marker {
+    display: inline-block;
 }
 
 /* ─── Highlight-Animation für Tabellen-Zeilen ─── */
