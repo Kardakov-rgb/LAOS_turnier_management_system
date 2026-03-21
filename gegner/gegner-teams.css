@@ -61,23 +61,23 @@
     align-items: start;
 }
 
-/* ─── Tischfarben je Karte – identisch zu paarung-card ─── */
-.team-overview-card.tisch-1 { --tisch-color: #D50F0D; --tisch-color-dark: #7a0908; }
-.team-overview-card.tisch-2 { --tisch-color: #FF6600; --tisch-color-dark: #b34600; }
-.team-overview-card.tisch-3 { --tisch-color: #6e72c4; --tisch-color-dark: #3d4196; }
-.team-overview-card.tisch-4 { --tisch-color: #4d9e7f; --tisch-color-dark: #286652; }
-.team-overview-card.tisch-5 { --tisch-color: #A48876; --tisch-color-dark: #6d5546; }
-.team-overview-card.tisch-6 { --tisch-color: #666666; --tisch-color-dark: #2e2e2e; }
+/* ─── Tischfarben: kräftig für round-group, dezent für Karte ─── */
+.team-overview-card.tisch-1 { --tisch-color: #D50F0D; --tisch-color-dark: #7a0908; --card-bg: #1a0504; --card-bg-dark: #0d0202; }
+.team-overview-card.tisch-2 { --tisch-color: #FF6600; --tisch-color-dark: #b34600; --card-bg: #1f0e00; --card-bg-dark: #110700; }
+.team-overview-card.tisch-3 { --tisch-color: #6e72c4; --tisch-color-dark: #3d4196; --card-bg: #0d0e1f; --card-bg-dark: #060711; }
+.team-overview-card.tisch-4 { --tisch-color: #4d9e7f; --tisch-color-dark: #286652; --card-bg: #07150f; --card-bg-dark: #030a07; }
+.team-overview-card.tisch-5 { --tisch-color: #A48876; --tisch-color-dark: #6d5546; --card-bg: #18100c; --card-bg-dark: #0d0806; }
+.team-overview-card.tisch-6 { --tisch-color: #666666; --tisch-color-dark: #2e2e2e; --card-bg: #111111; --card-bg-dark: #080808; }
 
-/* ─── Einzelne Team-Karte – kräftiger Tischfarb-Gradient (wie paarung-card) ─── */
+/* ─── Team-Karte – dezente LAOS-Farbe als dunkler Hintergrund ─── */
 .team-overview-card {
-    background: linear-gradient(160deg, var(--tisch-color) 0%, var(--tisch-color-dark) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.22);
+    background: linear-gradient(160deg, var(--card-bg) 0%, var(--card-bg-dark) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.14);
     border-radius: 14px;
     overflow: hidden;
     box-shadow:
-        0 8px 32px rgba(0, 0, 0, 0.32),
-        inset 0 1px 0 rgba(255, 255, 255, 0.18);
+        0 8px 32px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
     display: flex;
     flex-direction: column;
     font-family: 'Space Mono', 'Courier New', monospace;
@@ -86,18 +86,18 @@
 
 .team-overview-card:hover {
     box-shadow:
-        0 14px 40px rgba(0, 0, 0, 0.38),
-        inset 0 1px 0 rgba(255, 255, 255, 0.22);
+        0 14px 40px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
     transform: translateY(-3px);
 }
 
-/* ─── Team-Header – dunkles Glas-Panel über dem Gradient ─── */
+/* ─── Team-Header – dezentes Glas-Panel passend zur Kartenfarbe ─── */
 .team-overview-header {
-    background: rgba(0, 0, 0, 0.22);
+    background: rgba(255, 255, 255, 0.07);
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.18);
-    color: #fff;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.85);
     font-family: 'Space Mono', monospace;
     font-weight: 700;
     font-size: 0.85rem;
@@ -105,7 +105,7 @@
     padding: 0.6rem 0.4rem;
     text-transform: uppercase;
     letter-spacing: 0.12em;
-    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
     word-break: break-word;
     hyphens: auto;
 }
@@ -115,43 +115,43 @@
     padding: 0.3rem;
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
+    gap: 0.3rem;
 }
 
-/* ─── Runden-Gruppe ─── */
+/* ─── Runden-Gruppe – kräftiger Tischfarb-Gradient ─── */
 .round-group {
+    background: linear-gradient(160deg, var(--tisch-color) 0%, var(--tisch-color-dark) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.15);
     display: flex;
     flex-direction: column;
-    gap: 0.2rem;
+    gap: 0;
 }
 
-/* ─── Match-Eintrag – Glassmorphism mit Tischfarbe ─── */
+/* ─── Match-Eintrag – Glas-Panel auf dem kräftigen round-group-Gradient ─── */
 .match-entry {
     display: grid;
     grid-template-columns: auto 1fr;
     gap: 0.3rem;
-    padding: 0.3rem 0.4rem;
-    border-radius: 8px;
-    border-left: 4px solid rgba(255, 255, 255, 0.3);
-    background: rgba(255, 255, 255, 0.06);
+    padding: 0.3rem 0.5rem;
+    background: rgba(0, 0, 0, 0.22);
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
+    border-left: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     align-items: center;
-    transition: background 0.2s ease, transform 0.15s ease;
+    transition: background 0.15s ease;
+}
+
+.match-entry:last-child {
+    border-bottom: none;
 }
 
 .match-entry:hover {
-    background: rgba(255, 255, 255, 0.12);
-    transform: translateX(2px);
+    background: rgba(0, 0, 0, 0.35);
 }
-
-/* Tischfarben als linker Rand + kräftiger Hintergrund */
-.match-entry.tisch-1 { border-left-color: var(--tisch-1); background: rgba(213, 15, 13, 0.6); }
-.match-entry.tisch-2 { border-left-color: var(--tisch-2); background: rgba(255, 102, 0, 0.6); }
-.match-entry.tisch-3 { border-left-color: var(--tisch-3); background: rgba(110, 114, 196, 0.6); }
-.match-entry.tisch-4 { border-left-color: var(--tisch-4); background: rgba(77, 158, 127, 0.6); }
-.match-entry.tisch-5 { border-left-color: var(--tisch-5); background: rgba(164, 136, 118, 0.6); }
-.match-entry.tisch-6 { border-left-color: var(--tisch-6); background: rgba(102, 102, 102, 0.6); }
 
 /* ─── Halbzeit-Symbol ─── */
 .match-info {
