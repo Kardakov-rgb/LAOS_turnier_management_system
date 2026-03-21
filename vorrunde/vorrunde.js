@@ -1930,7 +1930,6 @@ function renderStandingsWithTieMarkers(ties) {
             <th class="stat-col">Tore</th>
             <th class="stat-col">Diff</th>
             <th class="stat-col">Pkt</th>
-            <th class="stat-col">Hinweis</th>
         </tr>
     `;
     table.appendChild(thead);
@@ -1999,6 +1998,10 @@ function renderStandingsWithTieMarkers(ties) {
         } else if (index < 12) {
             row.className = 'playoff-qualifier';
         }
+
+        if (teamsWithGoldenCupDecision.has(team.team)) {
+            row.classList.add('golden-cup-decided');
+        }
         
         // Team-Zelle mit Marker für Gleichstand
         const teamCell = document.createElement('td');
@@ -2028,17 +2031,6 @@ function renderStandingsWithTieMarkers(ties) {
             <td class="stat-col">${team.points}</td>
         `;
         
-        // Hinweis-Zelle für Golden Cup
-        const notesCell = document.createElement('td');
-        notesCell.className = 'stat-col';
-        
-        if (teamsWithGoldenCupDecision.has(team.team)) {
-            notesCell.innerHTML = '<span style="font-size: 1.1rem; color: #FFD700;">Golden Cup</span>';
-            notesCell.title = 'Platzierung durch Golden Cup-Entscheidung';
-        }
-        
-        row.appendChild(notesCell);
-        
         tbody.appendChild(row);
     });
     
@@ -2047,18 +2039,9 @@ function renderStandingsWithTieMarkers(ties) {
     
     // Hinweis unterhalb der Tabelle
     if (teamsWithGoldenCupDecision.size > 0) {
-        const legend = document.createElement('div');
-        legend.style.marginTop = '1rem';
-        legend.style.padding = '0.5rem';
-        legend.style.backgroundColor = '#f8f9fa';
-        legend.style.borderRadius = '4px';
-        legend.style.fontSize = '0.9rem';
-        legend.innerHTML = `
-            <p><span style="color: #FFD700;">🏆</span> Teams mit <strong>Golden Cup</strong> Markierung werden in der Tabelle 
-            basierend auf Golden Cup-Entscheidungen platziert.</p>
-            <p>Teams mit identischen Werten (Punkte, Tordifferenz, Tore) teilen sich denselben Tabellenplatz, 
-            es sei denn, eine Golden Cup-Entscheidung wurde getroffen.</p>
-        `;
+        const legend = document.createElement('p');
+        legend.className = 'golden-cup-legend';
+        legend.textContent = '▎ Platzierung durch Tiebreaker (Golden Cup) entschieden';
         standingsContainer.appendChild(legend);
     }
 }

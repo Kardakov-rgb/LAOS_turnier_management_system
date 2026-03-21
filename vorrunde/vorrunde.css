@@ -492,6 +492,18 @@ body.golden-cup-active .tie-marker {
     display: inline-block;
 }
 
+/* ─── Golden Cup Tiebreaker-Zeile ─── */
+tr.golden-cup-decided {
+    border-left: 3px solid #FFD700;
+}
+
+.golden-cup-legend {
+    margin-top: 0.6rem;
+    font-size: 0.8rem;
+    color: #FFD700;
+    opacity: 0.8;
+}
+
 /* ─── Highlight-Animation für Tabellen-Zeilen ─── */
 @keyframes teamPulseWithFadeIn {
     0%   { background-color: transparent; transform: scale(1); }
