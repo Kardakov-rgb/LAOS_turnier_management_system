@@ -1,5 +1,6 @@
 // data-service.js
 import { database, ref, set, get, onValue } from './firebase-config.js';
+import authService from './auth-service.js';
 
 class DataService {
   constructor() {
@@ -55,23 +56,47 @@ class DataService {
     
     // Immer in localStorage speichern
     localStorage.setItem(key, JSON.stringify(dataToSave));
-    
+
     // Wenn online, in Firebase speichern
     if (this.isOnline) {
+      if (!authService.isLoggedIn()) {
+        this._showAuthToast();
+        return false;
+      }
       try {
         await set(ref(database, key), dataToSave);
         return true;
       } catch (error) {
-        console.error("Firebase Speicherfehler:", error);
-        // Füge Update zur Warteschlange hinzu
-        this.addPendingUpdate(key, dataToSave);
+        if (error.code === 'PERMISSION_DENIED') {
+          this._showAuthToast();
+        } else {
+          console.error("Firebase Speicherfehler:", error);
+          this.addPendingUpdate(key, dataToSave);
+        }
         return false;
       }
     } else {
-      // Füge Update zur Warteschlange hinzu
       this.addPendingUpdate(key, dataToSave);
       return false;
     }
+  }
+
+  _showAuthToast() {
+    const existing = document.getElementById('auth-toast');
+    if (existing) return;
+
+    const toast = document.createElement('div');
+    toast.id = 'auth-toast';
+    toast.style.cssText = `
+      position:fixed; bottom:80px; left:50%; transform:translateX(-50%);
+      background:rgba(213,15,13,0.9); color:white; padding:0.75rem 1.4rem;
+      border-radius:8px; font-family:var(--font-primary); font-size:0.9rem;
+      z-index:2000; box-shadow:0 4px 20px rgba(0,0,0,0.4);
+      animation: fadeInUp 0.3s ease;
+    `;
+    toast.textContent = '🔒 Nicht eingeloggt – bitte zuerst als Admin anmelden.';
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3500);
   }
   
   // KORRIGIERTE VERSION: Daten laden
