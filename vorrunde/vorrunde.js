@@ -922,262 +922,114 @@ function createPaarungCard(match) {
 /**
  * Speichert das Ergebnis eines Matches und stellt sicher, dass alte Werte korrekt entfernt werden
  */
+// ---- Punkte-Hilfsfunktionen (rein/zustandslos) ----
+
+function calcWinnerPoints(winnerScore, loserScore) {
+    return WIN_POINTS
+        + (winnerScore >= BONUS_SCORE_THRESHOLD ? 1 : 0)
+        + (loserScore === 0 ? 1 : 0);
+}
+
+function calcLoserBonus(loserScore) {
+    return loserScore >= BONUS_SCORE_THRESHOLD ? 1 : 0;
+}
+
+function calcDrawPoints(score) {
+    return DRAW_POINTS + (score >= BONUS_SCORE_THRESHOLD ? 1 : 0);
+}
+
+function revertMatchFromStandings(match, t1, t2) {
+    standings[t1].played--;
+    standings[t1].goalsFor     -= match.score1;
+    standings[t1].goalsAgainst -= match.score2;
+    standings[t2].played--;
+    standings[t2].goalsFor     -= match.score2;
+    standings[t2].goalsAgainst -= match.score1;
+
+    if (match.score1 > match.score2) {
+        standings[t1].won--;
+        standings[t1].points -= calcWinnerPoints(match.score1, match.score2);
+        standings[t2].lost--;
+        standings[t2].points -= calcLoserBonus(match.score2);
+    } else if (match.score1 < match.score2) {
+        standings[t1].lost--;
+        standings[t1].points -= calcLoserBonus(match.score1);
+        standings[t2].won--;
+        standings[t2].points -= calcWinnerPoints(match.score2, match.score1);
+    } else {
+        standings[t1].drawn--;
+        standings[t1].points -= calcDrawPoints(match.score1);
+        standings[t2].drawn--;
+        standings[t2].points -= calcDrawPoints(match.score2);
+    }
+}
+
+function applyMatchToStandings(score1, score2, t1, t2) {
+    standings[t1].played++;
+    standings[t1].goalsFor     += score1;
+    standings[t1].goalsAgainst += score2;
+    standings[t2].played++;
+    standings[t2].goalsFor     += score2;
+    standings[t2].goalsAgainst += score1;
+
+    if (score1 > score2) {
+        standings[t1].won++;
+        standings[t1].points += calcWinnerPoints(score1, score2);
+        standings[t2].lost++;
+        standings[t2].points += calcLoserBonus(score2);
+    } else if (score1 < score2) {
+        standings[t1].lost++;
+        standings[t1].points += calcLoserBonus(score1);
+        standings[t2].won++;
+        standings[t2].points += calcWinnerPoints(score2, score1);
+    } else {
+        standings[t1].drawn++;
+        standings[t1].points += calcDrawPoints(score1);
+        standings[t2].drawn++;
+        standings[t2].points += calcDrawPoints(score2);
+    }
+
+    standings[t1].goalDifference = standings[t1].goalsFor - standings[t1].goalsAgainst;
+    standings[t2].goalDifference = standings[t2].goalsFor - standings[t2].goalsAgainst;
+}
+
+// ---- Ergebnis speichern ----
+
 function saveMatchResult(matchId) {
-    console.log(`Speichere Ergebnis für Match ${matchId}`);
-    console.log('saveMatchResult wurde aufgerufen mit ID:', matchId);
-    // Match finden
     const matchIndex = matches.findIndex(m => m.id === matchId);
-    if (matchIndex === -1) {
-        console.error(`Match mit ID ${matchId} nicht gefunden`);
-        return;
-    }
-    
+    if (matchIndex === -1) return;
+
     const match = matches[matchIndex];
-    
-    // Ergebnisse aus Eingabefeldern holen
+
     const paarungCard = document.querySelector(`.paarung-card[data-match-id="${matchId}"]`);
-    if (!paarungCard) {
-        console.error(`Paarungskarte für Match ${matchId} nicht gefunden`);
-        return;
-    }
-    
-    const score1Input = paarungCard.querySelector('.score-input[data-team="1"]');
-    const score2Input = paarungCard.querySelector('.score-input[data-team="2"]');
-    
-    const newScore1 = parseInt(score1Input.value);
-    const newScore2 = parseInt(score2Input.value);
-    
-    // Validierung
+    if (!paarungCard) return;
+
+    const newScore1 = parseInt(paarungCard.querySelector('.score-input[data-team="1"]').value);
+    const newScore2 = parseInt(paarungCard.querySelector('.score-input[data-team="2"]').value);
+
     if (isNaN(newScore1) || isNaN(newScore2) || newScore1 < 0 || newScore2 < 0) {
         alert('Bitte gib gültige Ergebnisse ein (positive Zahlen).');
         return;
     }
-    
-    // Teams in der Tabelle finden
-    const team1Index = standings.findIndex(s => s.team === match.team1);
-    const team2Index = standings.findIndex(s => s.team === match.team2);
-    
-    if (team1Index === -1 || team2Index === -1) {
-        alert(`Teams nicht gefunden: ${match.team1}, ${match.team2}`);
-        return;
-    }
-    
-    // WICHTIG: Alte Ergebnisse aus der Tabelle entfernen, falls das Match bereits gespielt wurde
-    if (match.played) {
-        console.log("Match wurde bereits gespielt, entferne alte Werte:", {
-            oldScore1: match.score1,
-            oldScore2: match.score2
-        });
-        
-        // Spielstatistik für Team 1 zurücksetzen
-        standings[team1Index].played--;
-        standings[team1Index].goalsFor -= match.score1;
-        standings[team1Index].goalsAgainst -= match.score2;
-        
-        // Spielstatistik für Team 2 zurücksetzen
-        standings[team2Index].played--;
-        standings[team2Index].goalsFor -= match.score2;
-        standings[team2Index].goalsAgainst -= match.score1;
-        
-        // Sieg/Niederlage/Unentschieden zurücksetzen
-        if (match.score1 > match.score2) {
-            // Team 1 hatte gewonnen
-            standings[team1Index].won--;
-            standings[team1Index].points -= WIN_POINTS + (match.score1 >= BONUS_SCORE_THRESHOLD ? 1 : 0) + (match.score2 === 0 ? 1 : 0);
-            standings[team2Index].lost--;
-            standings[team2Index].points -= (match.score2 >= BONUS_SCORE_THRESHOLD ? 1 : 0);
-        } else if (match.score1 < match.score2) {
-            // Team 2 hatte gewonnen
-            standings[team1Index].lost--;
-            standings[team1Index].points -= (match.score1 >= BONUS_SCORE_THRESHOLD ? 1 : 0);
-            standings[team2Index].won--;
-            standings[team2Index].points -= WIN_POINTS + (match.score2 >= BONUS_SCORE_THRESHOLD ? 1 : 0) + (match.score1 === 0 ? 1 : 0);
-        } else {
-            // Unentschieden
-            standings[team1Index].drawn--;
-            standings[team1Index].points -= DRAW_POINTS + (match.score1 >= BONUS_SCORE_THRESHOLD ? 1 : 0);
-            standings[team2Index].drawn--;
-            standings[team2Index].points -= DRAW_POINTS + (match.score2 >= BONUS_SCORE_THRESHOLD ? 1 : 0);
-        }
-    }
-    
-    // Neue Ergebnisse im Match speichern
-    match.score1 = newScore1;
-    match.score2 = newScore2;
-    match.played = true;
-    
-    // Neue Spielstatistik für Team 1 hinzufügen
-    standings[team1Index].played++;
-    standings[team1Index].goalsFor += newScore1;
-    standings[team1Index].goalsAgainst += newScore2;
-    
-    // Neue Spielstatistik für Team 2 hinzufügen
-    standings[team2Index].played++;
-    standings[team2Index].goalsFor += newScore2;
-    standings[team2Index].goalsAgainst += newScore1;
-    
-    // Neues Sieg/Niederlage/Unentschieden bestimmen
-    if (newScore1 > newScore2) {
-        // Team 1 gewinnt
-        standings[team1Index].won++;
-        standings[team1Index].points += WIN_POINTS + (newScore1 >= BONUS_SCORE_THRESHOLD ? 1 : 0) + (newScore2 === 0 ? 1 : 0);
-        standings[team2Index].lost++;
-        standings[team2Index].points += (newScore2 >= BONUS_SCORE_THRESHOLD ? 1 : 0);
-    } else if (newScore1 < newScore2) {
-        // Team 2 gewinnt
-        standings[team1Index].lost++;
-        standings[team1Index].points += (newScore1 >= BONUS_SCORE_THRESHOLD ? 1 : 0);
-        standings[team2Index].won++;
-        standings[team2Index].points += WIN_POINTS + (newScore2 >= BONUS_SCORE_THRESHOLD ? 1 : 0) + (newScore1 === 0 ? 1 : 0);
-    } else {
-        // Unentschieden
-        standings[team1Index].drawn++;
-        standings[team1Index].points += DRAW_POINTS + (newScore1 >= BONUS_SCORE_THRESHOLD ? 1 : 0);
-        standings[team2Index].drawn++;
-        standings[team2Index].points += DRAW_POINTS + (newScore2 >= BONUS_SCORE_THRESHOLD ? 1 : 0);
-    }
-    
-    // Tordifferenz aktualisieren
-    standings[team1Index].goalDifference = standings[team1Index].goalsFor - standings[team1Index].goalsAgainst;
-    standings[team2Index].goalDifference = standings[team2Index].goalsFor - standings[team2Index].goalsAgainst;
-    
-    // Daten speichern
+
+    const t1 = standings.findIndex(s => s.team === match.team1);
+    const t2 = standings.findIndex(s => s.team === match.team2);
+    if (t1 === -1 || t2 === -1) { alert(`Teams nicht gefunden: ${match.team1}, ${match.team2}`); return; }
+
+    if (match.played) revertMatchFromStandings(match, t1, t2);
+
+    match.score1  = newScore1;
+    match.score2  = newScore2;
+    match.played  = true;
+
+    applyMatchToStandings(newScore1, newScore2, t1, t2);
+
     saveMatches();
     saveStandings();
-    
-    console.log("Ergebnis gespeichert:", {
-        match: match,
-        team1: standings[team1Index],
-        team2: standings[team2Index]
-    });
-
-    // UI aktualisieren
     renderMatches();
     renderStandings();
-        highlightTeamsInTable(match.team1, match.team2);
-
+    highlightTeamsInTable(match.team1, match.team2);
 }
-    
-    /**
-     * Aktualisiert die Tabelle basierend auf einem Spielergebnis
-     */
-    function updateStandings(match) {
-        console.log("Aktualisiere Tabelle für Match:", match);
-        console.log("Aktueller Standings:", standings);
-        
-        // Team1 finden
-        const team1Index = standings.findIndex(s => s.team === match.team1);
-        const team2Index = standings.findIndex(s => s.team === match.team2);
-        
-        console.log("Gefundene Team-Indizes:", {
-            team1: match.team1,
-            team1Index: team1Index,
-            team2: match.team2,
-            team2Index: team2Index
-        });
-        
-        if (team1Index === -1 || team2Index === -1) {
-            console.error(`Teams für Match ${match.id} nicht gefunden:`, {
-                team1: match.team1,
-                team2: match.team2,
-                availableTeams: standings.map(s => s.team)
-            });
-            return;
-        }
-        
-        // Wenn Match bereits gespielt wurde, vorherige Werte zurücksetzen
-        if (match.played) {
-            resetMatchInStandings(match);
-        }
-        
-        // Spielstatistik für Team 1
-        standings[team1Index].played++;
-        standings[team1Index].goalsFor += match.score1;
-        standings[team1Index].goalsAgainst += match.score2;
-        
-        // Spielstatistik für Team 2
-        standings[team2Index].played++;
-        standings[team2Index].goalsFor += match.score2;
-        standings[team2Index].goalsAgainst += match.score1;
-        
-        // Sieg/Niederlage/Unentschieden bestimmen
-        if (match.score1 > match.score2) {
-            // Team 1 gewinnt
-            standings[team1Index].won++;
-            standings[team1Index].points += 2;
-            standings[team2Index].lost++;
-        } else if (match.score1 < match.score2) {
-            // Team 2 gewinnt
-            standings[team1Index].lost++;
-            standings[team2Index].won++;
-            standings[team2Index].points += 2;
-        } else {
-            // Unentschieden
-            standings[team1Index].drawn++;
-            standings[team1Index].points += 1;
-            standings[team2Index].drawn++;
-            standings[team2Index].points += 1;
-        }
-        
-        // Tordifferenz aktualisieren
-        standings[team1Index].goalDifference = standings[team1Index].goalsFor - standings[team1Index].goalsAgainst;
-        standings[team2Index].goalDifference = standings[team2Index].goalsFor - standings[team2Index].goalsAgainst;
-        
-        console.log("Aktualisierte Teams:", {
-            team1: standings[team1Index],
-            team2: standings[team2Index]
-        });
-        
-        console.log("Standings nach Update:", standings);
-    }
-    
-    /**
-     * Setzt ein Match in der Tabelle zurück (vor der Aktualisierung)
-     */
-    function resetMatchInStandings(match) {
-        // Originales Match finden
-        const originalMatch = matches.find(m => m.id === match.id);
-        if (!originalMatch || !originalMatch.played) return;
-        
-        // Team-Indizes finden
-        const team1Index = standings.findIndex(s => s.team === originalMatch.team1);
-        const team2Index = standings.findIndex(s => s.team === originalMatch.team2);
-        
-        if (team1Index === -1 || team2Index === -1) return;
-        
-        // Spielstatistik für Team 1 zurücksetzen
-        standings[team1Index].played--;
-        standings[team1Index].goalsFor -= originalMatch.score1;
-        standings[team1Index].goalsAgainst -= originalMatch.score2;
-        
-        // Spielstatistik für Team 2 zurücksetzen
-        standings[team2Index].played--;
-        standings[team2Index].goalsFor -= originalMatch.score2;
-        standings[team2Index].goalsAgainst -= originalMatch.score1;
-        
-        // Sieg/Niederlage/Unentschieden zurücksetzen
-        if (originalMatch.score1 > originalMatch.score2) {
-            // Team 1 hatte gewonnen
-            standings[team1Index].won--;
-            standings[team1Index].points -= 2;
-            standings[team2Index].lost--;
-        } else if (originalMatch.score1 < originalMatch.score2) {
-            // Team 2 hatte gewonnen
-            standings[team1Index].lost--;
-            standings[team2Index].won--;
-            standings[team2Index].points -= 2;
-        } else {
-            // Unentschieden
-            standings[team1Index].drawn--;
-            standings[team1Index].points -= 1;
-            standings[team2Index].drawn--;
-            standings[team2Index].points -= 1;
-        }
-        
-        // Tordifferenz aktualisieren
-        standings[team1Index].goalDifference = standings[team1Index].goalsFor - standings[team1Index].goalsAgainst;
-        standings[team2Index].goalDifference = standings[team2Index].goalsFor - standings[team2Index].goalsAgainst;
-    }
     
 /**
  * Bearbeitet ein Match mit Header-Buttons
@@ -1235,7 +1087,9 @@ function editMatchResult(matchId) {
         
         // Falls Match gespielt wurde, aus Tabelle entfernen
         if (match.played) {
-            resetMatchInStandings(match);
+            const t1 = standings.findIndex(s => s.team === match.team1);
+            const t2 = standings.findIndex(s => s.team === match.team2);
+            if (t1 !== -1 && t2 !== -1) revertMatchFromStandings(match, t1, t2);
         }
         
         // Ergebnisse zurücksetzen
