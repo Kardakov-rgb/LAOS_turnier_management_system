@@ -279,29 +279,25 @@ document.addEventListener('DOMContentLoaded', async function() {
   /**
    * Richtet Echtzeit-Updates für die Daten ein
    */
+  const unsubscribers = [];
+
   function setupRealtimeUpdates() {
-    // Echtzeit-Updates für Vorrunden-Matches
-    subscribeToData('vorrundeMatches', (updatedMatches) => {
+    unsubscribers.push(subscribeToData('vorrundeMatches', (updatedMatches) => {
       if (JSON.stringify(appState.vorrundeMatches) !== JSON.stringify(updatedMatches)) {
-        console.log('Vorrunden-Matches wurden aktualisiert, berechne Statistiken neu');
         appState.vorrundeMatches = updatedMatches;
         updateStatistics();
       }
-    });
-    
-    // Echtzeit-Updates für KO-Runden-Matches
-    subscribeToData('koMatches', (updatedMatches) => {
+    }));
+
+    unsubscribers.push(subscribeToData('koMatches', (updatedMatches) => {
       if (JSON.stringify(appState.koMatches) !== JSON.stringify(updatedMatches)) {
-        console.log('KO-Matches wurden aktualisiert, berechne Statistiken neu');
         appState.koMatches = updatedMatches;
         updateStatistics();
       }
-    });
-    
-    // Echtzeit-Updates für Teams
-    subscribeToData('tournamentTeams', (updatedTeams) => {
+    }));
+
+    unsubscribers.push(subscribeToData('tournamentTeams', (updatedTeams) => {
       if (JSON.stringify(appState.teams) !== JSON.stringify(updatedTeams)) {
-        console.log('Teams wurden aktualisiert, berechne Statistiken neu');
         appState.teams = updatedTeams;
         updateStatistics();
       }
@@ -517,16 +513,5 @@ document.addEventListener('DOMContentLoaded', async function() {
   }
 
 
-  /**
- * Richtet einen automatischen Aktualisierungszyklus ein
- */
-function setupAutoRefresh() {
-    console.log('Auto-Refresh aktiviert: Daten werden alle 5 Sekunden aktualisiert');
-    
-    // Intervall zum Aktualisieren der Daten
-    setInterval(async () => {
-      console.log('Auto-Refresh: Aktualisiere Daten...');
-      await refreshData();
-    }, 5000); // 5000 Millisekunden = 5 Sekunden
-  }
+  window.addEventListener('beforeunload', () => { unsubscribers.forEach(u => u && u()); });
 });

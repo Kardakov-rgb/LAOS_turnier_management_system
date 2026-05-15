@@ -2129,26 +2129,19 @@ function updateMatchStats(match, team1Index, team2Index) {
 
 
 // Echtzeit-Updates für matches und standings
-dataService.subscribeToData('vorrundeMatches', updatedMatches => {
+const _unsubMatches   = dataService.subscribeToData('vorrundeMatches', updatedMatches => {
     if (JSON.stringify(matches) !== JSON.stringify(updatedMatches)) {
-        console.log('Matches wurden aktualisiert, rendere UI neu');
         matches = updatedMatches;
         renderMatches();
     }
 });
-
-dataService.subscribeToData('vorrundeStandings', updatedStandings => {
+const _unsubStandings = dataService.subscribeToData('vorrundeStandings', updatedStandings => {
     if (JSON.stringify(standings) !== JSON.stringify(updatedStandings)) {
-        console.log('Standings wurden aktualisiert, rendere UI neu');
         standings = updatedStandings;
         renderStandings();
     }
 });
-
-    // Auf Authentifizierungsänderungen reagieren
-    auth.onAuthStateChanged(function(user) {
-        updateAuthStatus();
-    });
+window.addEventListener('beforeunload', () => { _unsubMatches(); _unsubStandings(); });
 
 /**
  * Verbesserte Funktion zum Hervorheben der Teams in der Tabelle mit Verzögerung
