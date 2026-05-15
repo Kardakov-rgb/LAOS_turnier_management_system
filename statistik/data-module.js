@@ -89,17 +89,10 @@ export async function saveData(key, data) {
  * @param {Function} callback - Die Callback-Funktion für Datenänderungen
  */
 export function subscribeToData(key, callback) {
-  dataService.subscribeToData(key, (data) => {
-    // Daten im localStorage aktualisieren
+  return dataService.subscribeToData(key, (data) => {
     localStorage.setItem(key, JSON.stringify(data));
-    
-    // Callback mit den aktualisierten Daten aufrufen
     callback(data);
-    
-    console.log(`${key} durch Firebase-Update aktualisiert`);
   });
-  
-  console.log(`Echtzeit-Aktualisierungen für ${key} aktiviert`);
 }
 
 /**

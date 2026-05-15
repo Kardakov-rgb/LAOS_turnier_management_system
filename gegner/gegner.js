@@ -23,9 +23,8 @@ document.addEventListener('DOMContentLoaded', async function() {
     // ─── Tab-Status ───
     let activeTab = 'tischkarten';
 
-    // ─── Timer ───
-    const updateInterval = 5000;
-    let updateTimer;
+    // ─── Subscription-Cleanup ───
+    const unsubscribers = [];
 
     init();
 
@@ -57,11 +56,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         renderStandings();
         updateLastUpdateTime();
 
-        startUpdateTimer();
         setupRealtimeUpdates();
-
-        // Höhenangleichung regelmäßig entfernen (für Teams-Tab)
-        setInterval(höhenAngleichungEntfernen, 2000);
     }
 
     // ════════════════════════════════════════
@@ -80,6 +75,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     function renderActiveTab() {
         if (activeTab === 'tischkarten') renderTableCards();
         else renderTeamsOverview();
+        höhenAngleichungEntfernen();
     }
 
     // ════════════════════════════════════════
@@ -100,39 +96,33 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 
     function setupRealtimeUpdates() {
-        dataService.subscribeToData('tournamentTeams', updatedTeams => {
+        unsubscribers.push(dataService.subscribeToData('tournamentTeams', updatedTeams => {
             if (JSON.stringify(teams) !== JSON.stringify(updatedTeams)) {
                 teams = updatedTeams;
                 renderActiveTab();
                 updateLastUpdateTime();
             }
-        });
-        dataService.subscribeToData('vorrundeMatches', updatedMatches => {
+        }));
+        unsubscribers.push(dataService.subscribeToData('vorrundeMatches', updatedMatches => {
             if (JSON.stringify(matches) !== JSON.stringify(updatedMatches)) {
                 matches = updatedMatches;
                 renderActiveTab();
                 updateLastUpdateTime();
             }
-        });
-        dataService.subscribeToData('vorrundeStandings', updatedStandings => {
+        }));
+        unsubscribers.push(dataService.subscribeToData('vorrundeStandings', updatedStandings => {
             if (JSON.stringify(standings) !== JSON.stringify(updatedStandings)) {
                 standings = updatedStandings;
                 renderStandings();
                 updateLastUpdateTime();
             }
-        });
-        dataService.subscribeToData('goldenCupResults', updatedResults => {
+        }));
+        unsubscribers.push(dataService.subscribeToData('goldenCupResults', updatedResults => {
             if (JSON.stringify(goldenCupResults) !== JSON.stringify(updatedResults)) {
                 goldenCupResults = updatedResults;
                 renderStandings();
             }
-        });
-    }
-
-    function startUpdateTimer() {
-        if (updateTimer) clearInterval(updateTimer);
-        updateTimer = setInterval(refreshData, updateInterval);
-        console.log(`Timer für Aktualisierung alle ${updateInterval / 1000} Sekunden gestartet`);
+        }));
     }
 
     async function refreshData() {
@@ -423,7 +413,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         statusContainer.textContent = message;
     }
 
-    window.addEventListener('beforeunload', () => { if (updateTimer) clearInterval(updateTimer); });
+    window.addEventListener('beforeunload', () => { unsubscribers.forEach(u => u && u()); });
 
     // ════════════════════════════════════════
     // STANDINGS

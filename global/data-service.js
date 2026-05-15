@@ -154,31 +154,28 @@ async getData(key) {
   }
 }
   
-  // KORRIGIERTE VERSION: Echtzeitaktualisierungen überwachen
+  // Echtzeitaktualisierungen überwachen — gibt Unsubscribe-Funktion zurück
   subscribeToData(key, callback) {
     if (this.isOnline) {
-        // Firebase-Listener einrichten
-        const dataRef = ref(database, key);
-        onValue(dataRef, (snapshot) => {
-            const data = snapshot.val();
-            if (data) {
-                // In localStorage aktualisieren
-                localStorage.setItem(key, JSON.stringify(data));
-                
-                // Datenstruktur prüfen und ggf. Array zurückgeben
-                if (data.type === 'array' && Array.isArray(data.value)) {
-                    callback(data.value); // Array zurückgeben
-                } else if (data.type === 'array') {
-                    // Fallback, wenn data.value fehlt oder kein Array ist
-                    console.warn('Array-Daten ohne gültiges value-Array empfangen:', data);
-                    callback([]); // Leeres Array als Fallback
-                } else {
-                    callback(data);
-                }
-            }
-        });
+      const dataRef = ref(database, key);
+      const unsubscribe = onValue(dataRef, (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          localStorage.setItem(key, JSON.stringify(data));
+          if (data.type === 'array' && Array.isArray(data.value)) {
+            callback(data.value);
+          } else if (data.type === 'array') {
+            console.warn('Array-Daten ohne gültiges value-Array empfangen:', data);
+            callback([]);
+          } else {
+            callback(data);
+          }
+        }
+      });
+      return unsubscribe;
     }
-}
+    return () => {}; // No-op wenn offline
+  }
   
   // Ausstehende Updates zur Warteschlange hinzufügen
   addPendingUpdate(key, data) {
