@@ -18,7 +18,9 @@ function injectStyles() {
     body:not(.auth-admin) .action-emoji-btn,
     body:not(.auth-admin) .score-input,
     body:not(.auth-admin) .header-btn,
-    body:not(.auth-admin) .delete-bet-btn {
+    body:not(.auth-admin) .delete-bet-btn,
+    body:not(.auth-admin) .edit-team-btn,
+    body:not(.auth-admin) .delete-team-btn {
       opacity: 0.3;
       pointer-events: none;
       cursor: not-allowed;

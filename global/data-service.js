@@ -200,13 +200,18 @@ async getData(key) {
     const updates = [...this.pendingUpdates];
     this.pendingUpdates = [];
     
+    if (!authService.isLoggedIn()) {
+      console.warn('Sync übersprungen: kein Admin-Login.');
+      this.pendingUpdates = updates;
+      localStorage.setItem('pendingUpdates', JSON.stringify(this.pendingUpdates));
+      return;
+    }
+
     for (const update of updates) {
       try {
         await set(ref(database, update.key), update.data);
-        console.log(`Update für ${update.key} erfolgreich synchronisiert`);
       } catch (error) {
         console.error(`Fehler beim Synchronisieren von ${update.key}:`, error);
-        // Füge fehlgeschlagene Updates wieder zur Warteschlange hinzu
         this.pendingUpdates.push(update);
       }
     }
