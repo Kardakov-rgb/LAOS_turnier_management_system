@@ -14,6 +14,31 @@ function init() {
 function injectStyles() {
   const style = document.createElement('style');
   style.textContent = `
+    /* ---- Write-Controls im Nur-Lesen-Modus sperren ---- */
+    body:not(.auth-admin) .action-emoji-btn,
+    body:not(.auth-admin) .score-input,
+    body:not(.auth-admin) .header-btn,
+    body:not(.auth-admin) .delete-bet-btn {
+      opacity: 0.3;
+      pointer-events: none;
+      cursor: not-allowed;
+      filter: grayscale(50%);
+    }
+
+    /* Nur-Lesen-Badge neben Admin-Button */
+    #readonly-badge {
+      font-size: 0.68rem;
+      color: rgba(255,255,255,0.45);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 3px;
+      padding: 0.1rem 0.4rem;
+      letter-spacing: 0.03em;
+      margin-left: 2px;
+    }
+    body.auth-admin #readonly-badge {
+      display: none;
+    }
+
     #admin-nav-btn {
       display: flex;
       align-items: center;
@@ -187,6 +212,7 @@ function injectAdminButton() {
     <button id="admin-nav-btn" title="Admin-Login">
       <span class="admin-dot"></span>
       <span id="admin-btn-label">🔒 Admin</span>
+      <span id="readonly-badge">Nur-Lesen</span>
     </button>
   `;
   nav.appendChild(li);
@@ -292,12 +318,14 @@ function updateButton(user) {
   if (!btn) return;
 
   if (user) {
+    document.body.classList.add('auth-admin');
     btn.classList.add('logged-in');
     if (label) label.textContent = 'Admin ✓';
     if (loginSection) loginSection.style.display = 'none';
     if (logoutSection) logoutSection.style.display = 'block';
     if (userEmailEl) userEmailEl.textContent = user.email;
   } else {
+    document.body.classList.remove('auth-admin');
     btn.classList.remove('logged-in');
     if (label) label.textContent = '🔒 Admin';
     if (loginSection) loginSection.style.display = 'block';
