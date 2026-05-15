@@ -5,6 +5,19 @@
 // Import des DataService
 import dataService from '../global/data-service.js';
 
+const MAX_TEAMS = 24; // Zielanzahl Teams für das Turnier
+
+function showToast(message, type = 'error') {
+    const existing = document.querySelector('.app-toast');
+    if (existing) existing.remove();
+    const toast = document.createElement('div');
+    toast.className = 'toast app-toast';
+    toast.style.cssText = `background:${type === 'error' ? 'rgba(213,15,13,0.92)' : 'rgba(0,130,70,0.92)'};color:white;`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    requestAnimationFrame(() => toast.classList.add('show'));
+    setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 4500);
+}
 
 // Warten bis das DOM vollständig geladen ist
 document.addEventListener('DOMContentLoaded', async function() {   
@@ -26,7 +39,8 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
     } catch (error) {
         console.error('Fehler beim Laden der Teams:', error);
-    }  
+        showToast('⚠️ Teams konnten nicht geladen werden. Bitte Seite neu laden.');
+    }
     // Teams anzeigen
     renderTeams();
     
@@ -59,7 +73,7 @@ function fillTeamsToTwentyFour() {
 
     // Bestimmen, wie viele Teams noch hinzugefügt werden müssen
     const currentCount = teams.length;
-    const neededTeams = Math.max(0, 24 - currentCount);
+    const neededTeams = Math.max(0, MAX_TEAMS - currentCount);
     
     if (neededTeams === 0) {
         alert('Es sind bereits 24 oder mehr Teams vorhanden!');
@@ -295,6 +309,7 @@ async function saveTeams() {
         }
     } catch (error) {
         console.error('Fehler beim Speichern der Teams:', error);
+        showToast('⚠️ Teams konnten nicht gespeichert werden. Verbindung prüfen.');
     } finally {
         isSaving = false;
     }
@@ -321,6 +336,7 @@ async function saveTeams() {
             console.log('Alle Team-Daten wurden vollständig gelöscht');
         } catch (error) {
             console.error('Fehler beim Zurücksetzen der Daten:', error);
+            showToast('⚠️ Daten konnten nicht zurückgesetzt werden. Verbindung prüfen.');
         }
     }
     

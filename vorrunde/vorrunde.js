@@ -5,8 +5,30 @@
  */
 import dataService from '../global/data-service.js';
 
+// ---- Turnierkonfiguration ----
+const MAX_TABLES          = 6;  // Anzahl Spieltische
+const MAX_TEAMS           = 24; // Maximale Teamanzahl (Gruppenmethode)
+const ROUND_ROBIN_MAX     = 6;  // Max Teams für Jeder-gegen-jeden
+const PRELIMINARY_ROUNDS  = 5;  // Anzahl Vorrunden
+const GROUP_SIZE          = 4;  // Teams pro Gruppe (24er Format)
+const NUM_GROUPS          = 6;  // Anzahl Gruppen im 24er Format
 
+// ---- Punktesystem ----
+const WIN_POINTS           = 2; // Punkte für Sieg
+const DRAW_POINTS          = 1; // Punkte für Unentschieden
+const BONUS_SCORE_THRESHOLD = 5; // Mindest-Tore für Bonuspunkt
 
+function showToast(message, type = 'error') {
+    const existing = document.querySelector('.app-toast');
+    if (existing) existing.remove();
+    const toast = document.createElement('div');
+    toast.className = 'toast app-toast';
+    toast.style.cssText = `background:${type === 'error' ? 'rgba(213,15,13,0.92)' : 'rgba(0,130,70,0.92)'};color:white;`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    requestAnimationFrame(() => toast.classList.add('show'));
+    setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 4500);
+}
 
 // Warten bis das DOM vollständig geladen ist
 document.addEventListener('DOMContentLoaded', async function() {   
@@ -47,6 +69,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         goldenCupResults = await dataService.getData('goldenCupResults') || [];
     } catch (error) {
         console.error("Fehler beim Laden der Daten:", error);
+        showToast('⚠️ Daten konnten nicht geladen werden. Bitte Seite neu laden.');
     }
     // DEBUG: Überprüfen, ob Daten geladen wurden
     console.log("Geladene Daten:", {
@@ -250,14 +273,14 @@ function initializeVorrunde() {
     
     try {
         // Matches generieren
-        if (teams.length <= 6) {
-            // Bei 6 oder weniger Teams: Jeder gegen jeden (Round Robin)
+        if (teams.length <= ROUND_ROBIN_MAX) {
+            // Bei ROUND_ROBIN_MAX oder weniger Teams: Jeder gegen jeden
             console.log('Wenige Teams: Alle Teams spielen gegeneinander (Round Robin)');
             matches = createMatchesAllPlayAll();
         } else if (customMatchups) {
             console.log('Verwende benutzerdefinierte Spielpaarungen');
             matches = createMatchesFromCustomPairings();
-        } else if (teams.length === 24) {
+        } else if (teams.length === MAX_TEAMS) {
             // Für genau 24 Teams die Gruppenmethode verwenden
             console.log('Generiere Spielpaarungen mit gruppenbasierter Methode für 24 Teams');
             matches = createMatchesWithGroupMethod();
@@ -358,7 +381,7 @@ function assignTableAndPairingNumbers() {
     console.log("Starte zufällige Tischzuweisung...");
     
     // Für jede Runde
-    for (let round = 1; round <= 5; round++) {
+    for (let round = 1; round <= PRELIMINARY_ROUNDS; round++) {
         // Spiele dieser Runde filtern
         const roundMatches = matches.filter(match => match.round === round);
         console.log(`Runde ${round}: ${roundMatches.length} Matches gefunden`);
@@ -373,11 +396,11 @@ function assignTableAndPairingNumbers() {
         const secondHalfMatches = roundMatches.slice(halfSize);
         
         // Zufällige Tischzuweisung für erste Hälfte
-        const firstHalfTables = getRandomTableNumbers(6);
+        const firstHalfTables = getRandomTableNumbers(MAX_TABLES);
         assignTablesToHalf(firstHalfMatches, firstHalfTables, false);
-        
+
         // Zufällige Tischzuweisung für zweite Hälfte
-        const secondHalfTables = getRandomTableNumbers(6);
+        const secondHalfTables = getRandomTableNumbers(MAX_TABLES);
         assignTablesToHalf(secondHalfMatches, secondHalfTables, true);
     }
     
@@ -389,7 +412,7 @@ function assignTableAndPairingNumbers() {
  * @param {number} tableCount - Anzahl der Tische (standardmäßig 6)
  * @returns {Array} - Zufällig gemischte Tischnummern
  */
-function getRandomTableNumbers(tableCount = 6) {
+function getRandomTableNumbers(tableCount = MAX_TABLES) {
     // Liste der Tischnummern erstellen
     const tables = [];
     for (let i = 1; i <= tableCount; i++) {
@@ -510,8 +533,8 @@ function createMatchesWithGroupMethod() {
     
     // 2. Teams in 6 Gruppen mit je 4 Teams aufteilen
     const groups = [];
-    const groupSize = 4;
-    const numGroups = 6;
+    const groupSize = GROUP_SIZE;
+    const numGroups = NUM_GROUPS;
     
     for (let i = 0; i < numGroups; i++) {
         const startIndex = i * groupSize;
@@ -533,7 +556,7 @@ function createMatchesWithGroupMethod() {
     ];
     
     // 4. Erstelle die Matches basierend auf dem Schema
-    for (let roundIndex = 0; roundIndex < 5; roundIndex++) {
+    for (let roundIndex = 0; roundIndex < PRELIMINARY_ROUNDS; roundIndex++) {
         const roundNumber = roundIndex + 1;
         const roundMatches = roundGroupMatches[roundIndex];
         
@@ -960,21 +983,21 @@ function saveMatchResult(matchId) {
         if (match.score1 > match.score2) {
             // Team 1 hatte gewonnen
             standings[team1Index].won--;
-            standings[team1Index].points -= 2 + (match.score1 >= 5 ? 1 : 0) + (match.score2 === 0 ? 1 : 0);
+            standings[team1Index].points -= WIN_POINTS + (match.score1 >= BONUS_SCORE_THRESHOLD ? 1 : 0) + (match.score2 === 0 ? 1 : 0);
             standings[team2Index].lost--;
-            standings[team2Index].points -= (match.score2 >= 5 ? 1 : 0);
+            standings[team2Index].points -= (match.score2 >= BONUS_SCORE_THRESHOLD ? 1 : 0);
         } else if (match.score1 < match.score2) {
             // Team 2 hatte gewonnen
             standings[team1Index].lost--;
-            standings[team1Index].points -= (match.score1 >= 5 ? 1 : 0);
+            standings[team1Index].points -= (match.score1 >= BONUS_SCORE_THRESHOLD ? 1 : 0);
             standings[team2Index].won--;
-            standings[team2Index].points -= 2 + (match.score2 >= 5 ? 1 : 0) + (match.score1 === 0 ? 1 : 0);
+            standings[team2Index].points -= WIN_POINTS + (match.score2 >= BONUS_SCORE_THRESHOLD ? 1 : 0) + (match.score1 === 0 ? 1 : 0);
         } else {
             // Unentschieden
             standings[team1Index].drawn--;
-            standings[team1Index].points -= 1 + (match.score1 >= 5 ? 1 : 0);
+            standings[team1Index].points -= DRAW_POINTS + (match.score1 >= BONUS_SCORE_THRESHOLD ? 1 : 0);
             standings[team2Index].drawn--;
-            standings[team2Index].points -= 1 + (match.score2 >= 5 ? 1 : 0);
+            standings[team2Index].points -= DRAW_POINTS + (match.score2 >= BONUS_SCORE_THRESHOLD ? 1 : 0);
         }
     }
     
@@ -997,21 +1020,21 @@ function saveMatchResult(matchId) {
     if (newScore1 > newScore2) {
         // Team 1 gewinnt
         standings[team1Index].won++;
-        standings[team1Index].points += 2 + (newScore1 >= 5 ? 1 : 0) + (newScore2 === 0 ? 1 : 0);
+        standings[team1Index].points += WIN_POINTS + (newScore1 >= BONUS_SCORE_THRESHOLD ? 1 : 0) + (newScore2 === 0 ? 1 : 0);
         standings[team2Index].lost++;
-        standings[team2Index].points += (newScore2 >= 5 ? 1 : 0);
+        standings[team2Index].points += (newScore2 >= BONUS_SCORE_THRESHOLD ? 1 : 0);
     } else if (newScore1 < newScore2) {
         // Team 2 gewinnt
         standings[team1Index].lost++;
-        standings[team1Index].points += (newScore1 >= 5 ? 1 : 0);
+        standings[team1Index].points += (newScore1 >= BONUS_SCORE_THRESHOLD ? 1 : 0);
         standings[team2Index].won++;
-        standings[team2Index].points += 2 + (newScore2 >= 5 ? 1 : 0) + (newScore1 === 0 ? 1 : 0);
+        standings[team2Index].points += WIN_POINTS + (newScore2 >= BONUS_SCORE_THRESHOLD ? 1 : 0) + (newScore1 === 0 ? 1 : 0);
     } else {
         // Unentschieden
         standings[team1Index].drawn++;
-        standings[team1Index].points += 1 + (newScore1 >= 5 ? 1 : 0);
+        standings[team1Index].points += DRAW_POINTS + (newScore1 >= BONUS_SCORE_THRESHOLD ? 1 : 0);
         standings[team2Index].drawn++;
-        standings[team2Index].points += 1 + (newScore2 >= 5 ? 1 : 0);
+        standings[team2Index].points += DRAW_POINTS + (newScore2 >= BONUS_SCORE_THRESHOLD ? 1 : 0);
     }
     
     // Tordifferenz aktualisieren
@@ -1398,9 +1421,10 @@ function renderStandings() {
             }
         } catch (error) {
             console.error('Fehler beim Speichern der Matches:', error);
+            showToast('⚠️ Ergebnisse konnten nicht gespeichert werden. Verbindung prüfen.');
         }
     }
-    
+
     /**
      * Speichert Standings im localStorage
      */
@@ -1414,6 +1438,7 @@ function renderStandings() {
             }
         } catch (error) {
             console.error('Fehler beim Speichern der Standings:', error);
+            showToast('⚠️ Tabelle konnte nicht gespeichert werden. Verbindung prüfen.');
         }
     }
     

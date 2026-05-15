@@ -6,6 +6,13 @@
 
 // Import des dataService für Firebase-Integration
 import dataService from '../global/data-service.js';
+
+// ---- Wetten Konfiguration ----
+const BEER_PER_GOAL_ML   = 100; // ml Bier pro geschossenem Tor
+const ML_PER_LITER       = 1000;
+const DEFAULT_ODDS       = 2.0; // Standardquote wenn noch keine Wetten existieren
+const FINALS_TEAM_COUNT  = 2;   // Anzahl Teams im Finale
+
 // Warten bis das DOM vollständig geladen ist
 document.addEventListener('DOMContentLoaded', async function() {
 
@@ -255,8 +262,8 @@ document.addEventListener('DOMContentLoaded', async function() {
         teamStats.forEach(teamStat => {
             if (finalTeams.some(team => team.name === teamStat.team)) {
                 // Bierberechnung basierend auf Matches
-                const beerGiven = teamStat.goalsScored.all * 100;
-                const beerDrunk = teamStat.goalsConceded.all * 100;
+                const beerGiven = teamStat.goalsScored.all * BEER_PER_GOAL_ML;
+                const beerDrunk = teamStat.goalsConceded.all * BEER_PER_GOAL_ML;
                 
                 teamStat.beerGiven.all = beerGiven;
                 teamStat.beerDrunk.all = beerDrunk;
@@ -415,10 +422,10 @@ document.addEventListener('DOMContentLoaded', async function() {
         teamBetsContainer.innerHTML = '';
         
         // Wenn keine Finalisten vorhanden sind, leere Tabellen anzeigen
-        const teamsToShow = finalTeams.length > 0 ? finalTeams : teams.slice(0, 2).map(team => ({ name: team }));
+        const teamsToShow = finalTeams.length > 0 ? finalTeams : teams.slice(0, FINALS_TEAM_COUNT).map(team => ({ name: team }));
         
         // Für bis zu zwei Teams Tabellen erstellen
-        teamsToShow.slice(0, 2).forEach(team => {
+        teamsToShow.slice(0, FINALS_TEAM_COUNT).forEach(team => {
             // Wetten für dieses Team filtern
             const teamBets = bets.filter(bet => bet.team === team.name);
             
@@ -625,7 +632,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         
         // Quote berechnen (Gesamteinsatz / Teameinsatz)
         if (teamAmount === 0) {
-            return totalAmount === 0 ? 2.0 : totalAmount;
+            return totalAmount === 0 ? DEFAULT_ODDS : totalAmount;
         }
         
         return totalAmount / teamAmount;

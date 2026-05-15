@@ -1,5 +1,23 @@
 import dataService from '../global/data-service.js';
 
+// ---- KO-Runden Konfiguration ----
+const KO_TOTAL_SLOTS    = 12; // Gesamtplätze in der KO-Runde
+const DIRECT_QUALIFIERS = 4;  // Direktqualifikanten (Platz 1-4)
+const PLAYOFF_TEAMS     = 8;  // Teams in der Playoff-Runde (Platz 5-12)
+const KO_TABLES         = 4;  // Tische in der KO-Runde
+
+function showToast(message, type = 'error') {
+    const existing = document.querySelector('.app-toast');
+    if (existing) existing.remove();
+    const toast = document.createElement('div');
+    toast.className = 'toast app-toast';
+    toast.style.cssText = `background:${type === 'error' ? 'rgba(213,15,13,0.92)' : 'rgba(0,130,70,0.92)'};color:white;`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    requestAnimationFrame(() => toast.classList.add('show'));
+    setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 4500);
+}
+
 class KoTournamentModel {
   constructor() {
     this.koMatches = {
@@ -42,6 +60,7 @@ class KoTournamentModel {
       }
     } catch (error) {
       console.error('Fehler beim Laden der KO-Matches:', error);
+      showToast('⚠️ KO-Runde konnte nicht geladen werden. Seite neu laden.');
       return false;
     }
   }
@@ -80,6 +99,7 @@ class KoTournamentModel {
       return true;
     } catch (error) {
       console.error('Fehler beim Speichern der KO-Matches:', error);
+      showToast('⚠️ KO-Ergebnis konnte nicht gespeichert werden. Verbindung prüfen.');
       return false;
     }
   }
@@ -111,10 +131,10 @@ class KoTournamentModel {
       const filledStandings = this.fillWithByes(standings);
       
       // Direktqualifikanten (Platz 1-4)
-      const directQualifiers = filledStandings.slice(0, 4);
-      
+      const directQualifiers = filledStandings.slice(0, DIRECT_QUALIFIERS);
+
       // Playoff-Teams (Platz 5-12)
-      const playoffTeams = filledStandings.slice(4, 12);
+      const playoffTeams = filledStandings.slice(DIRECT_QUALIFIERS, KO_TOTAL_SLOTS);
       
       // Matches erstellen
       this.koMatches.playoff = this.createPlayoffPairings(playoffTeams);
@@ -131,6 +151,7 @@ class KoTournamentModel {
       return true;
     } catch (error) {
       console.error('Fehler beim Initialisieren der KO-Runde:', error);
+      showToast('⚠️ KO-Runde konnte nicht initialisiert werden.');
       return false;
     }
   }
@@ -140,7 +161,7 @@ class KoTournamentModel {
     const filledStandings = [...standings];
     
     // Anzahl der fehlenden Teams berechnen
-    const missingTeams = 12 - filledStandings.length;
+    const missingTeams = KO_TOTAL_SLOTS - filledStandings.length;
     
     // Wenn Teams fehlen, Freilose hinzufügen
     if (missingTeams > 0) {
@@ -169,7 +190,7 @@ class KoTournamentModel {
     const pairings = [];
     
     // Playoffteams müssen genau 8 sein
-    if (playoffTeams.length !== 8) {
+    if (playoffTeams.length !== PLAYOFF_TEAMS) {
       throw new Error(`Ungültige Anzahl an Playoff-Teams: ${playoffTeams.length}`);
     }
     
@@ -301,7 +322,7 @@ for (let i = 0; i < 4; i++) {
     const assignTableNumbersForRound = (matches, startIndex = 0) => {
       matches.forEach((match, index) => {
         // Tischnummer (zyklisch 1-4)
-        const tableNumber = ((index + startIndex) % 4) + 1;
+        const tableNumber = ((index + startIndex) % KO_TABLES) + 1;
         match.tableNumber = tableNumber;
         console.log(`Match ${match.id} in Runde ${match.round} erhält Tisch ${tableNumber}`);
       });
