@@ -74,19 +74,30 @@
     <div class="wetten-top-right">
         <div class="betting-form-section">
             <div class="betting-form-container">
-                <div class="betting-form" style="padding: 1.5rem; color: white; text-align: center;">
-                    <h3 style="margin-bottom: 1rem; font-size: 1.5rem;">🎰 Wie funktioniert das Wetten?</h3>
-                    <div style="text-align: left; line-height: 1.6;font-size: 1.5rem">
-                        <p><strong>1. Schritt:</strong> Schicke deinen gewünschten Wettbetrag mit deinem Tipp an <strong>louis.josten@rub.de</strong></p>
+                <div class="betting-info-box">
+                    <h3>🎰 Wie funktioniert das Wetten?</h3>
+                    <div class="betting-info-steps">
+                        <p><strong>1. Schritt:</strong> Schicke deinen gewünschten Wettbetrag mit deinem Tipp an <a href="mailto:kontakt.laopen@gmail.com">kontakt.laopen@gmail.com</a></p>
                         <p><strong>2. Schritt:</strong> Prüfe nach wenigen Minuten, ob deine Wette auf dieser Seite angezeigt wird</p>
                     </div>
-                    <div style="margin-top: 1rem; padding: 0.8rem; background-color: rgba(255, 255, 255, 0.2); border-radius: 6px;">
-                        <p style="margin: 0; font-weight: bold;">💡 Tipp: Es kann nicht schon wieder ein Niermann gewinnen.</p>
+                    <div class="betting-info-tip">
+                        💡 Tipp: Es kann nicht schon wieder ein Niermann gewinnen.
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
+
+<!-- Letzter Wett-Ticker -->
+<div id="lastBetTicker" class="last-bet-ticker">
+    <span class="ticker-icon">🎰</span>
+    <span class="ticker-content" id="tickerContent">Noch keine Wetten vorhanden...</span>
+</div>
+
+<!-- Wett-Verteilung -->
+<div class="distribution-chart-section">
+    <div id="distributionChart" class="distribution-chart-container"></div>
 </div>
 
 <!-- Finalisten-Anzeige (unverändert) -->
