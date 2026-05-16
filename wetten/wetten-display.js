@@ -51,8 +51,10 @@ document.addEventListener('DOMContentLoaded', async function() {
         // UI rendern
         renderFinalists();
         renderTeamBets();
+        renderDistributionChart();
+        renderLastBetTicker();
         updateTotalStats();
-        
+
         // Echtzeit-Aktualisierungen aktivieren
         setupRealTimeUpdates();
     }
@@ -108,6 +110,8 @@ document.addEventListener('DOMContentLoaded', async function() {
             bets = Array.isArray(newBets) ? newBets : [];
             renderFinalists();
             renderTeamBets();
+            renderDistributionChart();
+            renderLastBetTicker();
             updateTotalStats();
         });
         
@@ -396,7 +400,11 @@ document.addEventListener('DOMContentLoaded', async function() {
             // Header mit Teamnamen und Quote
             const header = document.createElement('div');
             header.className = 'team-bets-header';
-            
+            header.innerHTML = `
+                <h3 class="team-bets-title">${team.name}</h3>
+                <div class="team-bets-odds">Quote: ${odds.toFixed(2)}</div>
+            `;
+
             tableContainer.appendChild(header);
             
             // Tabelle erstellen (ohne Aktionen-Spalte)
@@ -535,6 +543,78 @@ document.addEventListener('DOMContentLoaded', async function() {
         return totalAmount / teamAmount;
     }
     
+    /**
+     * Rendert das Wett-Verteilungs-Balkendiagramm
+     */
+    function renderDistributionChart() {
+        const container = document.getElementById('distributionChart');
+        if (!container) return;
+
+        const teamsToShow = finalTeams.length > 0
+            ? finalTeams
+            : teams.slice(0, 2).map(t => ({ name: t }));
+
+        if (teamsToShow.length === 0 || bets.length === 0) {
+            container.innerHTML = '';
+            return;
+        }
+
+        const totalAmount = bets.reduce((sum, bet) => sum + bet.amount, 0);
+
+        const rows = teamsToShow.map((team, idx) => {
+            const teamAmount = bets
+                .filter(bet => bet.team === team.name)
+                .reduce((sum, bet) => sum + bet.amount, 0);
+            const pct = totalAmount > 0 ? Math.round((teamAmount / totalAmount) * 100) : 0;
+            const fillClass = idx === 1 ? 'dist-bar-fill second-team' : 'dist-bar-fill';
+            return `
+                <div class="dist-bar-row">
+                    <span class="dist-team-label">${team.name}</span>
+                    <div class="dist-bar-track">
+                        <div class="${fillClass}" style="width: ${pct}%"></div>
+                    </div>
+                    <span class="dist-percent-label">${pct}% · ${teamAmount.toFixed(0)}€</span>
+                </div>
+            `;
+        });
+
+        container.innerHTML = `
+            <div class="distribution-title">Wett-Verteilung</div>
+            ${rows.join('')}
+        `;
+    }
+
+    /**
+     * Zeigt die zuletzt platzierte Wette als Live-Ticker
+     */
+    function renderLastBetTicker() {
+        const tickerContent = document.getElementById('tickerContent');
+        if (!tickerContent) return;
+
+        if (bets.length === 0) {
+            tickerContent.innerHTML = 'Noch keine Wetten vorhanden...';
+            return;
+        }
+
+        const lastBet = bets.reduce((latest, bet) =>
+            (bet.id > latest.id ? bet : latest), bets[0]);
+
+        const minutesAgo = Math.floor((Date.now() - lastBet.id) / 60000);
+        const timeLabel = minutesAgo < 1
+            ? 'gerade eben'
+            : minutesAgo === 1
+                ? 'vor 1 Minute'
+                : `vor ${minutesAgo} Minuten`;
+
+        tickerContent.innerHTML = `
+            <span class="ticker-pulse"></span>
+            <strong>${lastBet.betterName}</strong> hat
+            <strong>${lastBet.amount.toFixed(2)}€</strong> auf
+            <span class="ticker-team">${lastBet.team}</span> gesetzt
+            <span class="ticker-time">${timeLabel}</span>
+        `;
+    }
+
     /**
      * Setzt eine Status-Nachricht
      * @param {string} message - Die Nachricht

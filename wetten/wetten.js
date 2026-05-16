@@ -41,6 +41,18 @@ document.addEventListener('DOMContentLoaded', async function() {
     bettingForm.addEventListener('submit', handleBetSubmit);
     exportDataBtn.addEventListener('click', exportData);
     resetBetsBtn.addEventListener('click', confirmResetBets);
+
+    // Schnell-Betrag-Buttons
+    document.querySelectorAll('.quick-amount-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            betAmountInput.value = btn.dataset.amount;
+            document.querySelectorAll('.quick-amount-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        });
+    });
+    betAmountInput.addEventListener('input', () => {
+        document.querySelectorAll('.quick-amount-btn').forEach(b => b.classList.remove('active'));
+    });
     
     
     // Seite initialisieren
@@ -71,8 +83,9 @@ document.addEventListener('DOMContentLoaded', async function() {
         renderFinalists();
         renderTeamSelect();
         renderTeamBets();
+        renderDistributionChart();
         updateTotalStats();
-        
+
         // Echtzeit-Aktualisierungen aktivieren
         setupRealTimeUpdates();
     }
@@ -130,6 +143,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             bets = Array.isArray(newBets) ? newBets : [];
             renderFinalists();
             renderTeamBets();
+            renderDistributionChart();
             updateTotalStats();
         });
         
@@ -439,13 +453,17 @@ document.addEventListener('DOMContentLoaded', async function() {
             // Header mit Teamnamen und Quote
             const header = document.createElement('div');
             header.className = 'team-bets-header';
-            
+            header.innerHTML = `
+                <h3 class="team-bets-title">${team.name}</h3>
+                <div class="team-bets-odds">Quote: ${odds.toFixed(2)}</div>
+            `;
+
             tableContainer.appendChild(header);
-            
+
             // Tabelle erstellen
             const table = document.createElement('table');
             table.className = 'team-bets-table';
-            
+
             // Tabellenkopf mit zusätzlicher Aktionen-Spalte
             table.innerHTML = `
                 <thead>
@@ -806,6 +824,47 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
     }
     
+    /**
+     * Rendert das Wett-Verteilungs-Balkendiagramm
+     */
+    function renderDistributionChart() {
+        const container = document.getElementById('distributionChart');
+        if (!container) return;
+
+        const teamsToShow = finalTeams.length > 0
+            ? finalTeams
+            : teams.slice(0, FINALS_TEAM_COUNT).map(t => ({ name: t }));
+
+        if (teamsToShow.length === 0 || bets.length === 0) {
+            container.innerHTML = '';
+            return;
+        }
+
+        const totalAmount = bets.reduce((sum, bet) => sum + bet.amount, 0);
+
+        const rows = teamsToShow.map((team, idx) => {
+            const teamAmount = bets
+                .filter(bet => bet.team === team.name)
+                .reduce((sum, bet) => sum + bet.amount, 0);
+            const pct = totalAmount > 0 ? Math.round((teamAmount / totalAmount) * 100) : 0;
+            const fillClass = idx === 1 ? 'dist-bar-fill second-team' : 'dist-bar-fill';
+            return `
+                <div class="dist-bar-row">
+                    <span class="dist-team-label">${team.name}</span>
+                    <div class="dist-bar-track">
+                        <div class="${fillClass}" style="width: ${pct}%"></div>
+                    </div>
+                    <span class="dist-percent-label">${pct}% · ${teamAmount.toFixed(0)}€</span>
+                </div>
+            `;
+        });
+
+        container.innerHTML = `
+            <div class="distribution-title">Wett-Verteilung</div>
+            ${rows.join('')}
+        `;
+    }
+
     /**
      * Setzt eine Status-Nachricht
      * @param {string} message - Die Nachricht
