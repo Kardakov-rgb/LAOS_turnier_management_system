@@ -21,17 +21,18 @@ document.addEventListener('DOMContentLoaded', async function() {
     const bettingForm = document.getElementById('bettingForm');
     const betterNameInput = document.getElementById('betterName');
     const betAmountInput = document.getElementById('betAmount');
-    const teamSelect = document.getElementById('teamSelect');
+    const teamBtnGroup = document.getElementById('teamBtnGroup');
     const teamBetsContainer = document.getElementById('teamBetsContainer');
     const totalBetsCount = document.getElementById('totalBetsCount');
     const totalBetsAmount = document.getElementById('totalBetsAmount');
     const exportDataBtn = document.getElementById('exportDataBtn');
     const resetBetsBtn = document.getElementById('resetBetsBtn');
-    
+
     // Daten für die Anwendung
     let teams = [];
     let koMatches = {};
     let bets = [];
+    let selectedTeam = '';
     
     // Finalteams und deren Statistiken
     let finalTeams = [];
@@ -81,7 +82,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         
         // UI rendern
         renderFinalists();
-        renderTeamSelect();
+        renderTeamButtons();
         renderTeamBets();
         renderDistributionChart();
         updateTotalStats();
@@ -124,16 +125,16 @@ document.addEventListener('DOMContentLoaded', async function() {
         dataService.subscribeToData('tournamentTeams', (newTeams) => {
             console.log('Teams aktualisiert:', newTeams);
             teams = Array.isArray(newTeams) ? newTeams : [];
-            renderTeamSelect();
+            renderTeamButtons();
         });
-        
+
         // KO-Matches abonnieren
         dataService.subscribeToData('koMatches', (newMatches) => {
             console.log('KO-Matches aktualisiert:', newMatches);
             koMatches = newMatches || {};
             loadFinalTeams();
             renderFinalists();
-            renderTeamSelect();
+            renderTeamButtons();
             renderTeamBets();
         });
         
@@ -408,23 +409,33 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
     
     /**
-     * Rendert die Team-Auswahl im Wettformular
+     * Rendert die Team-Auswahl als Buttons im Wettformular
      */
-    function renderTeamSelect() {
-        // Dropdown-Element leeren, aber den Platzhalter behalten
-        while (teamSelect.options.length > 1) {
-            teamSelect.remove(1);
+    function renderTeamButtons() {
+        teamBtnGroup.innerHTML = '';
+        selectedTeam = '';
+
+        const teamsToShow = finalTeams.length > 0
+            ? finalTeams
+            : teams.map(team => ({ name: team }));
+
+        if (teamsToShow.length === 0) {
+            teamBtnGroup.innerHTML = '<span class="team-btn-placeholder">Keine Teams verfügbar</span>';
+            return;
         }
-        
-        // Wenn keine Finalisten vorhanden sind, alle Teams anzeigen
-        const teamsToShow = finalTeams.length > 0 ? finalTeams : teams.map(team => ({ name: team }));
-        
-        // Teams hinzufügen
-        teamsToShow.forEach(team => {
-            const option = document.createElement('option');
-            option.value = team.name;
-            option.textContent = team.name;
-            teamSelect.appendChild(option);
+
+        teamsToShow.forEach((team, idx) => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = `team-select-btn team-select-btn--${idx === 0 ? 'orange' : 'blue'}`;
+            btn.textContent = team.name;
+            btn.dataset.team = team.name;
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.team-select-btn').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                selectedTeam = team.name;
+            });
+            teamBtnGroup.appendChild(btn);
         });
     }
     
@@ -666,23 +677,22 @@ document.addEventListener('DOMContentLoaded', async function() {
         // Eingaben validieren
         const betterName = betterNameInput.value.trim();
         const amount = parseFloat(betAmountInput.value);
-        const team = teamSelect.value;
-        
+        const team = selectedTeam;
+
         if (!betterName) {
             setStatus('Bitte gib den Namen des Wettenden ein.', 'error');
             betterNameInput.focus();
             return;
         }
-        
+
         if (isNaN(amount) || amount <= 0) {
             setStatus('Bitte gib einen gültigen Einsatz ein (größer als 0).', 'error');
             betAmountInput.focus();
             return;
         }
-        
+
         if (!team) {
             setStatus('Bitte wähle ein Team aus.', 'error');
-            teamSelect.focus();
             return;
         }
         
@@ -709,7 +719,9 @@ document.addEventListener('DOMContentLoaded', async function() {
             // Formular zurücksetzen
             betterNameInput.value = '';
             betAmountInput.value = '';
-            teamSelect.selectedIndex = 0;
+            selectedTeam = '';
+            document.querySelectorAll('.team-select-btn').forEach(b => b.classList.remove('selected'));
+            document.querySelectorAll('.quick-amount-btn').forEach(b => b.classList.remove('active'));
             
             // Erfolgsmeldung
             setStatus(`Wette auf ${team} erfolgreich platziert. Quote: ${odds.toFixed(2)}, Möglicher Gewinn: ${(amount * odds).toFixed(2)} €`, 'success');
@@ -885,6 +897,4 @@ document.addEventListener('DOMContentLoaded', async function() {
         }, 5000);
     }
 
-;
-    document.head.appendChild(style);
 });
