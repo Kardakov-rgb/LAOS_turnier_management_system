@@ -38,7 +38,20 @@
         <!-- Hauptinhalt der Seite -->
         <main class="main-content">
             <div class="statistik-container">
-                
+
+                <div class="statistik-header">
+                    <div class="statistik-info">
+                        <span class="last-update">Letzte Aktualisierung: <span id="updateTime">-</span></span>
+                    </div>
+                    <div class="statistik-actions">
+                        <button id="exportDataBtn" class="btn btn-secondary">📤</button>
+                        <button id="refreshDataBtn" class="btn btn-primary">🔄</button>
+                    </div>
+                </div>
+
+                <!-- Status-Container für Hinweise -->
+                <div id="statusContainer" class="status-container"></div>
+
                 <!-- Neue Hauptkategorien-Auswahl -->
                 <div class="main-category-selection">
                     <button class="main-category-btn active" data-category="tabelle">Tabelle</button>
@@ -235,10 +248,10 @@
     
     <!-- Einzel-Team Details Container (bestehend) -->
     <div id="team-detail-container" class="team-detail-container">
-        <h3 id="team-detail-name">Team auswählen</h3>
+        <h3 id="team-detail-name" class="team-detail-title">Team auswählen</h3>
         <div id="team-stats-summary" style="display: none;">
             <!-- Hier werden die Teamstatistiken angezeigt -->
-            <div class="stats-grid">
+            <div class="team-stats-grid">
                 <div class="stat-item">
                     <span class="stat-label">Spiele:</span>
                     <span id="detail-matches" class="stat-value">0</span>
@@ -282,7 +295,7 @@
             </div>
             
             <div class="form-chart">
-                <h4>Formkurve (letzte Spiele)</h4>
+                <h4 class="chart-title">Formkurve (letzte Spiele)</h4>
                 <div id="form-indicators" class="form-indicators">
                     <!-- Hier werden die Formkurven-Indikatoren hinzugefügt -->
                 </div>
@@ -290,7 +303,7 @@
         </div>
         
         <div id="team-matches-card" class="team-matches-card" style="display: none;">
-            <h4>Alle Spiele</h4>
+            <h4 class="matches-title">Alle Spiele</h4>
             <table class="team-matches-table">
                 <thead>
                     <tr>
@@ -458,18 +471,6 @@
     </div>
 </div>
 
-                <div class="statistik-header">
-                    <div class="statistik-info">
-                        <span class="last-update">Letzte Aktualisierung: <span id="updateTime">-</span></span>
-                    </div>
-                    <div class="statistik-actions">
-                        <button id="exportDataBtn" class="btn btn-secondary">📤</button>
-                        <button id="refreshDataBtn" class="btn btn-primary">🔄</button>
-                    </div>
-                </div>
-
-                <!-- Status-Container für Hinweise -->
-                <div id="statusContainer" class="status-container"></div>
 
             </div>
 
