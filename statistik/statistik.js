@@ -67,6 +67,8 @@ document.addEventListener('DOMContentLoaded', async function() {
     team2Selector: document.getElementById('team2-selector')
   };
   
+  const unsubscribers = [];
+
   // Initialisiere die Anwendung
   await initializeApp();
   
@@ -279,8 +281,6 @@ document.addEventListener('DOMContentLoaded', async function() {
   /**
    * Richtet Echtzeit-Updates für die Daten ein
    */
-  const unsubscribers = [];
-
   function setupRealtimeUpdates() {
     unsubscribers.push(subscribeToData('vorrundeMatches', (updatedMatches) => {
       if (JSON.stringify(appState.vorrundeMatches) !== JSON.stringify(updatedMatches)) {
