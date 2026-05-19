@@ -301,7 +301,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         appState.teams = updatedTeams;
         updateStatistics();
       }
-    });
+    }));
   }
   
   /**
