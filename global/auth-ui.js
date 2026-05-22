@@ -15,6 +15,8 @@ function injectStyles() {
   const style = document.createElement('style');
   style.textContent = `
     /* ---- Write-Controls im Nur-Lesen-Modus sperren ---- */
+    body:not(.auth-admin) .admin-nav-item { display: none; }
+
     body:not(.auth-admin) .action-emoji-btn,
     body:not(.auth-admin) .score-input,
     body:not(.auth-admin) .header-btn,

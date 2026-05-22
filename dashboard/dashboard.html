@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>LAOS 2.0 - Admin Dashboard</title>
+    <link rel="icon" type="image/x-icon" href="../global/favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../global/global.css">
+    <link rel="stylesheet" href="./dashboard.css">
+</head>
+<body>
+    <div class="page-container">
+        <header class="main-header">
+            <div class="logo-container">
+                <img src="../global/favicon.png" alt="Logo" class="site-logo">
+                <h1 class="site-title">LAOS 2.0</h1>
+            </div>
+            <nav class="main-nav">
+                <ul class="nav-list">
+                    <li class="nav-item"><a href="../index.html" class="nav-link">Startseite</a></li>
+                    <li class="nav-item"><a href="../teams/teams.html" class="nav-link">Teams</a></li>
+                    <li class="nav-item"><a href="../vorrunde/vorrunde.html" class="nav-link">Vorrunde</a></li>
+                    <li class="nav-item"><a href="../korunde/ko-runde.html" class="nav-link">KO-Runde</a></li>
+                    <li class="nav-item"><a href="../gegner/gegner.html" class="nav-link">Gegner-Übersicht</a></li>
+                    <li class="nav-item"><a href="../statistik/statistik.html" class="nav-link">Statistik</a></li>
+                    <li class="nav-item"><a href="../wetten/wetten.html" class="nav-link">Wetten</a></li>
+                    <li class="nav-item admin-nav-item"><a href="../dashboard/dashboard.html" class="nav-link active">Dashboard</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <main class="main-content">
+
+            <!-- Zugriff verweigert (kein Admin) -->
+            <div id="accessDenied" class="access-denied" style="display:none;">
+                <div class="access-denied-box">
+                    <div class="access-denied-icon">🔒</div>
+                    <h2>Kein Zugriff</h2>
+                    <p>Dieses Dashboard ist nur für Admins zugänglich.<br>
+                    Bitte melde dich oben rechts als Admin an.</p>
+                </div>
+            </div>
+
+            <!-- Dashboard-Inhalt (nur für Admins) -->
+            <div id="dashboardContent" class="dashboard-container" style="display:none;">
+
+                <!-- Schnellübersicht-Karten -->
+                <div class="stat-cards" id="statCards">
+                    <div class="stat-card">
+                        <span class="stat-number" id="statTeams">–</span>
+                        <span class="stat-label">Teams</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number" id="statMatches">–</span>
+                        <span class="stat-label">Spiele gesamt</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number" id="statRounds">–</span>
+                        <span class="stat-label">Runden</span>
+                    </div>
+                    <div class="stat-card" id="statDupCard">
+                        <span class="stat-number" id="statDuplicates">–</span>
+                        <span class="stat-label">Doppelgegner</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number" id="statPlayed">–</span>
+                        <span class="stat-label">Gespielt</span>
+                    </div>
+                </div>
+
+                <!-- Tab-Navigation -->
+                <div class="dash-tabs">
+                    <button class="dash-tab active" data-tab="uebersicht">Übersicht</button>
+                    <button class="dash-tab" data-tab="spielplan">Spielplan</button>
+                    <button class="dash-tab" data-tab="matrix">Paarungsmatrix</button>
+                </div>
+
+                <!-- Tab: Übersicht -->
+                <div id="tab-uebersicht" class="dash-tab-content active">
+                    <div id="duplicateWarning" class="duplicate-warning" style="display:none;">
+                        <h3>Doppelgegner gefunden</h3>
+                        <p id="duplicateCount"></p>
+                        <table class="dup-table">
+                            <thead>
+                                <tr><th>Team 1</th><th>Team 2</th><th>Runden</th></tr>
+                            </thead>
+                            <tbody id="duplicateBody"></tbody>
+                        </table>
+                    </div>
+                    <div id="noDuplicates" class="no-duplicates" style="display:none;">
+                        <span class="check-icon">✓</span>
+                        Keine Doppelgegner – alle Paarungen sind eindeutig.
+                    </div>
+                    <div id="teamOpponentList" class="team-opponent-list"></div>
+                </div>
+
+                <!-- Tab: Spielplan -->
+                <div id="tab-spielplan" class="dash-tab-content" style="display:none;">
+                    <div class="round-selector" id="roundSelector"></div>
+                    <div id="scheduleTable"></div>
+                </div>
+
+                <!-- Tab: Paarungsmatrix -->
+                <div id="tab-matrix" class="dash-tab-content" style="display:none;">
+                    <p class="matrix-legend">
+                        <span class="legend-dot green"></span> 1× gespielt &nbsp;
+                        <span class="legend-dot red"></span> 2× gespielt (Fehler)
+                    </p>
+                    <div class="matrix-wrapper" id="matrixWrapper"></div>
+                </div>
+
+                <div id="noData" class="no-data-hint" style="display:none;">
+                    Noch keine Vorrunde initialisiert. Bitte zuerst auf der Vorrunde-Seite starten.
+                </div>
+
+            </div>
+        </main>
+
+        <footer class="overlay-footer">
+            <img src="../global/Footer.png" alt="Footer">
+        </footer>
+    </div>
+
+    <script type="module" src="./dashboard.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/10.6.0/firebase-database.js"></script>
+    <script type="module" src="../global/firebase-config.js"></script>
+    <script type="module" src="../global/auth-ui.js"></script>
+</body>
+</html>
