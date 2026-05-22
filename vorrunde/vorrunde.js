@@ -7,11 +7,11 @@ import dataService from '../global/data-service.js';
 
 // ---- Turnierkonfiguration ----
 const MAX_TABLES          = 6;  // Anzahl Spieltische
-const MAX_TEAMS           = 24; // Maximale Teamanzahl (Gruppenmethode)
+const MAX_TEAMS           = 32; // Maximale Teamanzahl
 const ROUND_ROBIN_MAX     = 6;  // Max Teams für Jeder-gegen-jeden
-const PRELIMINARY_ROUNDS  = 5;  // Anzahl Vorrunden
-const GROUP_SIZE          = 4;  // Teams pro Gruppe (24er Format)
+const GROUP_SIZE          = 4;  // Teams pro Gruppe
 const NUM_GROUPS          = 6;  // Anzahl Gruppen im 24er Format
+const NUM_GROUPS_32       = 8;  // Anzahl Gruppen im 32er Format
 
 // ---- Punktesystem ----
 const WIN_POINTS           = 2; // Punkte für Sieg
@@ -40,7 +40,6 @@ document.addEventListener('DOMContentLoaded', async function() {
     const statusContainer = document.getElementById('statusContainer');
     const matchesContainer = document.getElementById('matchesContainer');
     const standingsContainer = document.getElementById('standingsContainer');
-    const roundNavButtons = document.querySelectorAll('.round-nav-btn');
     const simulateMatchesBtn = document.getElementById('simulateMatchesBtn');
     
     // DEBUG: Überprüfen, ob DOM-Elemente gefunden wurden
@@ -50,8 +49,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         resetVorrundeBtn,
         statusContainer,
         matchesContainer,
-        standingsContainer,
-        roundNavButtons
+        standingsContainer
     });
     // Daten aus localStorage laden
     let teams = [];
@@ -59,6 +57,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     let matches = [];
     let standings = [];
     let goldenCupResults = [];
+    let totalRounds = 5; // wird nach Match-Generierung dynamisch gesetzt
     
     // Laden der Daten aus Firebase/localStorage über den DataService
     try {
@@ -67,6 +66,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         matches = await dataService.getData('vorrundeMatches') || [];
         standings = await dataService.getData('vorrundeStandings') || [];
         goldenCupResults = await dataService.getData('goldenCupResults') || [];
+        totalRounds = await dataService.getData('vorrundeTotalRounds') || (matches.length > 0 ? Math.max(...matches.map(m => m.round || 1)) : 5);
     } catch (error) {
         console.error("Fehler beim Laden der Daten:", error);
         showToast('⚠️ Daten konnten nicht geladen werden. Bitte Seite neu laden.');
@@ -85,14 +85,6 @@ document.addEventListener('DOMContentLoaded', async function() {
     initVorrundeBtn.addEventListener('click', initializeVorrunde);
     exportDataBtn.addEventListener('click', exportData);
     resetVorrundeBtn.addEventListener('click', confirmReset);
-    
-    // Event-Listener für Rundenwechsel
-    roundNavButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const round = parseInt(this.dataset.round);
-            changeRound(round);
-        });
-    });
     
     //simulateMatchesBtn.addEventListener('click', simulateMatches);
 
@@ -115,16 +107,11 @@ document.addEventListener('DOMContentLoaded', async function() {
         if (matches.length === 0) {
             setStatus('Keine Spiele gefunden. Bitte initialisiere die Vorrunde.', 'warning');
         } else {
-            // DEBUG: Erstes Match überprüfen
-            if (matches.length > 0) {
-                console.log("Erstes Match nach Laden:", matches[0]);
-            }
-            
-            // Runde 1 standardmäßig anzeigen
+            console.log("Erstes Match nach Laden:", matches[0]);
+            renderRoundButtons(totalRounds);
             changeRound(1);
             renderStandings();
-            
-            // Hinweis anzeigen, wenn benutzerdefinierte Paarungen verwendet wurden
+
             if (customMatchups) {
                 setStatus('Benutzerdefinierte Spielpaarungen werden verwendet.', 'info');
             }
@@ -227,35 +214,39 @@ document.addEventListener('DOMContentLoaded', async function() {
      * Wechselt die angezeigte Spielrunde
      * @param {number} round - Die anzuzeigende Runde
      */
+    function renderRoundButtons(n) {
+        const nav = document.getElementById('roundsNavigation');
+        if (!nav) return;
+        nav.querySelectorAll('.round-nav-btn').forEach(b => b.remove());
+        const goldenCupBtn = document.getElementById('goldenCupBtn');
+        for (let r = 1; r <= n; r++) {
+            const btn = document.createElement('button');
+            btn.className = 'round-nav-btn';
+            btn.dataset.round = r;
+            btn.textContent = `Runde ${r}`;
+            btn.addEventListener('click', () => changeRound(r));
+            nav.insertBefore(btn, goldenCupBtn);
+        }
+    }
+
     function changeRound(round) {
-        // Round auf gültigen Bereich einschränken
-        round = Math.min(Math.max(round, 1), 5);
-        
-        // Aktuelle Runde setzen
+        round = Math.min(Math.max(round, 1), totalRounds);
         currentRound = round;
-        
-        // DEBUG: Rundenwechsel überprüfen
         console.log(`Wechsle zu Runde ${round}`);
-        
-        // Navigation aktualisieren
+
         document.getElementById('goldenCupBtn').classList.remove('active');
         document.body.classList.remove('golden-cup-active');
-        roundNavButtons.forEach(button => {
-            if (parseInt(button.dataset.round) === round) {
-                button.classList.add('active');
-            } else {
-                button.classList.remove('active');
-            }
+        document.querySelectorAll('.round-nav-btn').forEach(button => {
+            button.classList.toggle('active', parseInt(button.dataset.round) === round);
         });
-        
-        // Spiele der ausgewählten Runde rendern
+
         renderMatches();
     }
     
 /**
  * Initialisiert die Vorrunde
  */
-function initializeVorrunde() {
+async function initializeVorrunde() {
     console.log('Initialisiere Vorrunde');
     
     // Prüfen ob bereits Matches existieren
@@ -271,46 +262,50 @@ function initializeVorrunde() {
         return;
     }
     
+    if (teams.length > MAX_TEAMS) {
+        setStatus(`Maximal ${MAX_TEAMS} Teams unterstützt (aktuell: ${teams.length}).`, 'error');
+        return;
+    }
+
     try {
-        // Matches generieren
         if (teams.length <= ROUND_ROBIN_MAX) {
-            // Bei ROUND_ROBIN_MAX oder weniger Teams: Jeder gegen jeden
             console.log('Wenige Teams: Alle Teams spielen gegeneinander (Round Robin)');
             matches = createMatchesAllPlayAll();
         } else if (customMatchups) {
             console.log('Verwende benutzerdefinierte Spielpaarungen');
             matches = createMatchesFromCustomPairings();
-        } else if (teams.length === MAX_TEAMS) {
-            // Für genau 24 Teams die Gruppenmethode verwenden
+        } else if (teams.length === 24) {
             console.log('Generiere Spielpaarungen mit gruppenbasierter Methode für 24 Teams');
             matches = createMatchesWithGroupMethod();
+        } else if (teams.length === 32) {
+            console.log('Generiere Spielpaarungen mit gruppenbasierter Methode für 32 Teams');
+            matches = createMatchesWithGroupMethod32();
         } else {
             console.log('Generiere Spielpaarungen mit verbesserter Circle-Methode');
             matches = createMatchesWithImprovedCircleMethod();
         }
-        
-        // Tischnummern und Paarungsnummern zuweisen
-        assignTableAndPairingNumbers();
-        
+
+        // Flache Runden zuweisen (ersetzt Hälften-System)
+        totalRounds = assignFlatRounds();
+
         // Tabelle initialisieren
         standings = initializeStandings();
-        
+
         // Daten speichern
         saveMatches();
         saveStandings();
-        
-        // UI aktualisieren - Runde 1 anzeigen
+        await dataService.saveData('vorrundeTotalRounds', totalRounds);
+
+        // UI aktualisieren
+        renderRoundButtons(totalRounds);
         changeRound(1);
         renderStandings();
-        
-        // Status-Meldung
-        if (teams.length <= 6) {
-            setStatus('Vorrunde mit Round-Robin-Methode (jeder gegen jeden) initialisiert.', 'success');
-        } else if (customMatchups) {
-            setStatus('Vorrunde mit benutzerdefinierten Spielpaarungen initialisiert.', 'success');
-        } else {
-            setStatus('Vorrunde mit verbesserter Circle-Methode initialisiert.', 'success');
-        }
+
+        const methodLabel = teams.length <= ROUND_ROBIN_MAX ? 'Round-Robin-Methode (jeder gegen jeden)'
+            : customMatchups ? 'benutzerdefinierten Spielpaarungen'
+            : (teams.length === 24 || teams.length === 32) ? 'gruppenbasierter Methode'
+            : 'Circle-Methode';
+        setStatus(`Vorrunde mit ${methodLabel} initialisiert. ${totalRounds} Runden, ${matches.length} Spiele.`, 'success');
     } catch (error) {
         console.error('Fehler beim Initialisieren der Vorrunde:', error);
         setStatus(`Fehler beim Initialisieren der Vorrunde: ${error.message}`, 'error');
@@ -374,147 +369,143 @@ function createMatchesAllPlayAll() {
     return generatedMatches;
 }
 /**
- * Weist Tischnummern zufällig zu, nachdem die Paarungen generiert wurden
- * Diese Funktion ersetzt die bestehende assignTableAndPairingNumbers in vorrunde.js
+ * Verteilt alle Matches auf flache Runden (max. MAX_TABLES Matches pro Runde,
+ * jedes Team max. 1× pro Runde). Verarbeitet Matches in ihrer Array-Reihenfolge
+ * (= Reihenfolge der logischen Runden aus der Paarungs-Erzeugung), was eine
+ * gleichmäßige Verteilung der Spielzeiten gewährleistet.
+ * @returns {number} Gesamtanzahl der erzeugten flachen Runden
  */
-function assignTableAndPairingNumbers() {
-    console.log("Starte zufällige Tischzuweisung...");
-    
-    // Für jede Runde
-    for (let round = 1; round <= PRELIMINARY_ROUNDS; round++) {
-        // Spiele dieser Runde filtern
-        const roundMatches = matches.filter(match => match.round === round);
-        console.log(`Runde ${round}: ${roundMatches.length} Matches gefunden`);
-        
-        // Aufteilung in 2 Hälften
-        const halfSize = Math.ceil(roundMatches.length / 2);
-        console.log(`Hälftengröße für Runde ${round}: ${halfSize}`);
-        
-        // Erste Hälfte der Matches
-        const firstHalfMatches = roundMatches.slice(0, halfSize);
-        // Zweite Hälfte der Matches
-        const secondHalfMatches = roundMatches.slice(halfSize);
-        
-        // Zufällige Tischzuweisung für erste Hälfte
-        const firstHalfTables = getRandomTableNumbers(MAX_TABLES);
-        assignTablesToHalf(firstHalfMatches, firstHalfTables, false);
+function assignFlatRounds() {
+    console.log('Starte flache Runden-Zuweisung...');
 
-        // Zufällige Tischzuweisung für zweite Hälfte
-        const secondHalfTables = getRandomTableNumbers(MAX_TABLES);
-        assignTablesToHalf(secondHalfMatches, secondHalfTables, true);
+    const roundTeams = {};  // r -> Set<teamName>
+    const roundCount = {};  // r -> Anzahl Matches
+
+    for (const match of matches) {
+        let r = 1;
+        while (true) {
+            if (!roundTeams[r]) {
+                roundTeams[r] = new Set();
+                roundCount[r] = 0;
+            }
+            if (!roundTeams[r].has(match.team1) &&
+                !roundTeams[r].has(match.team2) &&
+                roundCount[r] < MAX_TABLES) {
+                match.round = r;
+                roundTeams[r].add(match.team1);
+                roundTeams[r].add(match.team2);
+                roundCount[r]++;
+                break;
+            }
+            r++;
+        }
     }
-    
-    console.log("Zufällige Tischzuweisung abgeschlossen");
+
+    const totalR = matches.length > 0 ? Math.max(...matches.map(m => m.round)) : 0;
+
+    // Tischnummern und Paarungsnummern innerhalb jeder flachen Runde zuweisen
+    for (let r = 1; r <= totalR; r++) {
+        const rMatches = matches.filter(m => m.round === r);
+        const tables = getRandomTableNumbers(rMatches.length);
+        rMatches.forEach((match, idx) => {
+            match.tableNumber = tables[idx];
+            match.pairingNumber = idx + 1;
+            delete match.isSecondHalf;
+        });
+    }
+
+    console.log(`Flache Runden-Zuweisung abgeschlossen: ${totalR} Runden für ${matches.length} Matches`);
+    return totalR;
 }
 
 /**
- * Generiert eine zufällige Reihenfolge der Tischnummern 1-6
- * @param {number} tableCount - Anzahl der Tische (standardmäßig 6)
+ * Gibt matchCount zufällig gewählte Tischnummern aus 1–MAX_TABLES zurück.
+ * @param {number} matchCount - Anzahl benötigter Tische (≤ MAX_TABLES)
  * @returns {Array} - Zufällig gemischte Tischnummern
  */
-function getRandomTableNumbers(tableCount = MAX_TABLES) {
-    // Liste der Tischnummern erstellen
-    const tables = [];
-    for (let i = 1; i <= tableCount; i++) {
-        tables.push(i);
-    }
-    
-    // Zufällig mischen (Fisher-Yates Shuffle)
-    for (let i = tables.length - 1; i > 0; i--) {
+function getRandomTableNumbers(matchCount = MAX_TABLES) {
+    const count = Math.min(matchCount, MAX_TABLES);
+    const allTables = Array.from({ length: MAX_TABLES }, (_, i) => i + 1);
+    for (let i = allTables.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
-        [tables[i], tables[j]] = [tables[j], tables[i]];
+        [allTables[i], allTables[j]] = [allTables[j], allTables[i]];
     }
-    
-    return tables;
+    return allTables.slice(0, count);
 }
 
-/**
- * Weist Tischnummern für eine Hälfte der Matches zu
- * @param {Array} matches - Die zu verarbeitenden Spiele
- * @param {Array} tables - Die zu verwendenden Tischnummern
- * @param {boolean} isSecondHalf - Ob es sich um die zweite Hälfte handelt
- */
-function assignTablesToHalf(matches, tables, isSecondHalf) {
-    matches.forEach((match, index) => {
-        // Tischnummer zuweisen - falls mehr Matches als Tische, zyklisch wiederholen
-        const tableNumber = tables[index % tables.length];
-        
-        // Paarungsnummer innerhalb der Hälfte (1-basiert)
-        const pairingNumber = index + 1;
-        
-        console.log(`Match ${match.id}: Tisch ${tableNumber}, Paarung ${pairingNumber}, ${isSecondHalf ? '2.' : '1.'} Hälfte`);
-        
-        // Zusätzliche Informationen speichern
-        match.tableNumber = tableNumber;
-        match.pairingNumber = pairingNumber;
-        match.isSecondHalf = isSecondHalf;
-    });
-}
     
     /**
-     * Erstellt Spiele mit der verbesserten Circle-Methode
-     * Diese Methode reduziert Schattengruppen durch zufällige Anordnung und periodisches Neuvermischen
+     * Erstellt Spiele mit der verbesserten Circle-Methode.
+     * Funktioniert für beliebige gerade Teamanzahlen (7–30 Teams).
+     * Reduziert Schattengruppen durch zufällige Anordnung und periodisches Neuvermischen.
+     * Führt bis zu 10 Versuche durch, um Duplikat-Paarungen zu vermeiden.
      */
     function createMatchesWithImprovedCircleMethod() {
-        const generatedMatches = [];
-        let matchId = 1;
-        
-        // Teams-Array kopieren und IDs in Teamnamen umwandeln
-        const teamNames = [...teams];
-        
-        // Teams IDs erstellen (1-basiert)
-        const teamIds = Array.from({length: teams.length}, (_, i) => i + 1);
-        
-        // Teams zufällig anordnen, um Schattengruppen zu reduzieren
-        teamIds.sort(() => Math.random() - 0.5);
-        
-        // Für ungerade Anzahl ein Dummy-Team hinzufügen
-        if (teamIds.length % 2 !== 0) {
-            teamIds.push(null);
+        for (let attempt = 0; attempt < 10; attempt++) {
+            const result = tryCircleMethod();
+            if (!hasDuplicateMatches(result)) return result;
+            console.warn(`Circle-Methode: Duplikate in Versuch ${attempt + 1}, Neuversuch...`);
         }
-        
-        const n = teamIds.length;
-        
-        // Für jede Runde
-        for (let round = 1; round <= 5; round++) {
-            // In jeder zweiten Runde die Teams teilweise neu mischen, um Schattengruppen zu reduzieren
-            if (round % 2 === 0) {
-                // Ersten Platz behalten, Rest neu mischen
+        console.warn('Circle-Methode: Verwende letztes Ergebnis trotz möglicher Duplikate');
+        return tryCircleMethod();
+
+        function tryCircleMethod() {
+            const generatedMatches = [];
+            let matchId = 1;
+            const teamNames = [...teams];
+            const teamIds = Array.from({ length: teams.length }, (_, i) => i + 1);
+
+            // Zufällig anordnen, um Schattengruppen zu reduzieren
+            teamIds.sort(() => Math.random() - 0.5);
+
+            if (teamIds.length % 2 !== 0) teamIds.push(null);
+
+            const n = teamIds.length;
+
+            for (let round = 1; round <= 5; round++) {
+                // Gerade Runden: neu mischen (außer Position 0)
+                if (round % 2 === 0) {
+                    const first = teamIds[0];
+                    const rest = teamIds.slice(1);
+                    rest.sort(() => Math.random() - 0.5);
+                    teamIds.splice(0, teamIds.length, first, ...rest);
+                }
+
+                for (let i = 0; i < n / 2; i++) {
+                    const team1Id = teamIds[i];
+                    const team2Id = teamIds[n - 1 - i];
+                    if (team1Id !== null && team2Id !== null) {
+                        generatedMatches.push({
+                            id: matchId++,
+                            round: round,
+                            team1: teamNames[team1Id - 1],
+                            team2: teamNames[team2Id - 1],
+                            score1: null,
+                            score2: null,
+                            played: false
+                        });
+                    }
+                }
+
+                // Rotation: Erstes Team bleibt, Rest rotiert
                 const first = teamIds[0];
                 const rest = teamIds.slice(1);
-                rest.sort(() => Math.random() - 0.5);
+                rest.unshift(rest.pop());
                 teamIds.splice(0, teamIds.length, first, ...rest);
             }
-            
-            // Paarungen erstellen
-            for (let i = 0; i < n/2; i++) {
-                const team1Id = teamIds[i];
-                const team2Id = teamIds[n-1-i];
-                
-                // Nur gültige Paarungen erstellen (keine Freilose)
-                if (team1Id !== null && team2Id !== null) {
-                    const match = {
-                        id: matchId++,
-                        round: round,
-                        team1: teamNames[team1Id - 1],
-                        team2: teamNames[team2Id - 1],
-                        score1: null,
-                        score2: null,
-                        played: false
-                    };
-                    
-                    generatedMatches.push(match);
-                }
-            }
-            
-            // Rotation wie bei Circle-Methode: Erstes Team bleibt, Rest rotiert
-            const first = teamIds[0];
-            const rest = teamIds.slice(1);
-            rest.unshift(rest.pop());
-            teamIds.splice(0, teamIds.length, first, ...rest);
+
+            return generatedMatches;
         }
-        
-        return generatedMatches;
+    }
+
+    function hasDuplicateMatches(generatedMatches) {
+        const seen = new Set();
+        for (const m of generatedMatches) {
+            const key = [m.team1, m.team2].sort().join('|||');
+            if (seen.has(key)) return true;
+            seen.add(key);
+        }
+        return false;
     }
 /**
  * Erstellt Spiele mit der gruppenbasierten Methode für 24 Teams
@@ -556,7 +547,7 @@ function createMatchesWithGroupMethod() {
     ];
     
     // 4. Erstelle die Matches basierend auf dem Schema
-    for (let roundIndex = 0; roundIndex < PRELIMINARY_ROUNDS; roundIndex++) {
+    for (let roundIndex = 0; roundIndex < roundGroupMatches.length; roundIndex++) {
         const roundNumber = roundIndex + 1;
         const roundMatches = roundGroupMatches[roundIndex];
         
@@ -605,6 +596,55 @@ function getMatchPatternForGroups(roundIndex) {
     
     return patterns[roundIndex % patterns.length];
 }
+/**
+ * Erstellt Spiele mit der gruppenbasierten Methode für 32 Teams (8 Gruppen à 4).
+ * Schema: Kreis-Rundturnier der 8 Gruppen, Runden 1–5 (jede Gruppe spielt genau 5 andere).
+ */
+function createMatchesWithGroupMethod32() {
+    console.log('Generiere Spielpaarungen mit der gruppenbasierten Methode für 32 Teams');
+
+    const generatedMatches = [];
+    let matchId = 1;
+
+    const shuffledTeams = [...teams].sort(() => Math.random() - 0.5);
+
+    const groups = [];
+    for (let i = 0; i < NUM_GROUPS_32; i++) {
+        groups.push(shuffledTeams.slice(i * GROUP_SIZE, (i + 1) * GROUP_SIZE));
+    }
+
+    // Kreis-Rundturnier zwischen 8 Gruppen (Runden 1–5 aus dem 8-Gruppen-Kreisalgorithmus)
+    const roundGroupMatches32 = [
+        [[0, 7], [1, 6], [2, 5], [3, 4]],
+        [[0, 6], [7, 5], [1, 4], [2, 3]],
+        [[0, 5], [6, 4], [7, 3], [1, 2]],
+        [[0, 4], [5, 3], [6, 2], [7, 1]],
+        [[0, 3], [4, 2], [5, 1], [6, 7]]
+    ];
+
+    for (let roundIndex = 0; roundIndex < 5; roundIndex++) {
+        const roundNumber = roundIndex + 1;
+        for (const [g1, g2] of roundGroupMatches32[roundIndex]) {
+            const group1 = groups[g1];
+            const group2 = groups[g2];
+            const pattern = getMatchPatternForGroups(roundIndex);
+            for (let i = 0; i < GROUP_SIZE; i++) {
+                generatedMatches.push({
+                    id: matchId++,
+                    round: roundNumber,
+                    team1: group1[i],
+                    team2: group2[pattern[i]],
+                    score1: null,
+                    score2: null,
+                    played: false
+                });
+            }
+        }
+    }
+
+    return generatedMatches;
+}
+
     /**
      * Erstellt Spiele aus benutzerdefinierten Paarungen
      */
@@ -698,66 +738,18 @@ function getMatchPatternForGroups(roundIndex) {
             return;
         }
         
-        // DEBUG: Eigenschaften der gefundenen Matches überprüfen
-        console.log("Erstes Match der Runde:", roundMatches[0]);
-        console.log("tableNumber:", roundMatches[0].tableNumber);
-        console.log("pairingNumber:", roundMatches[0].pairingNumber);
-        console.log("isSecondHalf:", roundMatches[0].isSecondHalf);
-        
-        // Sortieren nach Hälfte und Tischnummer
-        roundMatches.sort((a, b) => {
-            if (a.isSecondHalf !== b.isSecondHalf) return a.isSecondHalf ? 1 : -1;
-            return a.tableNumber - b.tableNumber;
-        });
-        
-        // Erste Hälfte
-        const halfte1Container = document.createElement('div');
-        halfte1Container.className = 'halfte-container';
-        
-        const halfte1Header = document.createElement('div');
-        halfte1Header.className = 'halfte-header';
-        halfte1Header.textContent = '1. Hälfte';
-        halfte1Container.appendChild(halfte1Header);
-        
-        const paarungen1Grid = document.createElement('div');
-        paarungen1Grid.className = 'paarungen-grid';
-        halfte1Container.appendChild(paarungen1Grid);
-        
-        // Zweite Hälfte
-        const halfte2Container = document.createElement('div');
-        halfte2Container.className = 'halfte-container';
-        
-        const halfte2Header = document.createElement('div');
-        halfte2Header.className = 'halfte-header';
-        halfte2Header.textContent = '2. Hälfte';
-        halfte2Container.appendChild(halfte2Header);
-        
-        const paarungen2Grid = document.createElement('div');
-        paarungen2Grid.className = 'paarungen-grid';
-        halfte2Container.appendChild(paarungen2Grid);
-        
-        // Spiele auf die Hälften verteilen
+        // Sortieren nach Tischnummer
+        roundMatches.sort((a, b) => a.tableNumber - b.tableNumber);
+
+        const paarungenGrid = document.createElement('div');
+        paarungenGrid.className = 'paarungen-grid';
+
         roundMatches.forEach(match => {
-            const paarungCard = createPaarungCard(match);
-            
-            if (match.isSecondHalf) {
-                paarungen2Grid.appendChild(paarungCard);
-            } else {
-                paarungen1Grid.appendChild(paarungCard);
-            }
+            paarungenGrid.appendChild(createPaarungCard(match));
         });
-        
-        // Container zusammenfügen
-        spielpaarungenContainer.appendChild(halfte1Container);
-        spielpaarungenContainer.appendChild(halfte2Container);
-        
-        // Container aktualisieren
+
+        spielpaarungenContainer.appendChild(paarungenGrid);
         matchesContainer.appendChild(spielpaarungenContainer);
-        
-        // Zweite Hälfte nur anzeigen, wenn Spiele enthalten sind
-        if (paarungen2Grid.children.length === 0) {
-            halfte2Container.style.display = 'none';
-        }
     }
 
 /**
@@ -1348,27 +1340,21 @@ function renderStandings() {
      * Setzt die Vorrunde zurück
      */
     async function resetVorrunde() {
-        // Daten zurücksetzen
         matches = [];
         standings = [];
-        
-        // Speichern
+        totalRounds = 5;
+
         await dataService.saveData('vorrundeMatches', []);
         await dataService.saveData('vorrundeStandings', []);
-        
-        // UI zurücksetzen
+        await dataService.saveData('vorrundeTotalRounds', 0);
+
+        renderRoundButtons(0);
         if (matchesContainer) matchesContainer.innerHTML = '';
         if (standingsContainer) standingsContainer.innerHTML = '';
-        
-        // Status setzen
+
         setStatus('Die Vorrunde wurde zurückgesetzt.', 'info');
-        
         console.log('Vorrunde wurde zurückgesetzt');
     }
- // Event-Listener für Golden Cup Button
-document.getElementById('goldenCupBtn').addEventListener('click', showGoldenCup);
-
-
 /**
  * Zeigt den Golden Cup an und analysiert Gleichstände
  */

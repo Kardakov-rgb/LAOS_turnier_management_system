@@ -5,7 +5,7 @@
 // Import des DataService
 import dataService from '../global/data-service.js';
 
-const MAX_TEAMS = 24; // Zielanzahl Teams für das Turnier
+const MAX_TEAMS = 32; // Zielanzahl Teams für das Turnier
 
 function showToast(message, type = 'error') {
     const existing = document.querySelector('.app-toast');
@@ -66,17 +66,17 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     fillTeamsBtn.addEventListener('click', fillTeamsToTwentyFour);
 /**
- * Füllt die Teamliste auf 24 Teams auf
+ * Füllt die Teamliste auf MAX_TEAMS auf
  */
 function fillTeamsToTwentyFour() {
-    console.log('Fülle auf 24 Teams auf');
+    console.log(`Fülle auf ${MAX_TEAMS} Teams auf`);
 
     // Bestimmen, wie viele Teams noch hinzugefügt werden müssen
     const currentCount = teams.length;
     const neededTeams = Math.max(0, MAX_TEAMS - currentCount);
     
     if (neededTeams === 0) {
-        alert('Es sind bereits 24 oder mehr Teams vorhanden!');
+        alert(`Es sind bereits ${MAX_TEAMS} oder mehr Teams vorhanden!`);
         return;
     }
     
