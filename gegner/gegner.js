@@ -166,10 +166,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         for (let table = 1; table <= 6; table++) {
             const tableMatches = matches
                 .filter(m => m.tableNumber === table)
-                .sort((a, b) => {
-                    if (a.round !== b.round) return a.round - b.round;
-                    return (a.isSecondHalf ? 1 : 0) - (b.isSecondHalf ? 1 : 0);
-                });
+                .sort((a, b) => a.round - b.round);
             const unplayed   = tableMatches.filter(m => !m.played);
             result[table] = { current: unplayed[0] || null, next: unplayed[1] || null, afterNext: unplayed[2] || null };
         }
@@ -178,8 +175,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     function getBatchLabel(match) {
         if (!match) return '';
-        const half = match.isSecondHalf ? '2. H' : '1. H';
-        return `Rd. ${match.round} · ${half}`;
+        return `Runde ${match.round}`;
     }
 
     function renderTableCards() {
@@ -351,23 +347,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         const matchInfo = document.createElement('div');
         matchInfo.className = 'match-info';
 
-        const roundHalfInfo = document.createElement('div');
-        roundHalfInfo.className = 'round-half-info';
-        if (match.isSecondHalf) {
-            roundHalfInfo.innerHTML = `
-                <div class="half-symbol second-half-symbol">
-                    <span class="dot"></span>
-                    <span class="dot"></span>
-                </div>
-            `;
-        } else {
-            roundHalfInfo.innerHTML = `
-                <div class="half-symbol first-half-symbol">
-                    <span class="dot"></span>
-                </div>
-            `;
-        }
-        matchInfo.appendChild(roundHalfInfo);
         matchEntry.appendChild(matchInfo);
 
         const matchContent = document.createElement('div');
