@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         matches = await dataService.getData('vorrundeMatches') || [];
         standings = await dataService.getData('vorrundeStandings') || [];
         goldenCupResults = await dataService.getData('goldenCupResults') || [];
-        totalRounds = await dataService.getData('vorrundeTotalRounds') || (matches.length > 0 ? Math.max(...matches.map(m => m.round || 1)) : 5);
+        totalRounds = matches.length > 0 ? Math.max(...matches.map(m => m.round || 1)) : 5;
     } catch (error) {
         console.error("Fehler beim Laden der Daten:", error);
         showToast('⚠️ Daten konnten nicht geladen werden. Bitte Seite neu laden.');
@@ -294,7 +294,6 @@ async function initializeVorrunde() {
         // Daten speichern
         saveMatches();
         saveStandings();
-        await dataService.saveData('vorrundeTotalRounds', totalRounds);
 
         // UI aktualisieren
         renderRoundButtons(totalRounds);
@@ -1346,7 +1345,6 @@ function renderStandings() {
 
         await dataService.saveData('vorrundeMatches', []);
         await dataService.saveData('vorrundeStandings', []);
-        await dataService.saveData('vorrundeTotalRounds', 0);
 
         renderRoundButtons(0);
         if (matchesContainer) matchesContainer.innerHTML = '';
