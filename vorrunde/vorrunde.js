@@ -60,14 +60,12 @@ document.addEventListener('DOMContentLoaded', async function() {
     let totalRounds = 5; // wird nach Match-Generierung dynamisch gesetzt
     
     // Laden der Daten aus Firebase/localStorage über den DataService
-    let fixedSchedule = null;
     try {
         teams = await dataService.getData('tournamentTeams') || [];
         customMatchups = await dataService.getData('tournamentMatchups') || null;
         matches = await dataService.getData('vorrundeMatches') || [];
         standings = await dataService.getData('vorrundeStandings') || [];
         goldenCupResults = await dataService.getData('goldenCupResults') || [];
-        fixedSchedule = await dataService.getData('fixedSchedule') || null;
         totalRounds = matches.length > 0 ? Math.max(...matches.map(m => m.round || 1)) : 5;
     } catch (error) {
         console.error("Fehler beim Laden der Daten:", error);
@@ -276,64 +274,38 @@ async function initializeVorrunde() {
     }
 
     try {
-        // Festen Spielplan priorisieren
-        const currentFixed = await dataService.getData('fixedSchedule');
-        if (currentFixed && currentFixed.matches && currentFixed.matches.length > 0) {
-            if (currentFixed.teamCount !== teams.length) {
-                if (!confirm(`Der gespeicherte Spielplan ist für ${currentFixed.teamCount} Teams, aber es sind ${teams.length} Teams registriert. Trotzdem fortfahren?`)) {
-                    return;
-                }
-            }
-            console.log('Verwende festen Spielplan');
-            matches = createMatchesFromFixedSchedule(currentFixed, teams);
-            fixedSchedule = currentFixed;
+        // Slot-Schablone für aktuelle Teamanzahl laden
+        const allTemplates = await dataService.getData('scheduleTemplates') || {};
+        const template = allTemplates[String(teams.length)];
+
+        if (template && template.rounds && template.rounds.length > 0) {
+            console.log(`Verwende Slot-Schablone für ${teams.length} Teams`);
+            matches = applyTemplateToTeams(template, teams);
+            totalRounds = matches.length > 0 ? Math.max(...matches.map(m => m.round)) : 0;
+            // Freilos automatisch als gespielt markieren
+            applyByeResults();
         } else if (teams.length <= ROUND_ROBIN_MAX) {
-            console.log('Wenige Teams: Alle Teams spielen gegeneinander (Round Robin)');
+            console.log('Wenige Teams: Alle spielen gegeneinander (Round Robin)');
             matches = createMatchesAllPlayAll();
+            totalRounds = assignFlatRounds();
         } else if (customMatchups) {
             console.log('Verwende benutzerdefinierte Spielpaarungen');
             matches = createMatchesFromCustomPairings();
-        } else if (teams.length === 24) {
-            console.log('Generiere Spielpaarungen mit gruppenbasierter Methode für 24 Teams');
-            matches = createMatchesWithGroupMethod();
-        } else if (teams.length === 32) {
-            console.log('Generiere Spielpaarungen mit gruppenbasierter Methode für 32 Teams');
-            matches = createMatchesWithGroupMethod32();
-        } else {
-            console.log('Generiere Spielpaarungen mit verbesserter Circle-Methode');
-            matches = createMatchesWithImprovedCircleMethod();
-        }
-
-        // Flache Runden zuweisen nur wenn kein fester Plan (der hat bereits Runden/Tische)
-        if (!fixedSchedule || !fixedSchedule.matches || fixedSchedule.matches.length === 0) {
             totalRounds = assignFlatRounds();
         } else {
-            totalRounds = matches.length > 0 ? Math.max(...matches.map(m => m.round)) : 0;
-            // Freilos-Matches (BYE) automatisch als gespielt markieren
-            applyByeResults();
+            showToast(`Kein Spielplan-Template für ${teams.length} Teams gefunden. Bitte 📋 öffnen, generieren und speichern.`, 'error');
+            return;
         }
 
-        // Tabelle initialisieren
         standings = initializeStandings();
-
-        // Freilos-Punkte in Standings einrechnen
         applyByeStandings();
-
-        // Daten speichern
         saveMatches();
         saveStandings();
-
-        // UI aktualisieren
         renderRoundButtons(totalRounds);
         changeRound(1);
         renderStandings();
 
-        const methodLabel = (currentFixed && currentFixed.matches && currentFixed.matches.length > 0)
-            ? 'festem Spielplan'
-            : teams.length <= ROUND_ROBIN_MAX ? 'Round-Robin-Methode (jeder gegen jeden)'
-            : customMatchups ? 'benutzerdefinierten Spielpaarungen'
-            : (teams.length === 24 || teams.length === 32) ? 'gruppenbasierter Methode'
-            : 'Circle-Methode';
+        const methodLabel = template ? 'Slot-Schablone' : customMatchups ? 'benutzerdefinierten Paarungen' : 'Round-Robin';
         setStatus(`Vorrunde mit ${methodLabel} initialisiert. ${totalRounds} Runden, ${matches.length} Spiele.`, 'success');
     } catch (error) {
         console.error('Fehler beim Initialisieren der Vorrunde:', error);
@@ -2060,39 +2032,108 @@ function highlightTeamsInTable(team1, team2) {
 
 
     // ═══════════════════════════════════════════════════════════
-    // FESTER SPIELPLAN – Konvertierung & Freilos-Handling
+    // SLOT-SCHABLONEN – Generierung, Konvertierung, Freilos
     // ═══════════════════════════════════════════════════════════
 
-    function createMatchesFromFixedSchedule(schedule, teamList) {
+    /**
+     * Deterministischer Circle-Algorithmus für N Slots.
+     * Gibt eine Schablone im Format { teamCount, rounds } zurück.
+     * Kein Math.random() – bei gleicher Eingabe immer gleiche Ausgabe.
+     */
+    function generateSlotSchedule(n) {
+        const hasBye = n % 2 !== 0;
+        const total = hasBye ? n + 1 : n;   // total ist immer gerade
+        const maxRounds = 5;
+        const slots = Array.from({ length: total }, (_, i) => i + 1); // [1, 2, …, total]
+        // Slot "total" ist der Freilos-Slot bei ungerader Anzahl
+
+        const circle = [...slots];
+        const usedPairs = new Set();
+        const allRoundMatches = []; // [{ round, matches: [{slot1, slot2, table}] }]
+        let flatRoundNumber = 0;
+
+        for (let logicalRound = 0; logicalRound < total - 1; logicalRound++) {
+            if (allRoundMatches.length >= maxRounds * MAX_TABLES) break;
+
+            // Paare dieser logischen Runde
+            const pairs = [];
+            for (let i = 0; i < total / 2; i++) {
+                const s1 = circle[i];
+                const s2 = circle[total - 1 - i];
+                if (hasBye && (s1 === total || s2 === total)) {
+                    // Freilos-Paarung – wird als BYE gespeichert
+                    const realSlot = s1 === total ? s2 : s1;
+                    pairs.push({ slot1: realSlot, slot2: 'BYE', isBye: true });
+                } else {
+                    const key = [s1, s2].sort().join('|');
+                    if (!usedPairs.has(key)) {
+                        usedPairs.add(key);
+                        pairs.push({ slot1: s1, slot2: s2, isBye: false });
+                    }
+                }
+            }
+
+            // Matches auf Flat-Runden à max. MAX_TABLES aufteilen
+            for (let start = 0; start < pairs.length; start += MAX_TABLES) {
+                if (allRoundMatches.length >= maxRounds) break;
+                flatRoundNumber++;
+                const chunk = pairs.slice(start, start + MAX_TABLES);
+                allRoundMatches.push({
+                    round: flatRoundNumber,
+                    matches: chunk.map((p, idx) => ({
+                        slot1: p.slot1,
+                        slot2: p.slot2,
+                        table: idx + 1
+                    }))
+                });
+            }
+
+            // Circle rotieren: Slot an Position 0 bleibt fix
+            const first = circle[0];
+            const rest = circle.slice(1);
+            rest.unshift(rest.pop());
+            circle.splice(0, circle.length, first, ...rest);
+        }
+
+        return {
+            teamCount: n,
+            createdAt: new Date().toISOString(),
+            rounds: allRoundMatches
+        };
+    }
+
+    /**
+     * Wandelt eine Slot-Schablone + tatsächliche Teamliste in Match-Objekte um.
+     */
+    function applyTemplateToTeams(template, teamList) {
         const result = [];
         let matchId = 1;
-        for (const m of schedule.matches) {
-            const team1 = teamList[m.team1Index] || `Team ${m.team1Index + 1}`;
-            const isBye = m.team2Index === 'BYE';
-            const team2 = isBye ? 'FREILOS' : (teamList[m.team2Index] || `Team ${m.team2Index + 1}`);
-            result.push({
-                id: matchId++,
-                round: m.round,
-                tableNumber: m.tableNumber,
-                pairingNumber: m.pairingNumber,
-                team1,
-                team2,
-                score1: isBye ? WIN_POINTS : null,
-                score2: isBye ? 0 : null,
-                played: isBye,
-                isBye
-            });
+        let pairingNumber = 1;
+        for (const roundDef of template.rounds) {
+            for (const m of roundDef.matches) {
+                const isBye = m.slot2 === 'BYE';
+                const team1 = teamList[m.slot1 - 1] || `Slot ${m.slot1}`;
+                const team2 = isBye ? 'FREILOS' : (teamList[m.slot2 - 1] || `Slot ${m.slot2}`);
+                result.push({
+                    id: matchId++,
+                    round: roundDef.round,
+                    tableNumber: m.table,
+                    pairingNumber: pairingNumber++,
+                    team1,
+                    team2,
+                    score1: isBye ? WIN_POINTS : null,
+                    score2: isBye ? 0 : null,
+                    played: isBye,
+                    isBye
+                });
+            }
         }
         return result;
     }
 
     function applyByeResults() {
         matches.forEach(m => {
-            if (m.isBye) {
-                m.score1 = WIN_POINTS;
-                m.score2 = 0;
-                m.played = true;
-            }
+            if (m.isBye) { m.score1 = WIN_POINTS; m.score2 = 0; m.played = true; }
         });
     }
 
@@ -2107,29 +2148,25 @@ function highlightTeamsInTable(team1, team2) {
     }
 
     // ═══════════════════════════════════════════════════════════
-    // SPIELPLAN-EDITOR
+    // SPIELPLAN-EDITOR (Slot-basiert, dauerhaft pro Teamanzahl)
     // ═══════════════════════════════════════════════════════════
 
-    let editorRounds = []; // [{ matches: [{team1Index, team2Index, tableNumber}] }]
+    let editorTeamCount = 0;    // Die Teamanzahl für die gerade editiert wird
+    let editorRounds = [];      // [{ round, matches: [{slot1, slot2, table}] }]
 
     function openScheduleEditor() {
         const modal = document.getElementById('scheduleEditorModal');
         modal.hidden = false;
+        editorTeamCount = teams.length;
         editorRounds = [];
 
-        // Vorhandenen Plan laden
-        dataService.getData('fixedSchedule').then(plan => {
-            if (plan && plan.matches && plan.matches.length > 0) {
-                // Runden aus gespeichertem Plan rekonstruieren
-                const roundMap = {};
-                for (const m of plan.matches) {
-                    if (!roundMap[m.round]) roundMap[m.round] = [];
-                    roundMap[m.round].push({ team1Index: m.team1Index, team2Index: m.team2Index, tableNumber: m.tableNumber });
-                }
-                const maxRound = Math.max(...Object.keys(roundMap).map(Number));
-                for (let r = 1; r <= maxRound; r++) {
-                    editorRounds.push({ matches: roundMap[r] || [] });
-                }
+        dataService.getData('scheduleTemplates').then(allTemplates => {
+            const existing = allTemplates?.[String(editorTeamCount)];
+            if (existing && existing.rounds && existing.rounds.length > 0) {
+                editorRounds = existing.rounds.map(r => ({
+                    round: r.round,
+                    matches: r.matches.map(m => ({ slot1: m.slot1, slot2: m.slot2, table: m.table }))
+                }));
             }
             renderScheduleEditor();
         });
@@ -2143,38 +2180,49 @@ function highlightTeamsInTable(team1, team2) {
         updateScheduleInfoBar();
         const container = document.getElementById('scheduleRoundsContainer');
         container.innerHTML = '';
-        editorRounds.forEach((round, roundIdx) => {
-            container.appendChild(buildRoundBlock(round, roundIdx));
+        editorRounds.forEach((round, idx) => {
+            container.appendChild(buildRoundBlock(round, idx));
         });
         validateSchedule();
     }
 
     function updateScheduleInfoBar() {
         const bar = document.getElementById('scheduleInfoBar');
-        const teamCount = teams.length;
-        const oddNote = teamCount % 2 !== 0 ? ' (ungerade → Freilos empfohlen)' : '';
-        bar.textContent = `${teamCount} Teams registriert${oddNote}`;
+        const odd = editorTeamCount % 2 !== 0;
+        bar.innerHTML = `
+            <strong>${editorTeamCount} Teams</strong> – Schablone wird dauerhaft gespeichert und für alle Turniere mit dieser Teamanzahl verwendet.
+            ${odd ? '<br>⚠️ Ungerade Anzahl → ein Slot wird pro Runde Freilos.' : ''}
+            <br><small>Slot 1 = erstes Team der Teams-Liste, Slot 2 = zweites, usw.</small>
+            <br><button id="generateScheduleBtn" class="schedule-generate-btn">⚙️ Schablone generieren</button>
+        `;
+        document.getElementById('generateScheduleBtn').addEventListener('click', () => {
+            editorRounds = generateSlotSchedule(editorTeamCount).rounds;
+            renderScheduleEditor();
+        });
     }
 
     function buildRoundBlock(round, roundIdx) {
         const block = document.createElement('div');
         block.className = 'schedule-round-block';
-        block.dataset.roundIdx = roundIdx;
 
         const header = document.createElement('div');
         header.className = 'schedule-round-header';
-        header.innerHTML = `<span>Runde ${roundIdx + 1}</span>`;
+        header.innerHTML = `<span>Runde ${round.round}</span>`;
 
         const removeRoundBtn = document.createElement('button');
         removeRoundBtn.className = 'schedule-remove-round-btn';
         removeRoundBtn.textContent = '✕ Runde';
-        removeRoundBtn.addEventListener('click', () => { editorRounds.splice(roundIdx, 1); renderScheduleEditor(); });
+        removeRoundBtn.addEventListener('click', () => {
+            editorRounds.splice(roundIdx, 1);
+            // Runden-Nummern neu vergeben
+            editorRounds.forEach((r, i) => { r.round = i + 1; });
+            renderScheduleEditor();
+        });
         header.appendChild(removeRoundBtn);
         block.appendChild(header);
 
         const matchList = document.createElement('div');
         matchList.className = 'schedule-match-list';
-
         round.matches.forEach((match, matchIdx) => {
             matchList.appendChild(buildMatchRow(match, roundIdx, matchIdx));
         });
@@ -2184,11 +2232,10 @@ function highlightTeamsInTable(team1, team2) {
         addMatchBtn.className = 'schedule-add-match-btn';
         addMatchBtn.textContent = '+ Paarung';
         addMatchBtn.addEventListener('click', () => {
-            editorRounds[roundIdx].matches.push({ team1Index: 0, team2Index: 'BYE', tableNumber: 1 });
+            editorRounds[roundIdx].matches.push({ slot1: 1, slot2: 2, table: 1 });
             renderScheduleEditor();
         });
         block.appendChild(addMatchBtn);
-
         return block;
     }
 
@@ -2196,42 +2243,37 @@ function highlightTeamsInTable(team1, team2) {
         const row = document.createElement('div');
         row.className = 'schedule-match-row';
 
-        // Team 1 Dropdown
-        const sel1 = buildTeamSelect(match.team1Index, false);
+        const sel1 = buildSlotSelect(match.slot1, false);
         sel1.addEventListener('change', () => {
-            editorRounds[roundIdx].matches[matchIdx].team1Index = parseInt(sel1.value);
+            editorRounds[roundIdx].matches[matchIdx].slot1 = parseInt(sel1.value);
             validateSchedule();
         });
 
-        // VS label
         const vs = document.createElement('span');
         vs.className = 'schedule-vs';
         vs.textContent = 'vs';
 
-        // Team 2 Dropdown (inkl. Freilos)
-        const sel2 = buildTeamSelect(match.team2Index, true);
+        const sel2 = buildSlotSelect(match.slot2, true);
         sel2.addEventListener('change', () => {
             const val = sel2.value;
-            editorRounds[roundIdx].matches[matchIdx].team2Index = val === 'BYE' ? 'BYE' : parseInt(val);
+            editorRounds[roundIdx].matches[matchIdx].slot2 = val === 'BYE' ? 'BYE' : parseInt(val);
             validateSchedule();
         });
 
-        // Tisch-Dropdown
         const tischSel = document.createElement('select');
         tischSel.className = 'schedule-select schedule-select-table';
         for (let t = 1; t <= MAX_TABLES; t++) {
             const opt = document.createElement('option');
             opt.value = t;
             opt.textContent = `Tisch ${t}`;
-            if (t === match.tableNumber) opt.selected = true;
+            if (t === match.table) opt.selected = true;
             tischSel.appendChild(opt);
         }
         tischSel.addEventListener('change', () => {
-            editorRounds[roundIdx].matches[matchIdx].tableNumber = parseInt(tischSel.value);
+            editorRounds[roundIdx].matches[matchIdx].table = parseInt(tischSel.value);
             validateSchedule();
         });
 
-        // Löschen-Button
         const delBtn = document.createElement('button');
         delBtn.className = 'schedule-remove-match-btn';
         delBtn.textContent = '✕';
@@ -2240,15 +2282,11 @@ function highlightTeamsInTable(team1, team2) {
             renderScheduleEditor();
         });
 
-        row.appendChild(sel1);
-        row.appendChild(vs);
-        row.appendChild(sel2);
-        row.appendChild(tischSel);
-        row.appendChild(delBtn);
+        row.append(sel1, vs, sel2, tischSel, delBtn);
         return row;
     }
 
-    function buildTeamSelect(selectedValue, includeBye) {
+    function buildSlotSelect(selectedValue, includeBye) {
         const sel = document.createElement('select');
         sel.className = 'schedule-select schedule-select-team';
         if (includeBye) {
@@ -2258,18 +2296,21 @@ function highlightTeamsInTable(team1, team2) {
             if (selectedValue === 'BYE') opt.selected = true;
             sel.appendChild(opt);
         }
-        teams.forEach((name, idx) => {
+        const total = editorTeamCount % 2 !== 0 ? editorTeamCount + 1 : editorTeamCount;
+        for (let s = 1; s <= total; s++) {
             const opt = document.createElement('option');
-            opt.value = idx;
-            opt.textContent = name;
-            if (selectedValue !== 'BYE' && idx === selectedValue) opt.selected = true;
+            opt.value = s;
+            const label = s <= editorTeamCount ? `Slot ${s}` : `Slot ${s} (Freilos)`;
+            opt.textContent = label;
+            if (selectedValue !== 'BYE' && s === selectedValue) opt.selected = true;
             sel.appendChild(opt);
-        });
+        }
         return sel;
     }
 
     function addRoundToEditor() {
-        editorRounds.push({ matches: [] });
+        const nextRound = editorRounds.length + 1;
+        editorRounds.push({ round: nextRound, matches: [] });
         renderScheduleEditor();
     }
 
@@ -2278,34 +2319,28 @@ function highlightTeamsInTable(team1, team2) {
         const allPairKeys = new Set();
 
         editorRounds.forEach((round, rIdx) => {
-            const roundTeams = new Set();
+            const roundSlots = new Set();
             const roundTables = new Set();
 
-            round.matches.forEach((m, mIdx) => {
-                const t1 = m.team1Index;
-                const t2 = m.team2Index;
+            round.matches.forEach(m => {
+                const s1 = m.slot1;
+                const s2 = m.slot2;
 
-                // Team doppelt in Runde
-                if (t2 !== 'BYE') {
-                    if (roundTeams.has(t1)) errors.push(`Runde ${rIdx + 1}: Team "${teams[t1]}" spielt zwei Mal.`);
-                    if (roundTeams.has(t2)) errors.push(`Runde ${rIdx + 1}: Team "${teams[t2]}" spielt zwei Mal.`);
-                    roundTeams.add(t1);
-                    roundTeams.add(t2);
-                } else {
-                    if (roundTeams.has(t1)) errors.push(`Runde ${rIdx + 1}: Team "${teams[t1]}" spielt zwei Mal.`);
-                    roundTeams.add(t1);
-                }
-
-                // Tisch doppelt in Runde
-                if (roundTables.has(m.tableNumber)) errors.push(`Runde ${rIdx + 1}: Tisch ${m.tableNumber} zweimal belegt.`);
-                roundTables.add(m.tableNumber);
-
-                // Doppelpaarung über alle Runden
-                if (t2 !== 'BYE') {
-                    const key = [t1, t2].sort().join('|');
-                    if (allPairKeys.has(key)) errors.push(`Paarung "${teams[t1]} vs ${teams[t2]}" kommt mehrfach vor.`);
+                if (s2 !== 'BYE') {
+                    if (roundSlots.has(s1)) errors.push(`Runde ${round.round}: Slot ${s1} spielt zwei Mal.`);
+                    if (roundSlots.has(s2)) errors.push(`Runde ${round.round}: Slot ${s2} spielt zwei Mal.`);
+                    roundSlots.add(s1);
+                    roundSlots.add(s2);
+                    const key = [s1, s2].sort().join('|');
+                    if (allPairKeys.has(key)) errors.push(`Paarung Slot ${s1} vs Slot ${s2} kommt mehrfach vor.`);
                     allPairKeys.add(key);
+                } else {
+                    if (roundSlots.has(s1)) errors.push(`Runde ${round.round}: Slot ${s1} spielt zwei Mal.`);
+                    roundSlots.add(s1);
                 }
+
+                if (roundTables.has(m.table)) errors.push(`Runde ${round.round}: Tisch ${m.table} zweimal belegt.`);
+                roundTables.add(m.table);
             });
         });
 
@@ -2325,32 +2360,23 @@ function highlightTeamsInTable(team1, team2) {
     async function saveSchedule() {
         if (!validateSchedule()) return;
 
-        const flatMatches = [];
-        let pairingNumber = 1;
-        editorRounds.forEach((round, rIdx) => {
-            round.matches.forEach(m => {
-                flatMatches.push({
-                    round: rIdx + 1,
-                    tableNumber: m.tableNumber,
-                    pairingNumber: pairingNumber++,
-                    team1Index: m.team1Index,
-                    team2Index: m.team2Index
-                });
-            });
-        });
-
-        const plan = { teamCount: teams.length, createdAt: new Date().toISOString(), matches: flatMatches };
-        fixedSchedule = plan;
-        await dataService.saveData('fixedSchedule', plan);
-        showToast('Spielplan gespeichert! Beim nächsten 🚀 wird er verwendet.', 'success');
+        const allTemplates = await dataService.getData('scheduleTemplates') || {};
+        allTemplates[String(editorTeamCount)] = {
+            teamCount: editorTeamCount,
+            createdAt: new Date().toISOString(),
+            rounds: editorRounds
+        };
+        await dataService.saveData('scheduleTemplates', allTemplates);
+        showToast(`Schablone für ${editorTeamCount} Teams gespeichert! Gilt für alle zukünftigen Turniere.`, 'success');
         closeScheduleEditor();
     }
 
     async function clearSchedule() {
-        if (!confirm('Gespeicherten Spielplan wirklich löschen?')) return;
-        fixedSchedule = null;
-        await dataService.saveData('fixedSchedule', null);
-        showToast('Spielplan gelöscht.', 'success');
+        if (!confirm(`Schablone für ${editorTeamCount} Teams wirklich löschen?`)) return;
+        const allTemplates = await dataService.getData('scheduleTemplates') || {};
+        delete allTemplates[String(editorTeamCount)];
+        await dataService.saveData('scheduleTemplates', allTemplates);
+        showToast(`Schablone für ${editorTeamCount} Teams gelöscht.`, 'success');
         closeScheduleEditor();
     }
 

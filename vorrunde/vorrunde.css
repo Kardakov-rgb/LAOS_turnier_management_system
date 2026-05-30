@@ -934,6 +934,28 @@ tr.golden-cup-decided td:first-child {
 }
 .schedule-add-match-btn:hover { background: rgba(77, 158, 127, 0.28); }
 
+.schedule-generate-btn {
+    background: rgba(164, 136, 118, 0.2);
+    border: 1px solid rgba(164, 136, 118, 0.4);
+    color: #d4b8a8;
+    border-radius: 6px;
+    padding: 0.35rem 0.8rem;
+    font-size: 0.78rem;
+    cursor: pointer;
+    font-family: 'Space Mono', monospace;
+    margin-top: 0.4rem;
+    transition: background 0.2s;
+    display: inline-block;
+}
+.schedule-generate-btn:hover { background: rgba(164, 136, 118, 0.35); }
+
+.schedule-hint {
+    font-size: 0.72rem;
+    color: #777;
+    margin: 0.5rem 0 0;
+    text-align: center;
+}
+
 .schedule-add-round-btn {
     background: rgba(110, 114, 196, 0.15);
     border: 1px dashed rgba(110, 114, 196, 0.4);
