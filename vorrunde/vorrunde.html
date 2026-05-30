@@ -71,9 +71,42 @@
 
                 <div class="vorrunde-header">
                     <div class="vorrunde-actions">
-                        <button id="initVorrundeBtn" class="action-emoji-btn">🚀</button>
-                        <button id="exportDataBtn" class="action-emoji-btn">📤</button>
-                        <button id="resetVorrundeBtn" class="action-emoji-btn">🔄</button>
+                        <button id="initVorrundeBtn" class="action-emoji-btn" title="Vorrunde starten">🚀</button>
+                        <button id="openScheduleEditorBtn" class="action-emoji-btn" title="Spielplan-Editor">📋</button>
+                        <button id="exportDataBtn" class="action-emoji-btn" title="Daten exportieren">📤</button>
+                        <button id="resetVorrundeBtn" class="action-emoji-btn" title="Vorrunde zurücksetzen">🔄</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══ Spielplan-Editor Modal ═══ -->
+            <div id="scheduleEditorModal" class="schedule-modal" hidden>
+                <div class="schedule-modal-backdrop"></div>
+                <div class="schedule-modal-content">
+                    <div class="schedule-modal-header">
+                        <h2>Spielplan-Editor</h2>
+                        <button id="closeScheduleEditorBtn" class="schedule-close-btn">✕</button>
+                    </div>
+
+                    <div class="schedule-modal-body">
+                        <div class="schedule-info-bar" id="scheduleInfoBar">
+                            <!-- Wird dynamisch befüllt -->
+                        </div>
+
+                        <div class="schedule-validation-banner" id="scheduleValidationBanner" hidden>
+                            <!-- Validierungsfehler -->
+                        </div>
+
+                        <div id="scheduleRoundsContainer" class="schedule-rounds-container">
+                            <!-- Runden werden hier dynamisch eingefügt -->
+                        </div>
+
+                        <button id="addRoundBtn" class="schedule-add-round-btn">+ Runde hinzufügen</button>
+                    </div>
+
+                    <div class="schedule-modal-footer">
+                        <button id="saveScheduleBtn" class="schedule-save-btn">💾 Spielplan speichern</button>
+                        <button id="clearScheduleBtn" class="schedule-clear-btn">🗑 Plan löschen</button>
                     </div>
                 </div>
             </div>

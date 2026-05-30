@@ -60,12 +60,14 @@ document.addEventListener('DOMContentLoaded', async function() {
     let totalRounds = 5; // wird nach Match-Generierung dynamisch gesetzt
     
     // Laden der Daten aus Firebase/localStorage über den DataService
+    let fixedSchedule = null;
     try {
         teams = await dataService.getData('tournamentTeams') || [];
         customMatchups = await dataService.getData('tournamentMatchups') || null;
         matches = await dataService.getData('vorrundeMatches') || [];
         standings = await dataService.getData('vorrundeStandings') || [];
         goldenCupResults = await dataService.getData('goldenCupResults') || [];
+        fixedSchedule = await dataService.getData('fixedSchedule') || null;
         totalRounds = matches.length > 0 ? Math.max(...matches.map(m => m.round || 1)) : 5;
     } catch (error) {
         console.error("Fehler beim Laden der Daten:", error);
@@ -85,6 +87,12 @@ document.addEventListener('DOMContentLoaded', async function() {
     initVorrundeBtn.addEventListener('click', initializeVorrunde);
     exportDataBtn.addEventListener('click', exportData);
     resetVorrundeBtn.addEventListener('click', confirmReset);
+    document.getElementById('openScheduleEditorBtn').addEventListener('click', openScheduleEditor);
+    document.getElementById('closeScheduleEditorBtn').addEventListener('click', closeScheduleEditor);
+    document.getElementById('scheduleEditorModal').querySelector('.schedule-modal-backdrop').addEventListener('click', closeScheduleEditor);
+    document.getElementById('addRoundBtn').addEventListener('click', addRoundToEditor);
+    document.getElementById('saveScheduleBtn').addEventListener('click', saveSchedule);
+    document.getElementById('clearScheduleBtn').addEventListener('click', clearSchedule);
     
     //simulateMatchesBtn.addEventListener('click', simulateMatches);
 
@@ -268,7 +276,18 @@ async function initializeVorrunde() {
     }
 
     try {
-        if (teams.length <= ROUND_ROBIN_MAX) {
+        // Festen Spielplan priorisieren
+        const currentFixed = await dataService.getData('fixedSchedule');
+        if (currentFixed && currentFixed.matches && currentFixed.matches.length > 0) {
+            if (currentFixed.teamCount !== teams.length) {
+                if (!confirm(`Der gespeicherte Spielplan ist für ${currentFixed.teamCount} Teams, aber es sind ${teams.length} Teams registriert. Trotzdem fortfahren?`)) {
+                    return;
+                }
+            }
+            console.log('Verwende festen Spielplan');
+            matches = createMatchesFromFixedSchedule(currentFixed, teams);
+            fixedSchedule = currentFixed;
+        } else if (teams.length <= ROUND_ROBIN_MAX) {
             console.log('Wenige Teams: Alle Teams spielen gegeneinander (Round Robin)');
             matches = createMatchesAllPlayAll();
         } else if (customMatchups) {
@@ -285,11 +304,20 @@ async function initializeVorrunde() {
             matches = createMatchesWithImprovedCircleMethod();
         }
 
-        // Flache Runden zuweisen (ersetzt Hälften-System)
-        totalRounds = assignFlatRounds();
+        // Flache Runden zuweisen nur wenn kein fester Plan (der hat bereits Runden/Tische)
+        if (!fixedSchedule || !fixedSchedule.matches || fixedSchedule.matches.length === 0) {
+            totalRounds = assignFlatRounds();
+        } else {
+            totalRounds = matches.length > 0 ? Math.max(...matches.map(m => m.round)) : 0;
+            // Freilos-Matches (BYE) automatisch als gespielt markieren
+            applyByeResults();
+        }
 
         // Tabelle initialisieren
         standings = initializeStandings();
+
+        // Freilos-Punkte in Standings einrechnen
+        applyByeStandings();
 
         // Daten speichern
         saveMatches();
@@ -300,7 +328,9 @@ async function initializeVorrunde() {
         changeRound(1);
         renderStandings();
 
-        const methodLabel = teams.length <= ROUND_ROBIN_MAX ? 'Round-Robin-Methode (jeder gegen jeden)'
+        const methodLabel = (currentFixed && currentFixed.matches && currentFixed.matches.length > 0)
+            ? 'festem Spielplan'
+            : teams.length <= ROUND_ROBIN_MAX ? 'Round-Robin-Methode (jeder gegen jeden)'
             : customMatchups ? 'benutzerdefinierten Spielpaarungen'
             : (teams.length === 24 || teams.length === 32) ? 'gruppenbasierter Methode'
             : 'Circle-Methode';
@@ -756,7 +786,7 @@ function createMatchesWithGroupMethod32() {
  */
 function createPaarungCard(match) {
     const paarungCard = document.createElement('div');
-    paarungCard.className = `paarung-card tisch-${match.tableNumber}`;
+    paarungCard.className = `paarung-card tisch-${match.tableNumber}${match.isBye ? ' freilos' : ''}`;
     paarungCard.dataset.matchId = match.id;
     
     // Spielstatus markieren
@@ -793,31 +823,29 @@ function createPaarungCard(match) {
     const headerActions = document.createElement('div');
     headerActions.className = 'header-actions';
     
-    if (match.played) {
-        // Bearbeiten-Button mit Stift-Emoji
-        const editBtn = document.createElement('button');
-        editBtn.className = 'edit-btn header-btn';
-        editBtn.innerHTML = '✏️';
-        editBtn.title = "Ergebnis bearbeiten";
-        editBtn.addEventListener('click', () => editMatchResult(match.id));
-        headerActions.appendChild(editBtn);
-    } else {
-        // Speichern-Button mit Speichern-Emoji
-        const saveBtn = document.createElement('button');
-        saveBtn.className = 'save-btn header-btn';
-        saveBtn.innerHTML = '💾';
-        saveBtn.title = "Ergebnis speichern";
-        saveBtn.addEventListener('click', () => saveMatchResult(match.id));
-        headerActions.appendChild(saveBtn);
+    if (!match.isBye) {
+        if (match.played) {
+            const editBtn = document.createElement('button');
+            editBtn.className = 'edit-btn header-btn';
+            editBtn.innerHTML = '✏️';
+            editBtn.title = "Ergebnis bearbeiten";
+            editBtn.addEventListener('click', () => editMatchResult(match.id));
+            headerActions.appendChild(editBtn);
+        } else {
+            const saveBtn = document.createElement('button');
+            saveBtn.className = 'save-btn header-btn';
+            saveBtn.innerHTML = '💾';
+            saveBtn.title = "Ergebnis speichern";
+            saveBtn.addEventListener('click', () => saveMatchResult(match.id));
+            headerActions.appendChild(saveBtn);
+        }
+        const resetBtn = document.createElement('button');
+        resetBtn.className = 'reset-btn header-btn';
+        resetBtn.innerHTML = '🔄';
+        resetBtn.title = "Ergebnis zurücksetzen";
+        resetBtn.addEventListener('click', () => resetMatchResult(match.id));
+        headerActions.appendChild(resetBtn);
     }
-    
-    // Zurücksetzen-Button mit Rückgängig-Emoji
-    const resetBtn = document.createElement('button');
-    resetBtn.className = 'reset-btn header-btn';
-    resetBtn.innerHTML = '🔄';
-    resetBtn.title = "Ergebnis zurücksetzen";
-    resetBtn.addEventListener('click', () => resetMatchResult(match.id));
-    headerActions.appendChild(resetBtn);
     
     paarungHeader.appendChild(headerActions);
     paarungCard.appendChild(paarungHeader);
@@ -844,7 +872,7 @@ function createPaarungCard(match) {
     score1Input.dataset.team = '1';
     score1Input.min = 0;
     score1Input.value = match.score1 !== null ? match.score1 : '';
-    if (match.played) score1Input.disabled = true;
+    if (match.played || match.isBye) score1Input.disabled = true;
     
     team1Score.appendChild(score1Input);
     team1Row.appendChild(team1Score);
@@ -868,7 +896,7 @@ function createPaarungCard(match) {
     score2Input.dataset.team = '2';
     score2Input.min = 0;
     score2Input.value = match.score2 !== null ? match.score2 : '';
-    if (match.played) score2Input.disabled = true;
+    if (match.played || match.isBye) score2Input.disabled = true;
     
     team2Score.appendChild(score2Input);
     team2Row.appendChild(team2Score);
@@ -2029,5 +2057,302 @@ function highlightTeamsInTable(team1, team2) {
     }
 }
 
-    
+
+
+    // ═══════════════════════════════════════════════════════════
+    // FESTER SPIELPLAN – Konvertierung & Freilos-Handling
+    // ═══════════════════════════════════════════════════════════
+
+    function createMatchesFromFixedSchedule(schedule, teamList) {
+        const result = [];
+        let matchId = 1;
+        for (const m of schedule.matches) {
+            const team1 = teamList[m.team1Index] || `Team ${m.team1Index + 1}`;
+            const isBye = m.team2Index === 'BYE';
+            const team2 = isBye ? 'FREILOS' : (teamList[m.team2Index] || `Team ${m.team2Index + 1}`);
+            result.push({
+                id: matchId++,
+                round: m.round,
+                tableNumber: m.tableNumber,
+                pairingNumber: m.pairingNumber,
+                team1,
+                team2,
+                score1: isBye ? WIN_POINTS : null,
+                score2: isBye ? 0 : null,
+                played: isBye,
+                isBye
+            });
+        }
+        return result;
+    }
+
+    function applyByeResults() {
+        matches.forEach(m => {
+            if (m.isBye) {
+                m.score1 = WIN_POINTS;
+                m.score2 = 0;
+                m.played = true;
+            }
+        });
+    }
+
+    function applyByeStandings() {
+        matches.filter(m => m.isBye).forEach(m => {
+            const t1 = standings.findIndex(s => s.team === m.team1);
+            if (t1 === -1) return;
+            standings[t1].played++;
+            standings[t1].won++;
+            standings[t1].points += WIN_POINTS;
+        });
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // SPIELPLAN-EDITOR
+    // ═══════════════════════════════════════════════════════════
+
+    let editorRounds = []; // [{ matches: [{team1Index, team2Index, tableNumber}] }]
+
+    function openScheduleEditor() {
+        const modal = document.getElementById('scheduleEditorModal');
+        modal.hidden = false;
+        editorRounds = [];
+
+        // Vorhandenen Plan laden
+        dataService.getData('fixedSchedule').then(plan => {
+            if (plan && plan.matches && plan.matches.length > 0) {
+                // Runden aus gespeichertem Plan rekonstruieren
+                const roundMap = {};
+                for (const m of plan.matches) {
+                    if (!roundMap[m.round]) roundMap[m.round] = [];
+                    roundMap[m.round].push({ team1Index: m.team1Index, team2Index: m.team2Index, tableNumber: m.tableNumber });
+                }
+                const maxRound = Math.max(...Object.keys(roundMap).map(Number));
+                for (let r = 1; r <= maxRound; r++) {
+                    editorRounds.push({ matches: roundMap[r] || [] });
+                }
+            }
+            renderScheduleEditor();
+        });
+    }
+
+    function closeScheduleEditor() {
+        document.getElementById('scheduleEditorModal').hidden = true;
+    }
+
+    function renderScheduleEditor() {
+        updateScheduleInfoBar();
+        const container = document.getElementById('scheduleRoundsContainer');
+        container.innerHTML = '';
+        editorRounds.forEach((round, roundIdx) => {
+            container.appendChild(buildRoundBlock(round, roundIdx));
+        });
+        validateSchedule();
+    }
+
+    function updateScheduleInfoBar() {
+        const bar = document.getElementById('scheduleInfoBar');
+        const teamCount = teams.length;
+        const oddNote = teamCount % 2 !== 0 ? ' (ungerade → Freilos empfohlen)' : '';
+        bar.textContent = `${teamCount} Teams registriert${oddNote}`;
+    }
+
+    function buildRoundBlock(round, roundIdx) {
+        const block = document.createElement('div');
+        block.className = 'schedule-round-block';
+        block.dataset.roundIdx = roundIdx;
+
+        const header = document.createElement('div');
+        header.className = 'schedule-round-header';
+        header.innerHTML = `<span>Runde ${roundIdx + 1}</span>`;
+
+        const removeRoundBtn = document.createElement('button');
+        removeRoundBtn.className = 'schedule-remove-round-btn';
+        removeRoundBtn.textContent = '✕ Runde';
+        removeRoundBtn.addEventListener('click', () => { editorRounds.splice(roundIdx, 1); renderScheduleEditor(); });
+        header.appendChild(removeRoundBtn);
+        block.appendChild(header);
+
+        const matchList = document.createElement('div');
+        matchList.className = 'schedule-match-list';
+
+        round.matches.forEach((match, matchIdx) => {
+            matchList.appendChild(buildMatchRow(match, roundIdx, matchIdx));
+        });
+        block.appendChild(matchList);
+
+        const addMatchBtn = document.createElement('button');
+        addMatchBtn.className = 'schedule-add-match-btn';
+        addMatchBtn.textContent = '+ Paarung';
+        addMatchBtn.addEventListener('click', () => {
+            editorRounds[roundIdx].matches.push({ team1Index: 0, team2Index: 'BYE', tableNumber: 1 });
+            renderScheduleEditor();
+        });
+        block.appendChild(addMatchBtn);
+
+        return block;
+    }
+
+    function buildMatchRow(match, roundIdx, matchIdx) {
+        const row = document.createElement('div');
+        row.className = 'schedule-match-row';
+
+        // Team 1 Dropdown
+        const sel1 = buildTeamSelect(match.team1Index, false);
+        sel1.addEventListener('change', () => {
+            editorRounds[roundIdx].matches[matchIdx].team1Index = parseInt(sel1.value);
+            validateSchedule();
+        });
+
+        // VS label
+        const vs = document.createElement('span');
+        vs.className = 'schedule-vs';
+        vs.textContent = 'vs';
+
+        // Team 2 Dropdown (inkl. Freilos)
+        const sel2 = buildTeamSelect(match.team2Index, true);
+        sel2.addEventListener('change', () => {
+            const val = sel2.value;
+            editorRounds[roundIdx].matches[matchIdx].team2Index = val === 'BYE' ? 'BYE' : parseInt(val);
+            validateSchedule();
+        });
+
+        // Tisch-Dropdown
+        const tischSel = document.createElement('select');
+        tischSel.className = 'schedule-select schedule-select-table';
+        for (let t = 1; t <= MAX_TABLES; t++) {
+            const opt = document.createElement('option');
+            opt.value = t;
+            opt.textContent = `Tisch ${t}`;
+            if (t === match.tableNumber) opt.selected = true;
+            tischSel.appendChild(opt);
+        }
+        tischSel.addEventListener('change', () => {
+            editorRounds[roundIdx].matches[matchIdx].tableNumber = parseInt(tischSel.value);
+            validateSchedule();
+        });
+
+        // Löschen-Button
+        const delBtn = document.createElement('button');
+        delBtn.className = 'schedule-remove-match-btn';
+        delBtn.textContent = '✕';
+        delBtn.addEventListener('click', () => {
+            editorRounds[roundIdx].matches.splice(matchIdx, 1);
+            renderScheduleEditor();
+        });
+
+        row.appendChild(sel1);
+        row.appendChild(vs);
+        row.appendChild(sel2);
+        row.appendChild(tischSel);
+        row.appendChild(delBtn);
+        return row;
+    }
+
+    function buildTeamSelect(selectedValue, includeBye) {
+        const sel = document.createElement('select');
+        sel.className = 'schedule-select schedule-select-team';
+        if (includeBye) {
+            const opt = document.createElement('option');
+            opt.value = 'BYE';
+            opt.textContent = '— Freilos —';
+            if (selectedValue === 'BYE') opt.selected = true;
+            sel.appendChild(opt);
+        }
+        teams.forEach((name, idx) => {
+            const opt = document.createElement('option');
+            opt.value = idx;
+            opt.textContent = name;
+            if (selectedValue !== 'BYE' && idx === selectedValue) opt.selected = true;
+            sel.appendChild(opt);
+        });
+        return sel;
+    }
+
+    function addRoundToEditor() {
+        editorRounds.push({ matches: [] });
+        renderScheduleEditor();
+    }
+
+    function validateSchedule() {
+        const errors = [];
+        const allPairKeys = new Set();
+
+        editorRounds.forEach((round, rIdx) => {
+            const roundTeams = new Set();
+            const roundTables = new Set();
+
+            round.matches.forEach((m, mIdx) => {
+                const t1 = m.team1Index;
+                const t2 = m.team2Index;
+
+                // Team doppelt in Runde
+                if (t2 !== 'BYE') {
+                    if (roundTeams.has(t1)) errors.push(`Runde ${rIdx + 1}: Team "${teams[t1]}" spielt zwei Mal.`);
+                    if (roundTeams.has(t2)) errors.push(`Runde ${rIdx + 1}: Team "${teams[t2]}" spielt zwei Mal.`);
+                    roundTeams.add(t1);
+                    roundTeams.add(t2);
+                } else {
+                    if (roundTeams.has(t1)) errors.push(`Runde ${rIdx + 1}: Team "${teams[t1]}" spielt zwei Mal.`);
+                    roundTeams.add(t1);
+                }
+
+                // Tisch doppelt in Runde
+                if (roundTables.has(m.tableNumber)) errors.push(`Runde ${rIdx + 1}: Tisch ${m.tableNumber} zweimal belegt.`);
+                roundTables.add(m.tableNumber);
+
+                // Doppelpaarung über alle Runden
+                if (t2 !== 'BYE') {
+                    const key = [t1, t2].sort().join('|');
+                    if (allPairKeys.has(key)) errors.push(`Paarung "${teams[t1]} vs ${teams[t2]}" kommt mehrfach vor.`);
+                    allPairKeys.add(key);
+                }
+            });
+        });
+
+        const banner = document.getElementById('scheduleValidationBanner');
+        const saveBtn = document.getElementById('saveScheduleBtn');
+        if (errors.length > 0) {
+            banner.hidden = false;
+            banner.innerHTML = '⚠️ ' + errors.map(e => `<div>${e}</div>`).join('');
+            saveBtn.disabled = true;
+        } else {
+            banner.hidden = true;
+            saveBtn.disabled = false;
+        }
+        return errors.length === 0;
+    }
+
+    async function saveSchedule() {
+        if (!validateSchedule()) return;
+
+        const flatMatches = [];
+        let pairingNumber = 1;
+        editorRounds.forEach((round, rIdx) => {
+            round.matches.forEach(m => {
+                flatMatches.push({
+                    round: rIdx + 1,
+                    tableNumber: m.tableNumber,
+                    pairingNumber: pairingNumber++,
+                    team1Index: m.team1Index,
+                    team2Index: m.team2Index
+                });
+            });
+        });
+
+        const plan = { teamCount: teams.length, createdAt: new Date().toISOString(), matches: flatMatches };
+        fixedSchedule = plan;
+        await dataService.saveData('fixedSchedule', plan);
+        showToast('Spielplan gespeichert! Beim nächsten 🚀 wird er verwendet.', 'success');
+        closeScheduleEditor();
+    }
+
+    async function clearSchedule() {
+        if (!confirm('Gespeicherten Spielplan wirklich löschen?')) return;
+        fixedSchedule = null;
+        await dataService.saveData('fixedSchedule', null);
+        showToast('Spielplan gelöscht.', 'success');
+        closeScheduleEditor();
+    }
+
+
 });
