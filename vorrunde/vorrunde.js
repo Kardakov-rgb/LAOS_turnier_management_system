@@ -64,7 +64,28 @@ document.addEventListener('DOMContentLoaded', async function() {
     try {
         teams = await dataService.getData('tournamentTeams') || [];
         customMatchups = await dataService.getData('tournamentMatchups') || null;
-        importedSchedule = await dataService.getData('tournamentScheduleJSON') || null;
+        // Migration: alten tournamentScheduleJSON-Key in neues Format übertragen
+        const legacySchedule = await dataService.getData('tournamentScheduleJSON');
+        if (legacySchedule && legacySchedule.teamCount) {
+            const allSchedules = await dataService.getData('tournamentSchedules') || {};
+            const legacyKey = String(legacySchedule.teamCount);
+            if (!allSchedules[legacyKey]) {
+                allSchedules[legacyKey] = {
+                    ...legacySchedule,
+                    uploadedAt: new Date().toISOString(),
+                    fileName: 'migriert',
+                    roundCount: legacySchedule.rounds?.length ?? 0,
+                    matchCount: legacySchedule.rounds?.reduce((s, r) => s + r.matches.length, 0) ?? 0
+                };
+                await dataService.saveData('tournamentSchedules', allSchedules);
+            }
+            await dataService.saveData('tournamentScheduleJSON', null);
+        }
+
+        // Passenden Plan aus tournamentSchedules laden
+        const allSchedules = await dataService.getData('tournamentSchedules') || {};
+        importedSchedule = allSchedules[String(teams.length)] || null;
+
         matches = await dataService.getData('vorrundeMatches') || [];
         standings = await dataService.getData('vorrundeStandings') || [];
         goldenCupResults = await dataService.getData('goldenCupResults') || [];
@@ -87,13 +108,6 @@ document.addEventListener('DOMContentLoaded', async function() {
     initVorrundeBtn.addEventListener('click', initializeVorrunde);
     exportDataBtn.addEventListener('click', exportData);
     resetVorrundeBtn.addEventListener('click', confirmReset);
-    document.getElementById('importScheduleBtn').addEventListener('click', () => {
-        document.getElementById('scheduleFileInput').click();
-    });
-    document.getElementById('scheduleFileInput').addEventListener('change', (e) => {
-        if (e.target.files[0]) handleScheduleImport(e.target.files[0]);
-        e.target.value = '';
-    });
     
     //simulateMatchesBtn.addEventListener('click', simulateMatches);
 
@@ -116,6 +130,8 @@ document.addEventListener('DOMContentLoaded', async function() {
         if (matches.length === 0) {
             if (importedSchedule) {
                 setStatus(`Spielplan für ${importedSchedule.teamCount} Teams geladen. Bereit zur Initialisierung (🚀).`, 'info');
+            } else if (teams.length >= 22 && teams.length <= 28) {
+                setStatus(`Kein Spielplan für ${teams.length} Teams hinterlegt. Die Vorrunde verwendet den automatischen Algorithmus – oder lade einen Plan auf der <a href="../spielplaene/spielplaene.html" style="color:inherit;text-decoration:underline">Spielpläne-Seite</a> hoch.`, 'warning');
             } else {
                 setStatus('Keine Spiele gefunden. Bitte initialisiere die Vorrunde.', 'warning');
             }
@@ -742,29 +758,6 @@ function createMatchesWithGroupMethod32() {
         }
 
         return generatedMatches;
-    }
-
-    /**
-     * Verarbeitet eine hochgeladene Spielplan-JSON-Datei.
-     */
-    async function handleScheduleImport(file) {
-        try {
-            const text = await file.text();
-            const schedule = JSON.parse(text);
-
-            if (typeof schedule.teamCount !== 'number' || !Array.isArray(schedule.rounds)) {
-                setStatus('Ungültige Spielplan-Datei: "teamCount" oder "rounds" fehlt.', 'error');
-                return;
-            }
-
-            importedSchedule = schedule;
-            await dataService.saveData('tournamentScheduleJSON', schedule);
-
-            setStatus(`Spielplan für ${schedule.teamCount} Teams geladen (${schedule.rounds.length} Runden). Bereit zur Initialisierung (🚀).`, 'success');
-        } catch (err) {
-            console.error('Fehler beim Importieren des Spielplans:', err);
-            setStatus(`Fehler beim Importieren: ${err.message}`, 'error');
-        }
     }
 
     /**
@@ -1431,7 +1424,6 @@ function renderStandings() {
 
         await dataService.saveData('vorrundeMatches', []);
         await dataService.saveData('vorrundeStandings', []);
-        await dataService.saveData('tournamentScheduleJSON', null);
 
         renderRoundButtons(0);
         if (matchesContainer) matchesContainer.innerHTML = '';
