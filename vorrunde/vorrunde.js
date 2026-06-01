@@ -142,6 +142,30 @@ document.addEventListener('DOMContentLoaded', async function() {
         pauseEndenBtn.disabled = !pauseActive;
         pauseEndenBtn.classList.toggle('pause-active', pauseActive);
     }
+
+    // Prüft nach jedem gespeicherten Ergebnis ob ein Tisch eine Pausen-Runde abgeschlossen hat
+    async function checkAndActivatePause() {
+        if (pauseActive) return; // bereits in Pause
+        for (const pauseRound of pauseRounds) {
+            const tablesWithThisRound = new Set(
+                matches.filter(m => m.round === pauseRound).map(m => m.tableNumber)
+            );
+            if (tablesWithThisRound.size === 0) continue;
+            const anyTableDone = [...tablesWithThisRound].some(table =>
+                matches
+                    .filter(m => m.tableNumber === table && m.round === pauseRound)
+                    .every(m => m.played)
+            );
+            if (anyTableDone) {
+                pauseActive = true;
+                pauseAfterRound = pauseRound;
+                await dataService.saveData('pauseActive', true);
+                await dataService.saveData('pauseAfterRound', pauseRound);
+                updatePauseButton();
+                return;
+            }
+        }
+    }
     
     //simulateMatchesBtn.addEventListener('click', simulateMatches);
 
@@ -305,16 +329,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         document.querySelectorAll('.round-nav-btn').forEach(button => {
             button.classList.toggle('active', parseInt(button.dataset.round) === round);
         });
-
-        // Pause automatisch aktivieren wenn die vorherige Runde eine Pausen-Runde war
-        const prevRound = round - 1;
-        if (prevRound > 0 && pauseRounds.includes(prevRound) && !pauseActive) {
-            pauseActive = true;
-            pauseAfterRound = prevRound;
-            await dataService.saveData('pauseActive', true);
-            await dataService.saveData('pauseAfterRound', prevRound);
-            updatePauseButton();
-        }
 
         renderMatches();
     }
@@ -1140,6 +1154,7 @@ function saveMatchResult(matchId) {
 
     saveMatches();
     saveStandings();
+    checkAndActivatePause();
     renderMatches();
     renderStandings();
     highlightTeamsInTable(match.team1, match.team2);

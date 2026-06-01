@@ -183,11 +183,23 @@ document.addEventListener('DOMContentLoaded', async function() {
     // TISCHKARTEN-VIEW
     // ════════════════════════════════════════
 
-    function getPauseEtappeLabel() {
-        if (!pauseAfterRound) return 'Kurze Pause';
+    function getPauseEtappeLabel(completedPauseRound) {
+        if (!completedPauseRound) return 'Kurze Pause';
         const sortedPauses = [...pauseRounds].sort((a, b) => a - b);
-        const idx = sortedPauses.indexOf(pauseAfterRound);
+        const idx = sortedPauses.indexOf(completedPauseRound);
         return idx >= 0 ? `Ende Etappe ${idx + 1}` : 'Kurze Pause';
+    }
+
+    function tableCompletedPauseRound(tableMatches) {
+        // Gibt die höchste abgeschlossene Pausen-Runde für diesen Tisch zurück, oder null
+        const sorted = [...pauseRounds].sort((a, b) => b - a); // absteigend
+        for (const pr of sorted) {
+            const roundMatches = tableMatches.filter(m => m.round === pr);
+            if (roundMatches.length > 0 && roundMatches.every(m => m.played)) {
+                return pr;
+            }
+        }
+        return null;
     }
 
     function getMatchesPerTable() {
@@ -197,10 +209,14 @@ document.addEventListener('DOMContentLoaded', async function() {
                 .filter(m => m.tableNumber === table)
                 .sort((a, b) => a.round - b.round);
             const unplayed = tableMatches.filter(m => !m.played);
-            if (pauseActive) {
-                result[table] = { isPause: true, current: null, next: unplayed[0] || null, afterNext: unplayed[1] || null };
+
+            const completedPauseRound = pauseActive ? tableCompletedPauseRound(tableMatches) : null;
+            const isPause = completedPauseRound !== null;
+
+            if (isPause) {
+                result[table] = { isPause: true, pauseRoundNum: completedPauseRound, current: null, next: unplayed[0] || null, afterNext: unplayed[1] || null };
             } else {
-                result[table] = { isPause: false, current: unplayed[0] || null, next: unplayed[1] || null, afterNext: unplayed[2] || null };
+                result[table] = { isPause: false, pauseRoundNum: null, current: unplayed[0] || null, next: unplayed[1] || null, afterNext: unplayed[2] || null };
             }
         }
         return result;
@@ -215,12 +231,12 @@ document.addEventListener('DOMContentLoaded', async function() {
         tableCardsContainer.innerHTML = '';
         const perTable = getMatchesPerTable();
         for (let table = 1; table <= 6; table++) {
-            const { isPause, current, next, afterNext } = perTable[table];
-            tableCardsContainer.appendChild(createTableCard(table, current, next, afterNext, isPause));
+            const { isPause, pauseRoundNum, current, next, afterNext } = perTable[table];
+            tableCardsContainer.appendChild(createTableCard(table, current, next, afterNext, isPause, pauseRoundNum));
         }
     }
 
-    function createTableCard(tableNumber, current, next, afterNext, isPause = false) {
+    function createTableCard(tableNumber, current, next, afterNext, isPause = false, pauseRoundNum = null) {
         const card = document.createElement('div');
         card.className = `table-card tisch-${tableNumber}`;
 
@@ -250,7 +266,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                     <span class="pause-icon">⏸</span>
                     <span class="pause-label">Kurze Pause</span>
                 </div>
-                <div class="pause-etappe">${getPauseEtappeLabel()}</div>
+                <div class="pause-etappe">${getPauseEtappeLabel(pauseRoundNum)}</div>
             `;
         } else if (current) {
             jetztSection.innerHTML += `
