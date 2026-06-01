@@ -322,6 +322,51 @@
 .section-next      .pause-text { color: rgba(255, 255, 255, 0.4); }
 .section-afternext .pause-text { color: rgba(255, 255, 255, 0.28); font-size: 0.68rem; }
 
+/* ─── Kurze Pause – virtueller Slot im Jetzt-Bereich ─── */
+.section-current.section-pause-active {
+    background: rgba(0, 0, 0, 0.48);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+}
+
+.pause-banner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.2rem;
+}
+
+.pause-icon {
+    font-size: 2rem;
+    animation: pause-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes pause-pulse {
+    0%, 100% { opacity: 1;   transform: scale(1); }
+    50%       { opacity: 0.4; transform: scale(0.85); }
+}
+
+.pause-label {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.pause-etappe {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    margin-top: 0.15rem;
+}
+
 .no-games-text {
     font-size: 0.75rem;
     color: rgba(255, 255, 255, 0.28);

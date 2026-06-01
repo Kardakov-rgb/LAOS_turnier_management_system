@@ -58,7 +58,9 @@ document.addEventListener('DOMContentLoaded', async function() {
     let matches = [];
     let standings = [];
     let goldenCupResults = [];
-    let totalRounds = 5; // wird nach Match-Generierung dynamisch gesetzt
+    let totalRounds = 5;
+    let pauseRounds = [3, 6, 9];
+    let pauseActive = false;
 
     // Laden der Daten aus Firebase/localStorage über den DataService
     try {
@@ -90,6 +92,8 @@ document.addEventListener('DOMContentLoaded', async function() {
         standings = await dataService.getData('vorrundeStandings') || [];
         goldenCupResults = await dataService.getData('goldenCupResults') || [];
         totalRounds = matches.length > 0 ? Math.max(...matches.map(m => m.round || 1)) : 5;
+        pauseRounds = await dataService.getData('pauseRounds') || [3, 6, 9];
+        pauseActive = (await dataService.getData('pauseActive')) === true;
     } catch (error) {
         console.error("Fehler beim Laden der Daten:", error);
         showToast('⚠️ Daten konnten nicht geladen werden. Bitte Seite neu laden.');
@@ -108,7 +112,35 @@ document.addEventListener('DOMContentLoaded', async function() {
     initVorrundeBtn.addEventListener('click', initializeVorrunde);
     exportDataBtn.addEventListener('click', exportData);
     resetVorrundeBtn.addEventListener('click', confirmReset);
-    
+
+    const pauseWeiterBtn = document.getElementById('pauseWeiterBtn');
+    pauseWeiterBtn.addEventListener('click', async () => {
+        pauseActive = false;
+        await dataService.saveData('pauseActive', false);
+        updatePauseWeiterBtn();
+    });
+
+    function updatePauseWeiterBtn() {
+        pauseWeiterBtn.style.display = pauseActive ? '' : 'none';
+    }
+
+    // Zugänglich für saveMatchResult (außerhalb Closure)
+    window._checkAndActivatePause = async function () {
+        if (pauseActive) return;
+        for (const pr of pauseRounds) {
+            const tablesInRound = [...new Set(matches.filter(m => m.round === pr).map(m => m.tableNumber))];
+            const anyDone = tablesInRound.some(t =>
+                matches.filter(m => m.tableNumber === t && m.round === pr).every(m => m.played)
+            );
+            if (anyDone) {
+                pauseActive = true;
+                await dataService.saveData('pauseActive', true);
+                updatePauseWeiterBtn();
+                return;
+            }
+        }
+    };
+
     //simulateMatchesBtn.addEventListener('click', simulateMatches);
 
     // Initialisieren der Seite
@@ -140,6 +172,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             renderRoundButtons(totalRounds);
             changeRound(1);
             renderStandings();
+            updatePauseWeiterBtn();
 
             if (importedSchedule) {
                 setStatus('Spielplan aus JSON-Datei wird verwendet.', 'info');
@@ -1095,6 +1128,7 @@ function saveMatchResult(matchId) {
 
     saveMatches();
     saveStandings();
+    if (window._checkAndActivatePause) window._checkAndActivatePause();
     renderMatches();
     renderStandings();
     highlightTeamsInTable(match.team1, match.team2);

@@ -19,6 +19,8 @@ document.addEventListener('DOMContentLoaded', async function() {
     let matches         = [];
     let standings       = [];
     let goldenCupResults = [];
+    let pauseRounds     = [3, 6, 9];
+    let pauseActive     = false;
 
     // ─── Tab-Status ───
     let activeTab = 'tischkarten';
@@ -88,6 +90,8 @@ document.addEventListener('DOMContentLoaded', async function() {
             matches          = await dataService.getData('vorrundeMatches')  || [];
             standings        = await dataService.getData('vorrundeStandings') || [];
             goldenCupResults = await dataService.getData('goldenCupResults') || [];
+            pauseRounds      = await dataService.getData('pauseRounds') || [3, 6, 9];
+            pauseActive      = (await dataService.getData('pauseActive')) === true;
             console.log('Daten geladen:', { teamsCount: teams.length, matchesCount: matches.length, standingsCount: standings.length });
         } catch (error) {
             console.error('Fehler beim Laden der Daten:', error);
@@ -122,6 +126,17 @@ document.addEventListener('DOMContentLoaded', async function() {
                 goldenCupResults = updatedResults;
                 renderStandings();
             }
+        }));
+        unsubscribers.push(dataService.subscribeToData('pauseActive', updated => {
+            const val = updated === true;
+            if (pauseActive !== val) {
+                pauseActive = val;
+                renderActiveTab();
+                updateLastUpdateTime();
+            }
+        }));
+        unsubscribers.push(dataService.subscribeToData('pauseRounds', updated => {
+            if (updated) pauseRounds = updated;
         }));
     }
 
@@ -161,14 +176,43 @@ document.addEventListener('DOMContentLoaded', async function() {
     // TISCHKARTEN-VIEW
     // ════════════════════════════════════════
 
+    function tableIsInPause(tableNumber) {
+        // Gibt true zurück wenn dieser Tisch eine Pausen-Runde abgeschlossen hat
+        // und pauseActive global gesetzt ist
+        if (!pauseActive) return false;
+        return pauseRounds.some(pr => {
+            const roundMatches = matches.filter(m => m.tableNumber === tableNumber && m.round === pr);
+            return roundMatches.length > 0 && roundMatches.every(m => m.played);
+        });
+    }
+
+    function getPauseLabel(tableNumber) {
+        const sorted = [...pauseRounds].sort((a, b) => a - b);
+        for (let i = sorted.length - 1; i >= 0; i--) {
+            const pr = sorted[i];
+            const roundMatches = matches.filter(m => m.tableNumber === tableNumber && m.round === pr);
+            if (roundMatches.length > 0 && roundMatches.every(m => m.played)) {
+                return `Ende Etappe ${i + 1}`;
+            }
+        }
+        return 'Kurze Pause';
+    }
+
     function getMatchesPerTable() {
         const result = {};
         for (let table = 1; table <= 6; table++) {
             const tableMatches = matches
                 .filter(m => m.tableNumber === table)
                 .sort((a, b) => a.round - b.round);
-            const unplayed   = tableMatches.filter(m => !m.played);
-            result[table] = { current: unplayed[0] || null, next: unplayed[1] || null, afterNext: unplayed[2] || null };
+            const unplayed = tableMatches.filter(m => !m.played);
+            const isPause = tableIsInPause(table);
+            result[table] = {
+                isPause,
+                // Pause schiebt sich als virtueller Slot vor die ungespielte Liste
+                current:   isPause ? null          : (unplayed[0] || null),
+                next:      isPause ? (unplayed[0] || null) : (unplayed[1] || null),
+                afterNext: isPause ? (unplayed[1] || null) : (unplayed[2] || null),
+            };
         }
         return result;
     }
@@ -182,12 +226,12 @@ document.addEventListener('DOMContentLoaded', async function() {
         tableCardsContainer.innerHTML = '';
         const perTable = getMatchesPerTable();
         for (let table = 1; table <= 6; table++) {
-            const { current, next, afterNext } = perTable[table];
-            tableCardsContainer.appendChild(createTableCard(table, current, next, afterNext));
+            const { isPause, current, next, afterNext } = perTable[table];
+            tableCardsContainer.appendChild(createTableCard(table, current, next, afterNext, isPause));
         }
     }
 
-    function createTableCard(tableNumber, current, next, afterNext) {
+    function createTableCard(tableNumber, current, next, afterNext, isPause = false) {
         const card = document.createElement('div');
         card.className = `table-card tisch-${tableNumber}`;
 
@@ -210,7 +254,16 @@ document.addEventListener('DOMContentLoaded', async function() {
         jetztLabelRow.appendChild(jetztLabel);
         jetztLabelRow.appendChild(liveDot);
         jetztSection.appendChild(jetztLabelRow);
-        if (current) {
+        if (isPause) {
+            jetztSection.classList.add('section-pause-active');
+            jetztSection.innerHTML += `
+                <div class="pause-banner">
+                    <span class="pause-icon">⏸</span>
+                    <span class="pause-label">Kurze Pause</span>
+                </div>
+                <div class="pause-etappe">${getPauseLabel(tableNumber)}</div>
+            `;
+        } else if (current) {
             jetztSection.innerHTML += `
                 <div class="match-teams-row">
                     <span class="team-name">${current.team1}</span>
