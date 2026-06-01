@@ -176,20 +176,26 @@ document.addEventListener('DOMContentLoaded', async function() {
     // TISCHKARTEN-VIEW
     // ════════════════════════════════════════
 
-    function tableFinishedPauseRound(tableNumber) {
-        // Gibt die höchste Pause-Runde zurück, die dieser Tisch abgeschlossen hat, oder null
-        const sorted = [...pauseRounds].sort((a, b) => b - a);
-        for (const pr of sorted) {
+    function tableIsInPause(tableNumber) {
+        // Gibt true zurück wenn dieser Tisch eine Pausen-Runde abgeschlossen hat
+        // und pauseActive global gesetzt ist
+        if (!pauseActive) return false;
+        return pauseRounds.some(pr => {
             const roundMatches = matches.filter(m => m.tableNumber === tableNumber && m.round === pr);
-            if (roundMatches.length > 0 && roundMatches.every(m => m.played)) return pr;
-        }
-        return null;
+            return roundMatches.length > 0 && roundMatches.every(m => m.played);
+        });
     }
 
-    function getPauseLabel(completedRound) {
+    function getPauseLabel(tableNumber) {
         const sorted = [...pauseRounds].sort((a, b) => a - b);
-        const idx = sorted.indexOf(completedRound);
-        return idx >= 0 ? `Ende Etappe ${idx + 1}` : 'Kurze Pause';
+        for (let i = sorted.length - 1; i >= 0; i--) {
+            const pr = sorted[i];
+            const roundMatches = matches.filter(m => m.tableNumber === tableNumber && m.round === pr);
+            if (roundMatches.length > 0 && roundMatches.every(m => m.played)) {
+                return `Ende Etappe ${i + 1}`;
+            }
+        }
+        return 'Kurze Pause';
     }
 
     function getMatchesPerTable() {
@@ -199,12 +205,11 @@ document.addEventListener('DOMContentLoaded', async function() {
                 .filter(m => m.tableNumber === table)
                 .sort((a, b) => a.round - b.round);
             const unplayed = tableMatches.filter(m => !m.played);
-            const completedPauseRound = pauseActive ? tableFinishedPauseRound(table) : null;
-            const isPause = completedPauseRound !== null;
+            const isPause = tableIsInPause(table);
             result[table] = {
                 isPause,
-                completedPauseRound,
-                current:   isPause ? null        : (unplayed[0] || null),
+                // Pause schiebt sich als virtueller Slot vor die ungespielte Liste
+                current:   isPause ? null          : (unplayed[0] || null),
                 next:      isPause ? (unplayed[0] || null) : (unplayed[1] || null),
                 afterNext: isPause ? (unplayed[1] || null) : (unplayed[2] || null),
             };
@@ -221,12 +226,12 @@ document.addEventListener('DOMContentLoaded', async function() {
         tableCardsContainer.innerHTML = '';
         const perTable = getMatchesPerTable();
         for (let table = 1; table <= 6; table++) {
-            const { isPause, completedPauseRound, current, next, afterNext } = perTable[table];
-            tableCardsContainer.appendChild(createTableCard(table, current, next, afterNext, isPause, completedPauseRound));
+            const { isPause, current, next, afterNext } = perTable[table];
+            tableCardsContainer.appendChild(createTableCard(table, current, next, afterNext, isPause));
         }
     }
 
-    function createTableCard(tableNumber, current, next, afterNext, isPause = false, completedPauseRound = null) {
+    function createTableCard(tableNumber, current, next, afterNext, isPause = false) {
         const card = document.createElement('div');
         card.className = `table-card tisch-${tableNumber}`;
 
@@ -256,7 +261,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                     <span class="pause-icon">⏸</span>
                     <span class="pause-label">Kurze Pause</span>
                 </div>
-                <div class="pause-etappe">${getPauseLabel(completedPauseRound)}</div>
+                <div class="pause-etappe">${getPauseLabel(tableNumber)}</div>
             `;
         } else if (current) {
             jetztSection.innerHTML += `

@@ -58,7 +58,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     let matches = [];
     let standings = [];
     let goldenCupResults = [];
-    let totalRounds = 5; // wird nach Match-Generierung dynamisch gesetzt
+    let totalRounds = 5;
     let pauseRounds = [3, 6, 9];
     let pauseActive = false;
 
@@ -115,24 +115,20 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     const pauseWeiterBtn = document.getElementById('pauseWeiterBtn');
     pauseWeiterBtn.addEventListener('click', async () => {
-        if (!pauseActive) return;
         pauseActive = false;
         await dataService.saveData('pauseActive', false);
         updatePauseWeiterBtn();
     });
 
     function updatePauseWeiterBtn() {
-        const isRelevantRound = pauseRounds.includes(currentRound - 1);
-        pauseWeiterBtn.style.display = isRelevantRound ? '' : 'none';
-        pauseWeiterBtn.disabled = !pauseActive;
+        pauseWeiterBtn.style.display = pauseActive ? '' : 'none';
     }
 
-    // Macht checkAndActivatePause für saveMatchResult (außerhalb Closure) zugänglich
-    window._checkAndActivatePause = async function() {
+    // Zugänglich für saveMatchResult (außerhalb Closure)
+    window._checkAndActivatePause = async function () {
         if (pauseActive) return;
         for (const pr of pauseRounds) {
             const tablesInRound = [...new Set(matches.filter(m => m.round === pr).map(m => m.tableNumber))];
-            if (tablesInRound.length === 0) continue;
             const anyDone = tablesInRound.some(t =>
                 matches.filter(m => m.tableNumber === t && m.round === pr).every(m => m.played)
             );
@@ -308,7 +304,6 @@ document.addEventListener('DOMContentLoaded', async function() {
             button.classList.toggle('active', parseInt(button.dataset.round) === round);
         });
 
-        updatePauseWeiterBtn();
         renderMatches();
     }
     

@@ -71,25 +71,21 @@
 }
 
 .pause-weiter-btn {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     font-family: 'Space Mono', monospace;
     font-weight: 700;
-    padding: 0.45rem 1.2rem;
+    padding: 0.4rem 1.1rem;
     background: rgba(74, 222, 128, 0.2);
     border: 1px solid rgba(74, 222, 128, 0.5) !important;
     border-radius: 8px;
     color: #4ade80;
     letter-spacing: 0.08em;
     text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease;
 }
 
-.pause-weiter-btn:disabled {
-    opacity: 0.35;
-    cursor: not-allowed;
-    transform: none !important;
-}
-
-.pause-weiter-btn:not(:disabled):hover {
+.pause-weiter-btn:hover {
     background: rgba(74, 222, 128, 0.35);
     transform: translateY(-2px) !important;
 }

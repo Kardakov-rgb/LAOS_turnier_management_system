@@ -322,9 +322,9 @@
 .section-next      .pause-text { color: rgba(255, 255, 255, 0.4); }
 .section-afternext .pause-text { color: rgba(255, 255, 255, 0.28); font-size: 0.68rem; }
 
-/* ─── Aktive Kurze-Pause-Anzeige auf Tischkarte ─── */
+/* ─── Kurze Pause – virtueller Slot im Jetzt-Bereich ─── */
 .section-current.section-pause-active {
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.48);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
     align-items: center;
@@ -341,10 +341,10 @@
 
 .pause-icon {
     font-size: 2rem;
-    animation: pause-icon-pulse 1.8s ease-in-out infinite;
+    animation: pause-pulse 1.8s ease-in-out infinite;
 }
 
-@keyframes pause-icon-pulse {
+@keyframes pause-pulse {
     0%, 100% { opacity: 1;   transform: scale(1); }
     50%       { opacity: 0.4; transform: scale(0.85); }
 }
