@@ -166,6 +166,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             }
         }
     }
+    window._checkAndActivatePause = checkAndActivatePause;
     
     //simulateMatchesBtn.addEventListener('click', simulateMatches);
 
@@ -1154,7 +1155,7 @@ function saveMatchResult(matchId) {
 
     saveMatches();
     saveStandings();
-    checkAndActivatePause();
+    if (window._checkAndActivatePause) window._checkAndActivatePause();
     renderMatches();
     renderStandings();
     highlightTeamsInTable(match.team1, match.team2);
