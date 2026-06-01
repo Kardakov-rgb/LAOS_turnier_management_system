@@ -58,10 +58,9 @@ document.addEventListener('DOMContentLoaded', async function() {
     let matches = [];
     let standings = [];
     let goldenCupResults = [];
-    let totalRounds = 5; // wird nach Match-Generierung dynamisch gesetzt
+    let totalRounds = 5;
     let pauseRounds = [3, 6, 9];
-    let pauseActive = false;
-    let pauseAfterRound = null;
+    let releasedPauseRounds = [];
 
     // Laden der Daten aus Firebase/localStorage über den DataService
     try {
@@ -94,8 +93,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         goldenCupResults = await dataService.getData('goldenCupResults') || [];
         totalRounds = matches.length > 0 ? Math.max(...matches.map(m => m.round || 1)) : 5;
         pauseRounds = await dataService.getData('pauseRounds') || [3, 6, 9];
-        pauseActive = await dataService.getData('pauseActive') || false;
-        pauseAfterRound = await dataService.getData('pauseAfterRound') || null;
+        releasedPauseRounds = await dataService.getData('releasedPauseRounds') || [];
     } catch (error) {
         console.error("Fehler beim Laden der Daten:", error);
         showToast('⚠️ Daten konnten nicht geladen werden. Bitte Seite neu laden.');
@@ -115,58 +113,37 @@ document.addEventListener('DOMContentLoaded', async function() {
     exportDataBtn.addEventListener('click', exportData);
     resetVorrundeBtn.addEventListener('click', confirmReset);
 
-    const pauseEndenBtn = document.getElementById('pauseEndenBtn');
-    const pauseConfigBtn = document.getElementById('pauseConfigBtn');
-
-    pauseEndenBtn.addEventListener('click', async () => {
-        if (!pauseActive) return;
-        pauseActive = false;
-        pauseAfterRound = null;
-        await dataService.saveData('pauseActive', false);
-        await dataService.saveData('pauseAfterRound', null);
-        updatePauseButton();
+    const pauseWeiterBtn = document.getElementById('pauseWeiterBtn');
+    pauseWeiterBtn.addEventListener('click', async () => {
+        const active = findActivePauseRound();
+        if (!active) return;
+        releasedPauseRounds = [...releasedPauseRounds, active];
+        await dataService.saveData('releasedPauseRounds', releasedPauseRounds);
+        updatePauseWeiterBtn();
     });
 
-    pauseConfigBtn.addEventListener('click', async () => {
-        const current = pauseRounds.join(', ');
-        const input = prompt(`Pausenrunden konfigurieren (kommagetrennte Rundennummern):\nAktuell: ${current}`, current);
-        if (input === null) return;
-        const parsed = input.split(',').map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n) && n > 0);
-        if (parsed.length === 0) { showToast('Ungültige Eingabe.'); return; }
-        pauseRounds = parsed;
-        await dataService.saveData('pauseRounds', pauseRounds);
-        showToast(`Pausenrunden gespeichert: ${pauseRounds.join(', ')}`, 'success');
-    });
-
-    function updatePauseButton() {
-        pauseEndenBtn.disabled = !pauseActive;
-        pauseEndenBtn.classList.toggle('pause-active', pauseActive);
-    }
-
-    // Prüft nach jedem gespeicherten Ergebnis ob ein Tisch eine Pausen-Runde abgeschlossen hat
-    async function checkAndActivatePause() {
-        if (pauseActive) return; // bereits in Pause
-        for (const pauseRound of pauseRounds) {
-            const tablesWithThisRound = new Set(
-                matches.filter(m => m.round === pauseRound).map(m => m.tableNumber)
+    function findActivePauseRound() {
+        const released = new Set(releasedPauseRounds);
+        for (const pr of [...pauseRounds].sort((a, b) => a - b)) {
+            if (released.has(pr)) continue;
+            const tables = [...new Set(matches.filter(m => m.round === pr).map(m => m.tableNumber))];
+            const anyDone = tables.some(t =>
+                matches.filter(m => m.tableNumber === t && m.round === pr).every(m => m.played)
             );
-            if (tablesWithThisRound.size === 0) continue;
-            const anyTableDone = [...tablesWithThisRound].some(table =>
-                matches
-                    .filter(m => m.tableNumber === table && m.round === pauseRound)
-                    .every(m => m.played)
-            );
-            if (anyTableDone) {
-                pauseActive = true;
-                pauseAfterRound = pauseRound;
-                await dataService.saveData('pauseActive', true);
-                await dataService.saveData('pauseAfterRound', pauseRound);
-                updatePauseButton();
-                return;
-            }
+            if (anyDone) return pr;
         }
+        return null;
     }
-    
+
+    function updatePauseWeiterBtn() {
+        pauseWeiterBtn.style.display = findActivePauseRound() !== null ? '' : 'none';
+    }
+
+    // Zugänglich für saveMatchResult (außerhalb Closure)
+    window._checkAndActivatePause = function () {
+        updatePauseWeiterBtn();
+    };
+
     //simulateMatchesBtn.addEventListener('click', simulateMatches);
 
     // Initialisieren der Seite
@@ -198,6 +175,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             renderRoundButtons(totalRounds);
             changeRound(1);
             renderStandings();
+            updatePauseWeiterBtn();
 
             if (importedSchedule) {
                 setStatus('Spielplan aus JSON-Datei wird verwendet.', 'info');
@@ -205,7 +183,6 @@ document.addEventListener('DOMContentLoaded', async function() {
                 setStatus('Benutzerdefinierte Spielpaarungen werden verwendet.', 'info');
             }
         }
-        updatePauseButton();
     }
     
 
@@ -319,7 +296,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
     }
 
-    async function changeRound(round) {
+    function changeRound(round) {
         round = Math.min(Math.max(round, 1), totalRounds);
         currentRound = round;
         console.log(`Wechsle zu Runde ${round}`);
@@ -1154,7 +1131,7 @@ function saveMatchResult(matchId) {
 
     saveMatches();
     saveStandings();
-    checkAndActivatePause();
+    if (window._checkAndActivatePause) window._checkAndActivatePause();
     renderMatches();
     renderStandings();
     highlightTeamsInTable(match.team1, match.team2);
