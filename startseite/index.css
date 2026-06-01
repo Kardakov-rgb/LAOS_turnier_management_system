@@ -59,7 +59,15 @@
 
 /* Etwas Abstand zwischen den beiden Willkommenstexten */
 .welcome-text:first-child {
-    margin-bottom: 1rem; /* Mehr Abstand für größeren Text */
+    margin-bottom: 1rem;
+}
+
+.jubilaeum-text {
+    font-size: 1.8rem;
+    color: #FFD700;
+    text-shadow: 0 0 20px rgba(255, 215, 0, 0.5), 0 2px 6px rgba(0, 0, 0, 0.5);
+    margin-top: 0.75rem;
+    letter-spacing: 0.04em;
 }
 
 /* Animation für das Erscheinen des Textes */
