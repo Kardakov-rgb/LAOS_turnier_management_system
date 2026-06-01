@@ -59,9 +59,6 @@ document.addEventListener('DOMContentLoaded', async function() {
     let standings = [];
     let goldenCupResults = [];
     let totalRounds = 5; // wird nach Match-Generierung dynamisch gesetzt
-    let pauseRounds = [3, 6, 9];
-    let pauseActive = false;
-    let pauseAfterRound = null;
 
     // Laden der Daten aus Firebase/localStorage über den DataService
     try {
@@ -93,9 +90,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         standings = await dataService.getData('vorrundeStandings') || [];
         goldenCupResults = await dataService.getData('goldenCupResults') || [];
         totalRounds = matches.length > 0 ? Math.max(...matches.map(m => m.round || 1)) : 5;
-        pauseRounds = await dataService.getData('pauseRounds') || [3, 6, 9];
-        pauseActive = await dataService.getData('pauseActive') || false;
-        pauseAfterRound = await dataService.getData('pauseAfterRound') || null;
     } catch (error) {
         console.error("Fehler beim Laden der Daten:", error);
         showToast('⚠️ Daten konnten nicht geladen werden. Bitte Seite neu laden.');
@@ -114,59 +108,6 @@ document.addEventListener('DOMContentLoaded', async function() {
     initVorrundeBtn.addEventListener('click', initializeVorrunde);
     exportDataBtn.addEventListener('click', exportData);
     resetVorrundeBtn.addEventListener('click', confirmReset);
-
-    const pauseEndenBtn = document.getElementById('pauseEndenBtn');
-    const pauseConfigBtn = document.getElementById('pauseConfigBtn');
-
-    pauseEndenBtn.addEventListener('click', async () => {
-        if (!pauseActive) return;
-        pauseActive = false;
-        pauseAfterRound = null;
-        await dataService.saveData('pauseActive', false);
-        await dataService.saveData('pauseAfterRound', null);
-        updatePauseButton();
-    });
-
-    pauseConfigBtn.addEventListener('click', async () => {
-        const current = pauseRounds.join(', ');
-        const input = prompt(`Pausenrunden konfigurieren (kommagetrennte Rundennummern):\nAktuell: ${current}`, current);
-        if (input === null) return;
-        const parsed = input.split(',').map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n) && n > 0);
-        if (parsed.length === 0) { showToast('Ungültige Eingabe.'); return; }
-        pauseRounds = parsed;
-        await dataService.saveData('pauseRounds', pauseRounds);
-        showToast(`Pausenrunden gespeichert: ${pauseRounds.join(', ')}`, 'success');
-    });
-
-    function updatePauseButton() {
-        pauseEndenBtn.disabled = !pauseActive;
-        pauseEndenBtn.classList.toggle('pause-active', pauseActive);
-    }
-
-    // Prüft nach jedem gespeicherten Ergebnis ob ein Tisch eine Pausen-Runde abgeschlossen hat
-    async function checkAndActivatePause() {
-        if (pauseActive) return; // bereits in Pause
-        for (const pauseRound of pauseRounds) {
-            const tablesWithThisRound = new Set(
-                matches.filter(m => m.round === pauseRound).map(m => m.tableNumber)
-            );
-            if (tablesWithThisRound.size === 0) continue;
-            const anyTableDone = [...tablesWithThisRound].some(table =>
-                matches
-                    .filter(m => m.tableNumber === table && m.round === pauseRound)
-                    .every(m => m.played)
-            );
-            if (anyTableDone) {
-                pauseActive = true;
-                pauseAfterRound = pauseRound;
-                await dataService.saveData('pauseActive', true);
-                await dataService.saveData('pauseAfterRound', pauseRound);
-                updatePauseButton();
-                return;
-            }
-        }
-    }
-    window._checkAndActivatePause = checkAndActivatePause;
     
     //simulateMatchesBtn.addEventListener('click', simulateMatches);
 
@@ -206,7 +147,6 @@ document.addEventListener('DOMContentLoaded', async function() {
                 setStatus('Benutzerdefinierte Spielpaarungen werden verwendet.', 'info');
             }
         }
-        updatePauseButton();
     }
     
 
@@ -320,7 +260,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
     }
 
-    async function changeRound(round) {
+    function changeRound(round) {
         round = Math.min(Math.max(round, 1), totalRounds);
         currentRound = round;
         console.log(`Wechsle zu Runde ${round}`);
@@ -1155,7 +1095,6 @@ function saveMatchResult(matchId) {
 
     saveMatches();
     saveStandings();
-    if (window._checkAndActivatePause) window._checkAndActivatePause();
     renderMatches();
     renderStandings();
     highlightTeamsInTable(match.team1, match.team2);
