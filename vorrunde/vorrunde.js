@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     let goldenCupResults = [];
     let totalRounds = 5;
     let pauseRounds = [3, 6, 9];
-    let pauseActive = false;
+    let releasedPauseRounds = [];
 
     // Laden der Daten aus Firebase/localStorage über den DataService
     try {
@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         goldenCupResults = await dataService.getData('goldenCupResults') || [];
         totalRounds = matches.length > 0 ? Math.max(...matches.map(m => m.round || 1)) : 5;
         pauseRounds = await dataService.getData('pauseRounds') || [3, 6, 9];
-        pauseActive = (await dataService.getData('pauseActive')) === true;
+        releasedPauseRounds = await dataService.getData('releasedPauseRounds') || [];
     } catch (error) {
         console.error("Fehler beim Laden der Daten:", error);
         showToast('⚠️ Daten konnten nicht geladen werden. Bitte Seite neu laden.');
@@ -115,30 +115,33 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     const pauseWeiterBtn = document.getElementById('pauseWeiterBtn');
     pauseWeiterBtn.addEventListener('click', async () => {
-        pauseActive = false;
-        await dataService.saveData('pauseActive', false);
+        const active = findActivePauseRound();
+        if (!active) return;
+        releasedPauseRounds = [...releasedPauseRounds, active];
+        await dataService.saveData('releasedPauseRounds', releasedPauseRounds);
         updatePauseWeiterBtn();
     });
 
+    function findActivePauseRound() {
+        const released = new Set(releasedPauseRounds);
+        for (const pr of [...pauseRounds].sort((a, b) => a - b)) {
+            if (released.has(pr)) continue;
+            const tables = [...new Set(matches.filter(m => m.round === pr).map(m => m.tableNumber))];
+            const anyDone = tables.some(t =>
+                matches.filter(m => m.tableNumber === t && m.round === pr).every(m => m.played)
+            );
+            if (anyDone) return pr;
+        }
+        return null;
+    }
+
     function updatePauseWeiterBtn() {
-        pauseWeiterBtn.style.display = pauseActive ? '' : 'none';
+        pauseWeiterBtn.style.display = findActivePauseRound() !== null ? '' : 'none';
     }
 
     // Zugänglich für saveMatchResult (außerhalb Closure)
-    window._checkAndActivatePause = async function () {
-        if (pauseActive) return;
-        for (const pr of pauseRounds) {
-            const tablesInRound = [...new Set(matches.filter(m => m.round === pr).map(m => m.tableNumber))];
-            const anyDone = tablesInRound.some(t =>
-                matches.filter(m => m.tableNumber === t && m.round === pr).every(m => m.played)
-            );
-            if (anyDone) {
-                pauseActive = true;
-                await dataService.saveData('pauseActive', true);
-                updatePauseWeiterBtn();
-                return;
-            }
-        }
+    window._checkAndActivatePause = function () {
+        updatePauseWeiterBtn();
     };
 
     //simulateMatchesBtn.addEventListener('click', simulateMatches);

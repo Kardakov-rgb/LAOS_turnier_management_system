@@ -19,8 +19,8 @@ document.addEventListener('DOMContentLoaded', async function() {
     let matches         = [];
     let standings       = [];
     let goldenCupResults = [];
-    let pauseRounds     = [3, 6, 9];
-    let pauseActive     = false;
+    let pauseRounds          = [3, 6, 9];
+    let releasedPauseRounds  = [];
 
     // ─── Tab-Status ───
     let activeTab = 'tischkarten';
@@ -90,8 +90,8 @@ document.addEventListener('DOMContentLoaded', async function() {
             matches          = await dataService.getData('vorrundeMatches')  || [];
             standings        = await dataService.getData('vorrundeStandings') || [];
             goldenCupResults = await dataService.getData('goldenCupResults') || [];
-            pauseRounds      = await dataService.getData('pauseRounds') || [3, 6, 9];
-            pauseActive      = (await dataService.getData('pauseActive')) === true;
+            pauseRounds         = await dataService.getData('pauseRounds') || [3, 6, 9];
+            releasedPauseRounds = await dataService.getData('releasedPauseRounds') || [];
             console.log('Daten geladen:', { teamsCount: teams.length, matchesCount: matches.length, standingsCount: standings.length });
         } catch (error) {
             console.error('Fehler beim Laden der Daten:', error);
@@ -127,10 +127,10 @@ document.addEventListener('DOMContentLoaded', async function() {
                 renderStandings();
             }
         }));
-        unsubscribers.push(dataService.subscribeToData('pauseActive', updated => {
-            const val = updated === true;
-            if (pauseActive !== val) {
-                pauseActive = val;
+        unsubscribers.push(dataService.subscribeToData('releasedPauseRounds', updated => {
+            const val = updated || [];
+            if (JSON.stringify(releasedPauseRounds) !== JSON.stringify(val)) {
+                releasedPauseRounds = val;
                 renderActiveTab();
                 updateLastUpdateTime();
             }
@@ -176,42 +176,50 @@ document.addEventListener('DOMContentLoaded', async function() {
     // TISCHKARTEN-VIEW
     // ════════════════════════════════════════
 
-    function tableIsInPause(tableNumber) {
-        // Gibt true zurück wenn dieser Tisch eine Pausen-Runde abgeschlossen hat
-        // und pauseActive global gesetzt ist
-        if (!pauseActive) return false;
-        return pauseRounds.some(pr => {
-            const roundMatches = matches.filter(m => m.tableNumber === tableNumber && m.round === pr);
-            return roundMatches.length > 0 && roundMatches.every(m => m.played);
-        });
+    function buildTableQueue(tableNumber) {
+        // Baut eine virtuelle Queue mit PAUSE-Markern an den richtigen Stellen.
+        // PAUSE wird zwischen der letzten Pausen-Runde und der nächsten Runde eingefügt,
+        // solange diese Pausen-Runde noch nicht via "Weiter" freigegeben wurde.
+        const released = new Set(releasedPauseRounds);
+        const unplayed = matches
+            .filter(m => m.tableNumber === tableNumber && !m.played)
+            .sort((a, b) => a.round - b.round);
+
+        const sortedPauses = [...pauseRounds].sort((a, b) => a - b);
+        const result = [];
+        const insertedPauses = new Set();
+
+        for (const match of unplayed) {
+            for (const pr of sortedPauses) {
+                if (match.round > pr && !insertedPauses.has(pr) && !released.has(pr)) {
+                    result.push({ isPauseMarker: true, afterRound: pr });
+                    insertedPauses.add(pr);
+                }
+            }
+            result.push(match);
+        }
+        return result;
     }
 
-    function getPauseLabel(tableNumber) {
+    function getPauseLabel(afterRound) {
         const sorted = [...pauseRounds].sort((a, b) => a - b);
-        for (let i = sorted.length - 1; i >= 0; i--) {
-            const pr = sorted[i];
-            const roundMatches = matches.filter(m => m.tableNumber === tableNumber && m.round === pr);
-            if (roundMatches.length > 0 && roundMatches.every(m => m.played)) {
-                return `Ende Etappe ${i + 1}`;
-            }
-        }
-        return 'Kurze Pause';
+        const idx = sorted.indexOf(afterRound);
+        return idx >= 0 ? `Ende Etappe ${idx + 1}` : 'Kurze Pause';
     }
 
     function getMatchesPerTable() {
         const result = {};
         for (let table = 1; table <= 6; table++) {
-            const tableMatches = matches
-                .filter(m => m.tableNumber === table)
-                .sort((a, b) => a.round - b.round);
-            const unplayed = tableMatches.filter(m => !m.played);
-            const isPause = tableIsInPause(table);
+            const queue = buildTableQueue(table);
+            const first  = queue[0] || null;
+            const second = queue[1] || null;
+            const third  = queue[2] || null;
             result[table] = {
-                isPause,
-                // Pause schiebt sich als virtueller Slot vor die ungespielte Liste
-                current:   isPause ? null          : (unplayed[0] || null),
-                next:      isPause ? (unplayed[0] || null) : (unplayed[1] || null),
-                afterNext: isPause ? (unplayed[1] || null) : (unplayed[2] || null),
+                isPause:      first?.isPauseMarker === true,
+                pauseAfterRound: first?.isPauseMarker ? first.afterRound : null,
+                current:   first?.isPauseMarker  ? null  : first,
+                next:      second || null,
+                afterNext: third  || null,
             };
         }
         return result;
@@ -226,12 +234,12 @@ document.addEventListener('DOMContentLoaded', async function() {
         tableCardsContainer.innerHTML = '';
         const perTable = getMatchesPerTable();
         for (let table = 1; table <= 6; table++) {
-            const { isPause, current, next, afterNext } = perTable[table];
-            tableCardsContainer.appendChild(createTableCard(table, current, next, afterNext, isPause));
+            const { isPause, pauseAfterRound, current, next, afterNext } = perTable[table];
+            tableCardsContainer.appendChild(createTableCard(table, current, next, afterNext, isPause, pauseAfterRound));
         }
     }
 
-    function createTableCard(tableNumber, current, next, afterNext, isPause = false) {
+    function createTableCard(tableNumber, current, next, afterNext, isPause = false, pauseAfterRound = null) {
         const card = document.createElement('div');
         card.className = `table-card tisch-${tableNumber}`;
 
@@ -258,10 +266,9 @@ document.addEventListener('DOMContentLoaded', async function() {
             jetztSection.classList.add('section-pause-active');
             jetztSection.innerHTML += `
                 <div class="pause-banner">
-                    <span class="pause-icon">⏸</span>
-                    <span class="pause-label">Kurze Pause</span>
+                    <div class="pause-label">Kurze Pause</div>
                 </div>
-                <div class="pause-etappe">${getPauseLabel(tableNumber)}</div>
+                <div class="pause-etappe">${getPauseLabel(pauseAfterRound)}</div>
             `;
         } else if (current) {
             jetztSection.innerHTML += `
@@ -284,7 +291,9 @@ document.addEventListener('DOMContentLoaded', async function() {
         naechstesLabel.className = 'section-label next';
         naechstesLabel.textContent = 'Nächstes';
         naechstesSection.appendChild(naechstesLabel);
-        if (next) {
+        if (next?.isPauseMarker) {
+            naechstesSection.innerHTML += `<div class="pause-text">Kurze Pause</div>`;
+        } else if (next) {
             naechstesSection.innerHTML += `
                 <div class="match-teams-row">
                     <span class="team-name">${next.team1}</span>
@@ -305,7 +314,9 @@ document.addEventListener('DOMContentLoaded', async function() {
         afterNextLabel.className = 'section-label afternext';
         afterNextLabel.textContent = 'Übernächstes';
         afterNextSection.appendChild(afterNextLabel);
-        if (afterNext) {
+        if (afterNext?.isPauseMarker) {
+            afterNextSection.innerHTML += `<div class="pause-text">Kurze Pause</div>`;
+        } else if (afterNext) {
             afterNextSection.innerHTML += `
                 <div class="match-teams-row">
                     <span class="team-name">${afterNext.team1}</span>
