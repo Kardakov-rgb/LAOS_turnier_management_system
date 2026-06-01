@@ -19,6 +19,9 @@ document.addEventListener('DOMContentLoaded', async function() {
     let matches         = [];
     let standings       = [];
     let goldenCupResults = [];
+    let pauseRounds     = [3, 6, 9];
+    let pauseActive     = false;
+    let pauseAfterRound = null;
 
     // ─── Tab-Status ───
     let activeTab = 'tischkarten';
@@ -88,6 +91,9 @@ document.addEventListener('DOMContentLoaded', async function() {
             matches          = await dataService.getData('vorrundeMatches')  || [];
             standings        = await dataService.getData('vorrundeStandings') || [];
             goldenCupResults = await dataService.getData('goldenCupResults') || [];
+            pauseRounds      = await dataService.getData('pauseRounds') || [3, 6, 9];
+            pauseActive      = await dataService.getData('pauseActive') || false;
+            pauseAfterRound  = await dataService.getData('pauseAfterRound') || null;
             console.log('Daten geladen:', { teamsCount: teams.length, matchesCount: matches.length, standingsCount: standings.length });
         } catch (error) {
             console.error('Fehler beim Laden der Daten:', error);
@@ -123,6 +129,19 @@ document.addEventListener('DOMContentLoaded', async function() {
                 renderStandings();
             }
         }));
+        unsubscribers.push(dataService.subscribeToData('pauseActive', updated => {
+            if (pauseActive !== updated) {
+                pauseActive = updated || false;
+                renderActiveTab();
+                updateLastUpdateTime();
+            }
+        }));
+        unsubscribers.push(dataService.subscribeToData('pauseAfterRound', updated => {
+            pauseAfterRound = updated || null;
+        }));
+        unsubscribers.push(dataService.subscribeToData('pauseRounds', updated => {
+            pauseRounds = updated || [3, 6, 9];
+        }));
     }
 
     async function refreshData() {
@@ -131,6 +150,9 @@ document.addEventListener('DOMContentLoaded', async function() {
             const currentMatches          = await dataService.getData('vorrundeMatches')  || [];
             const currentStandings        = await dataService.getData('vorrundeStandings') || [];
             const currentGoldenCupResults = await dataService.getData('goldenCupResults') || [];
+            pauseActive     = await dataService.getData('pauseActive') || false;
+            pauseAfterRound = await dataService.getData('pauseAfterRound') || null;
+            pauseRounds     = await dataService.getData('pauseRounds') || [3, 6, 9];
 
             const teamsChanged      = JSON.stringify(teams)            !== JSON.stringify(currentTeams);
             const matchesChanged    = JSON.stringify(matches)          !== JSON.stringify(currentMatches);
@@ -161,14 +183,25 @@ document.addEventListener('DOMContentLoaded', async function() {
     // TISCHKARTEN-VIEW
     // ════════════════════════════════════════
 
+    function getPauseEtappeLabel() {
+        if (!pauseAfterRound) return 'Kurze Pause';
+        const sortedPauses = [...pauseRounds].sort((a, b) => a - b);
+        const idx = sortedPauses.indexOf(pauseAfterRound);
+        return idx >= 0 ? `Ende Etappe ${idx + 1}` : 'Kurze Pause';
+    }
+
     function getMatchesPerTable() {
         const result = {};
         for (let table = 1; table <= 6; table++) {
             const tableMatches = matches
                 .filter(m => m.tableNumber === table)
                 .sort((a, b) => a.round - b.round);
-            const unplayed   = tableMatches.filter(m => !m.played);
-            result[table] = { current: unplayed[0] || null, next: unplayed[1] || null, afterNext: unplayed[2] || null };
+            const unplayed = tableMatches.filter(m => !m.played);
+            if (pauseActive) {
+                result[table] = { isPause: true, current: null, next: unplayed[0] || null, afterNext: unplayed[1] || null };
+            } else {
+                result[table] = { isPause: false, current: unplayed[0] || null, next: unplayed[1] || null, afterNext: unplayed[2] || null };
+            }
         }
         return result;
     }
@@ -182,12 +215,12 @@ document.addEventListener('DOMContentLoaded', async function() {
         tableCardsContainer.innerHTML = '';
         const perTable = getMatchesPerTable();
         for (let table = 1; table <= 6; table++) {
-            const { current, next, afterNext } = perTable[table];
-            tableCardsContainer.appendChild(createTableCard(table, current, next, afterNext));
+            const { isPause, current, next, afterNext } = perTable[table];
+            tableCardsContainer.appendChild(createTableCard(table, current, next, afterNext, isPause));
         }
     }
 
-    function createTableCard(tableNumber, current, next, afterNext) {
+    function createTableCard(tableNumber, current, next, afterNext, isPause = false) {
         const card = document.createElement('div');
         card.className = `table-card tisch-${tableNumber}`;
 
@@ -210,7 +243,16 @@ document.addEventListener('DOMContentLoaded', async function() {
         jetztLabelRow.appendChild(jetztLabel);
         jetztLabelRow.appendChild(liveDot);
         jetztSection.appendChild(jetztLabelRow);
-        if (current) {
+        if (isPause) {
+            jetztSection.classList.add('section-pause-active');
+            jetztSection.innerHTML += `
+                <div class="pause-banner">
+                    <span class="pause-icon">⏸</span>
+                    <span class="pause-label">Kurze Pause</span>
+                </div>
+                <div class="pause-etappe">${getPauseEtappeLabel()}</div>
+            `;
+        } else if (current) {
             jetztSection.innerHTML += `
                 <div class="match-teams-row">
                     <span class="team-name">${current.team1}</span>
