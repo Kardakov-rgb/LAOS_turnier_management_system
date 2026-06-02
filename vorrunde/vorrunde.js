@@ -94,6 +94,12 @@ document.addEventListener('DOMContentLoaded', async function() {
         totalRounds = matches.length > 0 ? Math.max(...matches.map(m => m.round || 1)) : 5;
         pauseRounds = await dataService.getData('pauseRounds') || [3, 6, 9];
         releasedPauseRounds = await dataService.getData('releasedPauseRounds') || [];
+        // Wenn kein einziges Spiel gespielt wurde, sind freigegebene Pausen inkonsistent → bereinigen
+        const anyPlayed = matches.some(m => m.played);
+        if (!anyPlayed && releasedPauseRounds.length > 0) {
+            releasedPauseRounds = [];
+            await dataService.saveData('releasedPauseRounds', []);
+        }
     } catch (error) {
         console.error("Fehler beim Laden der Daten:", error);
         showToast('⚠️ Daten konnten nicht geladen werden. Bitte Seite neu laden.');
@@ -427,6 +433,10 @@ async function initializeVorrunde() {
 
         // Tabelle initialisieren
         standings = initializeStandings();
+
+        // Pausen-Status zurücksetzen
+        releasedPauseRounds = [];
+        await dataService.saveData('releasedPauseRounds', []);
 
         // Daten speichern
         saveMatches();
@@ -1522,9 +1532,11 @@ function renderStandings() {
         standings = [];
         importedSchedule = null;
         totalRounds = 5;
+        releasedPauseRounds = [];
 
         await dataService.saveData('vorrundeMatches', []);
         await dataService.saveData('vorrundeStandings', []);
+        await dataService.saveData('releasedPauseRounds', []);
 
         renderRoundButtons(0);
         if (matchesContainer) matchesContainer.innerHTML = '';
