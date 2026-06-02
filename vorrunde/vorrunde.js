@@ -1119,6 +1119,9 @@ function revertMatchFromStandings(match, t1, t2) {
         standings[t2].drawn--;
         standings[t2].points -= calcDrawPoints(match.score2);
     }
+
+    standings[t1].goalDifference = standings[t1].goalsFor - standings[t1].goalsAgainst;
+    standings[t2].goalDifference = standings[t2].goalsFor - standings[t2].goalsAgainst;
 }
 
 function applyMatchToStandings(score1, score2, t1, t2) {
