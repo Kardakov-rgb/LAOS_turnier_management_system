@@ -235,10 +235,8 @@ document.addEventListener('DOMContentLoaded', async function() {
         if (matches.length === 0) {
             if (importedSchedule) {
                 setStatus(`Spielplan für ${importedSchedule.teamCount} Teams geladen. Bereit zur Initialisierung (🚀).`, 'info');
-            } else if (teams.length >= 22 && teams.length <= 28) {
-                setStatus(`Kein Spielplan für ${teams.length} Teams hinterlegt. Die Vorrunde verwendet den automatischen Algorithmus – oder lade einen Plan auf der <a href="../spielplaene/spielplaene.html" style="color:inherit;text-decoration:underline">Spielpläne-Seite</a> hoch.`, 'warning');
             } else {
-                setStatus('Keine Spiele gefunden. Bitte initialisiere die Vorrunde.', 'warning');
+                setStatus(`Kein Spielplan für ${teams.length} Teams hinterlegt. Bitte zuerst einen Plan auf der <a href="../spielplaene/spielplaene.html" style="color:inherit;text-decoration:underline">Spielpläne-Seite</a> hochladen.`, 'warning');
             }
         } else {
             console.log("Erstes Match nach Laden:", matches[0]);
@@ -247,11 +245,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             renderStandings();
             updatePauseWeiterBtn();
 
-            if (importedSchedule) {
-                setStatus('Spielplan aus JSON-Datei wird verwendet.', 'info');
-            } else if (customMatchups) {
-                setStatus('Benutzerdefinierte Spielpaarungen werden verwendet.', 'info');
-            }
+            setStatus('Spielplan aus JSON-Datei wird verwendet.', 'info');
         }
     }
     
@@ -405,31 +399,19 @@ async function initializeVorrunde() {
     }
 
     try {
-        if (importedSchedule && importedSchedule.teamCount === teams.length) {
-            console.log('Verwende importierten JSON-Spielplan');
-            matches = createMatchesFromScheduleJSON(importedSchedule);
-            totalRounds = matches.length > 0 ? Math.max(...matches.map(m => m.round)) : 0;
-        } else if (teams.length <= ROUND_ROBIN_MAX) {
-            console.log('Wenige Teams: Alle Teams spielen gegeneinander (Round Robin)');
-            matches = createMatchesAllPlayAll();
-            totalRounds = assignFlatRounds();
-        } else if (customMatchups) {
-            console.log('Verwende benutzerdefinierte Spielpaarungen');
-            matches = createMatchesFromCustomPairings();
-            totalRounds = assignFlatRounds();
-        } else if (teams.length === 24) {
-            console.log('Generiere Spielpaarungen mit gruppenbasierter Methode für 24 Teams');
-            matches = createMatchesWithGroupMethod();
-            totalRounds = assignFlatRounds();
-        } else if (teams.length === 32) {
-            console.log('Generiere Spielpaarungen mit gruppenbasierter Methode für 32 Teams');
-            matches = createMatchesWithGroupMethod32();
-            totalRounds = assignFlatRounds();
-        } else {
-            console.log('Generiere Spielpaarungen mit verbesserter Circle-Methode');
-            matches = createMatchesWithImprovedCircleMethod();
-            totalRounds = assignFlatRounds();
+        // Spielplan immer frisch aus dem Storage laden, damit auch nach einem Upload
+        // ohne Seitenreload der korrekte Plan erkannt wird.
+        const freshSchedules = await dataService.getData('tournamentSchedules') || {};
+        importedSchedule = freshSchedules[String(teams.length)] || null;
+
+        if (!importedSchedule) {
+            setStatus(`Kein Spielplan für ${teams.length} Teams hinterlegt. Bitte zuerst einen Plan auf der <a href="../spielplaene/spielplaene.html" style="color:inherit;text-decoration:underline">Spielpläne-Seite</a> hochladen.`, 'error');
+            return;
         }
+
+        console.log('Verwende importierten JSON-Spielplan');
+        matches = createMatchesFromScheduleJSON(importedSchedule);
+        totalRounds = matches.length > 0 ? Math.max(...matches.map(m => m.round)) : 0;
 
         // Tabelle initialisieren
         standings = initializeStandings();
@@ -447,12 +429,7 @@ async function initializeVorrunde() {
         changeRound(1);
         renderStandings();
 
-        const methodLabel = (importedSchedule && importedSchedule.teamCount === teams.length) ? 'importiertem JSON-Spielplan'
-            : teams.length <= ROUND_ROBIN_MAX ? 'Round-Robin-Methode (jeder gegen jeden)'
-            : customMatchups ? 'benutzerdefinierten Spielpaarungen'
-            : (teams.length === 24 || teams.length === 32) ? 'gruppenbasierter Methode'
-            : 'Circle-Methode';
-        setStatus(`Vorrunde mit ${methodLabel} initialisiert. ${totalRounds} Runden, ${matches.length} Spiele.`, 'success');
+        setStatus(`Vorrunde mit importiertem Spielplan initialisiert. ${totalRounds} Runden, ${matches.length} Spiele.`, 'success');
     } catch (error) {
         console.error('Fehler beim Initialisieren der Vorrunde:', error);
         setStatus(`Fehler beim Initialisieren der Vorrunde: ${error.message}`, 'error');
