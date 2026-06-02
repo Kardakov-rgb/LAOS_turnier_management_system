@@ -103,7 +103,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             
             // KO-Matches laden
             const koMatchesData = await dataService.getData('koMatches');
-            koMatches = koMatchesData || {};
+            koMatches = normalizeKoMatches(koMatchesData || {});
             console.log('KO-Matches geladen:', koMatches);
             
             // Wetten laden
@@ -131,11 +131,12 @@ document.addEventListener('DOMContentLoaded', async function() {
         // KO-Matches abonnieren
         dataService.subscribeToData('koMatches', (newMatches) => {
             console.log('KO-Matches aktualisiert:', newMatches);
-            koMatches = newMatches || {};
+            koMatches = normalizeKoMatches(newMatches || {});
             loadFinalTeams();
             renderFinalists();
             renderTeamButtons();
             renderTeamBets();
+            renderDistributionChart();
         });
         
         // Wetten abonnieren
@@ -157,15 +158,43 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
     
     /**
+     * Normalisiert koMatches nach Firebase-Round-Trip:
+     * Firebase speichert Arrays als Integer-Objekte ({0:…,1:…}) — diese Funktion
+     * stellt sicher, dass alle Runden echte Arrays sind und jedes Match genau 2 Team-Slots hat.
+     */
+    function normalizeKoMatches(data) {
+        if (!data || typeof data !== 'object') return {};
+        const result = {};
+        ['playoff', 'quarterfinal', 'semifinal', 'final'].forEach(round => {
+            const roundData = data[round];
+            if (!roundData) { result[round] = []; return; }
+            const matchArray = Array.isArray(roundData) ? roundData : Object.values(roundData);
+            result[round] = matchArray.map(match => {
+                if (!match || typeof match !== 'object') return match;
+                let teams = match.teams;
+                if (!teams) {
+                    teams = [{ name: null }, { name: null }];
+                } else if (!Array.isArray(teams)) {
+                    teams = Object.values(teams);
+                }
+                while (teams.length < 2) teams.push({ name: null });
+                teams = teams.map(t => (t && typeof t === 'object') ? t : { name: null });
+                return { ...match, teams };
+            });
+        });
+        return result;
+    }
+
+    /**
      * Lädt die Finalisten aus der KO-Runde
      */
     function loadFinalTeams() {
         finalTeams = [];
-        
+
         // Prüfen, ob Finalspiel existiert
         if (koMatches.final && koMatches.final.length > 0) {
             const finalMatch = koMatches.final[0];
-            
+
             // Beide Teams extrahieren, wenn vorhanden
             if (finalMatch.teams && finalMatch.teams.length === 2) {
                 finalMatch.teams.forEach(team => {
@@ -661,7 +690,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         
         // Quote berechnen (Gesamteinsatz / Teameinsatz)
         if (teamAmount === 0) {
-            return totalAmount === 0 ? DEFAULT_ODDS : totalAmount;
+            return DEFAULT_ODDS;
         }
         
         return totalAmount / teamAmount;
