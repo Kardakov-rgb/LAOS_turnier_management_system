@@ -405,6 +405,7 @@ async function initializeVorrunde() {
         importedSchedule = freshSchedules[String(teams.length)] || null;
 
         if (!importedSchedule) {
+            showToast(`⚠️ Kein Spielplan für ${teams.length} Teams hinterlegt. Bitte zuerst einen Plan hochladen.`);
             setStatus(`Kein Spielplan für ${teams.length} Teams hinterlegt. Bitte zuerst einen Plan auf der <a href="../spielplaene/spielplaene.html" style="color:inherit;text-decoration:underline">Spielpläne-Seite</a> hochladen.`, 'error');
             return;
         }
