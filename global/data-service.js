@@ -5,12 +5,20 @@ import authService from './auth-service.js';
 class DataService {
   constructor() {
     this.isOnline = navigator.onLine;
+    this._bootedOffline = !navigator.onLine;
     this.pendingUpdates = [];
-    this.statusListeners = []; // Neue Zeile: Array für Status-Listener hinzufügen
-    
+    this.statusListeners = [];
+
     // Online-Status überwachen
     window.addEventListener('online', this.handleOnlineStatus.bind(this));
     window.addEventListener('offline', this.handleOnlineStatus.bind(this));
+
+    // Offline-Banner initialisieren sobald DOM bereit ist
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => this._initOfflineBanner());
+    } else {
+      this._initOfflineBanner();
+    }
   }
   
   // Neue Methode: Status-Listener hinzufügen
@@ -24,14 +32,14 @@ class DataService {
   handleOnlineStatus() {
     this.isOnline = navigator.onLine;
     console.log(`Verbindungsstatus: ${this.isOnline ? 'Online' : 'Offline'}`);
-    
+
     // Wenn wieder online, versuche, ausstehende Updates zu synchronisieren
     if (this.isOnline) {
       this.syncPendingUpdates();
     }
-    
-    // Status-Listener benachrichtigen - neue Zeile
+
     this.statusListeners.forEach(listener => listener(this.isOnline));
+    this._updateBanner();
   }
   
   // KORRIGIERTE VERSION: Daten speichern
@@ -156,27 +164,82 @@ async getData(key) {
   
   // Echtzeitaktualisierungen überwachen — gibt Unsubscribe-Funktion zurück
   subscribeToData(key, callback) {
-    if (this.isOnline) {
-      const dataRef = ref(database, key);
-      const unsubscribe = onValue(dataRef, (snapshot) => {
-        const data = snapshot.val();
-        if (data) {
-          localStorage.setItem(key, JSON.stringify(data));
-          if (data.type === 'array' && Array.isArray(data.value)) {
-            callback(data.value);
-          } else if (data.type === 'array') {
-            console.warn('Array-Daten ohne gültiges value-Array empfangen:', data);
-            callback([]);
-          } else {
+    if (!this.isOnline) {
+      // Offline: Callback einmalig mit gecachten localStorage-Daten aufrufen
+      try {
+        const raw = localStorage.getItem(key);
+        if (raw) {
+          const data = JSON.parse(raw);
+          if (data && data.type === 'array') {
+            callback(Array.isArray(data.value) ? data.value : []);
+          } else if (data) {
             callback(data);
           }
         }
-      });
-      return unsubscribe;
+      } catch (e) {
+        console.warn(`Offline: Fehler beim Lesen von ${key} aus localStorage`, e);
+      }
+      return () => {};
     }
-    return () => {}; // No-op wenn offline
+
+    const dataRef = ref(database, key);
+    const unsubscribe = onValue(dataRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        localStorage.setItem(key, JSON.stringify(data));
+        if (data.type === 'array' && Array.isArray(data.value)) {
+          callback(data.value);
+        } else if (data.type === 'array') {
+          console.warn('Array-Daten ohne gültiges value-Array empfangen:', data);
+          callback([]);
+        } else {
+          callback(data);
+        }
+      }
+    });
+    return unsubscribe;
   }
   
+  _initOfflineBanner() {
+    if (document.getElementById('offline-banner')) return;
+    const banner = document.createElement('div');
+    banner.id = 'offline-banner';
+    banner.style.cssText = `
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      background: rgba(180, 100, 0, 0.95);
+      color: #fff;
+      font-family: var(--font-primary, monospace);
+      font-size: 0.85rem;
+      padding: 0.55rem 1rem;
+      text-align: center;
+      z-index: 9999;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    `;
+    document.body.prepend(banner);
+    this._updateBanner();
+  }
+
+  _updateBanner() {
+    const banner = document.getElementById('offline-banner');
+    if (!banner) return;
+
+    if (this.isOnline) {
+      if (this._bootedOffline) {
+        banner.style.display = 'block';
+        banner.style.background = 'rgba(0, 120, 60, 0.95)';
+        banner.innerHTML = `✅ Verbindung wiederhergestellt – <button onclick="location.reload()" style="margin-left:0.5rem;background:white;color:#006030;border:none;border-radius:4px;padding:0.2rem 0.6rem;font-family:inherit;font-size:0.85rem;cursor:pointer;">Seite neu laden</button>`;
+      } else {
+        banner.style.display = 'none';
+      }
+    } else {
+      banner.style.display = 'block';
+      banner.style.background = 'rgba(180, 100, 0, 0.95)';
+      banner.textContent = '⚠️ Offline-Modus – Daten werden aus dem lokalen Speicher geladen';
+    }
+  }
+
   // Ausstehende Updates zur Warteschlange hinzufügen
   addPendingUpdate(key, data) {
     this.pendingUpdates.push({ key, data });
