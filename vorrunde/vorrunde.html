@@ -75,6 +75,26 @@
                         <button id="exportDataBtn" class="action-emoji-btn">📤</button>
                         <button id="resetVorrundeBtn" class="action-emoji-btn">🔄</button>
                         <button id="pauseWeiterBtn" class="action-emoji-btn pause-weiter-btn" style="display:none">▶ Weiter</button>
+                        <button id="pauseConfigBtn" class="action-emoji-btn pause-config-btn admin-nav-item">⚙️ Pausen</button>
+                    </div>
+                </div>
+
+                <!-- Pausen-Konfigurations-Panel (nur Admin) -->
+                <div id="pauseConfigPanel" class="pause-config-panel admin-nav-item" style="display:none">
+                    <div class="pause-config-header">
+                        <span class="pause-config-title">Pausen-Konfiguration</span>
+                        <button id="pauseConfigClose" class="pause-config-close">✕</button>
+                    </div>
+                    <div class="pause-config-body">
+                        <p class="pause-config-hint">Nach welchen Runden soll eine Pause eingelegt werden?</p>
+                        <div id="pauseRoundsEditor" class="pause-rounds-editor">
+                            <!-- wird durch JS befüllt -->
+                        </div>
+                        <div class="pause-config-add-row">
+                            <input id="pauseRoundInput" type="number" min="1" max="20" placeholder="Runde" class="pause-round-input">
+                            <button id="pauseRoundAddBtn" class="pause-round-add-btn">+ Hinzufügen</button>
+                        </div>
+                        <button id="pauseConfigSaveBtn" class="pause-config-save-btn">Speichern</button>
                     </div>
                 </div>
             </div>

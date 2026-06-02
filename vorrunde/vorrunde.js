@@ -144,6 +144,70 @@ document.addEventListener('DOMContentLoaded', async function() {
         updatePauseWeiterBtn();
     };
 
+    // ── Pausen-Konfigurations-Panel ──
+    const pauseConfigBtn   = document.getElementById('pauseConfigBtn');
+    const pauseConfigPanel = document.getElementById('pauseConfigPanel');
+    const pauseConfigClose = document.getElementById('pauseConfigClose');
+    const pauseConfigSaveBtn = document.getElementById('pauseConfigSaveBtn');
+    const pauseRoundAddBtn = document.getElementById('pauseRoundAddBtn');
+    const pauseRoundInput  = document.getElementById('pauseRoundInput');
+    const pauseRoundsEditor = document.getElementById('pauseRoundsEditor');
+
+    let editingPauseRounds = [...pauseRounds];
+
+    function renderPauseRoundsEditor() {
+        pauseRoundsEditor.innerHTML = '';
+        const sorted = [...editingPauseRounds].sort((a, b) => a - b);
+        if (sorted.length === 0) {
+            pauseRoundsEditor.innerHTML = '<span class="pause-no-rounds">Keine Pausen konfiguriert</span>';
+            return;
+        }
+        sorted.forEach(r => {
+            const tag = document.createElement('div');
+            tag.className = 'pause-round-tag';
+            tag.innerHTML = `<span>Nach Runde ${r}</span><button class="pause-round-remove" data-round="${r}">✕</button>`;
+            pauseRoundsEditor.appendChild(tag);
+        });
+        pauseRoundsEditor.querySelectorAll('.pause-round-remove').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const r = parseInt(btn.dataset.round);
+                editingPauseRounds = editingPauseRounds.filter(x => x !== r);
+                renderPauseRoundsEditor();
+            });
+        });
+    }
+
+    pauseConfigBtn.addEventListener('click', () => {
+        editingPauseRounds = [...pauseRounds];
+        renderPauseRoundsEditor();
+        pauseConfigPanel.style.display = pauseConfigPanel.style.display === 'none' ? '' : 'none';
+    });
+
+    pauseConfigClose.addEventListener('click', () => {
+        pauseConfigPanel.style.display = 'none';
+    });
+
+    pauseRoundAddBtn.addEventListener('click', () => {
+        const val = parseInt(pauseRoundInput.value);
+        if (!val || val < 1 || val > 20) return;
+        if (!editingPauseRounds.includes(val)) {
+            editingPauseRounds.push(val);
+            renderPauseRoundsEditor();
+        }
+        pauseRoundInput.value = '';
+    });
+
+    pauseRoundInput.addEventListener('keydown', e => {
+        if (e.key === 'Enter') pauseRoundAddBtn.click();
+    });
+
+    pauseConfigSaveBtn.addEventListener('click', async () => {
+        pauseRounds = [...editingPauseRounds].sort((a, b) => a - b);
+        await dataService.saveData('pauseRounds', pauseRounds);
+        pauseConfigPanel.style.display = 'none';
+        updatePauseWeiterBtn();
+    });
+
     //simulateMatchesBtn.addEventListener('click', simulateMatches);
 
     // Initialisieren der Seite
