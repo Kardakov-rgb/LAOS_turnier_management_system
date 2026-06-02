@@ -89,19 +89,16 @@ document.addEventListener('DOMContentLoaded', async function() {
       appState.vorrundeMatches = loadedData.vorrundeMatches;
       appState.koMatches = loadedData.koMatches;
       
-      // Statistiken berechnen oder geladene Statistiken verwenden
-      if (loadedData.teamStats && loadedData.teamStats.length > 0) {
-        appState.teamStats = loadedData.teamStats;
-      } else {
-        appState.teamStats = calculateTeamStatistics(
-          appState.teams, 
-          appState.vorrundeMatches, 
-          appState.koMatches
-        );
-        
-        // Berechnete Statistiken speichern
-        await saveData('teamStats', appState.teamStats);
-      }
+      // Statistiken immer neu berechnen, damit KO-Runden-Daten nicht aus einem
+      // veralteten Cache geladen werden, der vor dem Start der KO-Runde gespeichert wurde
+      appState.teamStats = calculateTeamStatistics(
+        appState.teams,
+        appState.vorrundeMatches,
+        appState.koMatches
+      );
+
+      // Berechnete Statistiken speichern
+      await saveData('teamStats', appState.teamStats);
       
       // Event-Listener registrieren
       setupEventListeners();
