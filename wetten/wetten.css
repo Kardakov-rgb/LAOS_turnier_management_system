@@ -443,37 +443,34 @@
 }
 
 .betting-info-example {
-    margin-top: 0.6rem;
-    padding: 0.8rem 1rem;
+    margin-top: 0.5rem;
+    padding: 0.5rem 0.8rem;
     background-color: rgba(0, 0, 0, 0.2);
     border-left: 3px solid #a8f0d0;
     border-radius: 0 6px 6px 0;
-    font-size: 0.88rem;
+    font-size: 0.85rem;
     color: rgba(255, 255, 255, 0.9);
-    line-height: 1.7;
+    line-height: 1.5;
 }
 
 .example-bets {
-    font-family: monospace;
-    margin-bottom: 0.6rem;
-    white-space: pre;
+    margin-bottom: 0.25rem;
 }
 
-.example-row.loser {
-    opacity: 0.6;
+.example-bets .loser {
+    opacity: 0.55;
     text-decoration: line-through;
 }
 
 .example-total {
-    margin-top: 0.3rem;
     font-weight: 700;
     border-top: 1px solid rgba(255, 255, 255, 0.2);
-    padding-top: 0.3rem;
+    padding-top: 0.25rem;
+    margin-bottom: 0.25rem;
 }
 
 .example-result {
-    margin-top: 0.5rem;
-    line-height: 1.8;
+    line-height: 1.5;
 }
 
 .profit {
