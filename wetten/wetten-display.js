@@ -650,10 +650,11 @@ document.addEventListener('DOMContentLoaded', async function() {
      * @param {string} type - Der Nachrichtentyp (info, success, warning, error)
      */
     function setStatus(message, type = 'info') {
+        if (!statusContainer) return;
         statusContainer.className = 'status-container';
         statusContainer.classList.add(`status-${type}`);
         statusContainer.textContent = message;
-        
+
         // Nach 5 Sekunden ausblenden
         setTimeout(() => {
             statusContainer.style.opacity = '0';

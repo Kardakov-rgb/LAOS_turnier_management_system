@@ -304,48 +304,29 @@
     letter-spacing: 0.3px;
 }
 
-.team-select-btn--orange {
+.team-select-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.25);
+    color: rgba(255, 255, 255, 0.75);
+}
+
+.team-select-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.5);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.team-select-btn.selected {
     background: rgba(255, 102, 0, 0.2);
-    border-color: rgba(255, 102, 0, 0.6);
-    color: #ffcc99;
-}
-
-.team-select-btn--orange:hover {
-    background: rgba(255, 102, 0, 0.4);
     border-color: var(--color-orange);
+    border-width: 3px;
     color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(255, 102, 0, 0.4);
-}
-
-.team-select-btn--orange.selected {
-    background: var(--color-orange);
-    border-color: var(--color-orange);
-    color: white;
-    box-shadow: 0 4px 16px rgba(255, 102, 0, 0.55);
+    font-weight: 900;
+    box-shadow: 0 0 18px rgba(255, 102, 0, 0.6), 0 4px 16px rgba(255, 102, 0, 0.4);
     transform: translateY(-1px);
-}
-
-.team-select-btn--blue {
-    background: rgba(142, 145, 223, 0.2);
-    border-color: rgba(142, 145, 223, 0.6);
-    color: #c8caff;
-}
-
-.team-select-btn--blue:hover {
-    background: rgba(142, 145, 223, 0.45);
-    border-color: var(--color-blue);
-    color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(142, 145, 223, 0.4);
-}
-
-.team-select-btn--blue.selected {
-    background: var(--color-blue-dark);
-    border-color: var(--color-blue-light);
-    color: white;
-    box-shadow: 0 4px 16px rgba(142, 145, 223, 0.55);
-    transform: translateY(-1px);
+    text-shadow: 0 0 8px rgba(255, 102, 0, 0.6);
 }
 
 .team-btn-placeholder {
