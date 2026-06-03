@@ -456,7 +456,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         teamsToShow.forEach((team, idx) => {
             const btn = document.createElement('button');
             btn.type = 'button';
-            btn.className = `team-select-btn team-select-btn--${idx === 0 ? 'orange' : 'blue'}`;
+            btn.className = 'team-select-btn';
             btn.textContent = team.name;
             btn.dataset.team = team.name;
             btn.addEventListener('click', () => {
