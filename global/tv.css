@@ -16,7 +16,7 @@
     padding-top: calc(5rem + var(--tv-v));
 }
 
-/* Standings table: larger text for TV readability */
+/* Standings table: TV readability improvements */
 .standings-table {
     font-size: 1.05rem;
     line-height: 1.6;
@@ -25,4 +25,32 @@
 .standings-table th,
 .standings-table td {
     padding: 0.45rem 0.5rem;
+}
+
+/* Fix: vorrunde.css overrides th font-size to 0.58rem — restore for TV */
+.standings-table th {
+    font-size: 0.82rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* Team names: humanist sans-serif reads better at distance than monospace */
+.standings-table .team-col {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+}
+
+/* Zebra stripes: helps eyes track horizontally across 26 rows */
+.standings-table tbody tr:nth-child(even) td {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+/* Non-qualifiers (13+) visually recede behind top-12 */
+.standings-table tbody tr:not(.direct-qualifier):not(.playoff-qualifier) td {
+    color: rgba(255, 255, 255, 0.55);
+}
+
+/* Tighten narrow stat columns to give more width to team names */
+.standings-table .stat-col {
+    width: 28px;
 }
