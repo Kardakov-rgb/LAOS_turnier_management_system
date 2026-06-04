@@ -40,6 +40,12 @@ document.addEventListener('DOMContentLoaded', async function() {
     const statusContainer = document.getElementById('statusContainer');
     const matchesContainer = document.getElementById('matchesContainer');
     const standingsContainer = document.getElementById('standingsContainer');
+
+    const standingsToggleBtn = document.getElementById('standingsToggleBtn');
+    standingsToggleBtn.addEventListener('click', () => {
+        const isCompact = standingsContainer.classList.toggle('compact');
+        standingsToggleBtn.textContent = isCompact ? '📊 Vollständig' : '📋 Kompakt';
+    });
     const simulateMatchesBtn = document.getElementById('simulateMatchesBtn');
     
     // DEBUG: Überprüfen, ob DOM-Elemente gefunden wurden
@@ -1334,7 +1340,7 @@ function renderStandings() {
             <th class="stat-col">N</th>
             <th class="stat-col">Tore</th>
             <th class="stat-col">Diff</th>
-            <th class="stat-col">Pkt</th>
+            <th class="stat-col pkt-col">Pkt</th>
         </tr>
     `;
     table.appendChild(thead);
@@ -1411,7 +1417,7 @@ function renderStandings() {
             <td class="stat-col">${team.lost}</td>
             <td class="stat-col">${team.goalsFor}:${team.goalsAgainst}</td>
             <td class="stat-col">${team.goalDifference > 0 ? '+' : ''}${team.goalDifference}</td>
-            <td class="stat-col">${team.points}</td>
+            <td class="stat-col pkt-col">${team.points}</td>
         `;
         
         tbody.appendChild(row);
@@ -1965,7 +1971,7 @@ function renderStandingsWithTieMarkers(ties) {
             <th class="stat-col">N</th>
             <th class="stat-col">Tore</th>
             <th class="stat-col">Diff</th>
-            <th class="stat-col">Pkt</th>
+            <th class="stat-col pkt-col">Pkt</th>
         </tr>
     `;
     table.appendChild(thead);
@@ -2064,7 +2070,7 @@ function renderStandingsWithTieMarkers(ties) {
             <td class="stat-col">${team.lost}</td>
             <td class="stat-col">${team.goalsFor}:${team.goalsAgainst}</td>
             <td class="stat-col">${team.goalDifference > 0 ? '+' : ''}${team.goalDifference}</td>
-            <td class="stat-col">${team.points}</td>
+            <td class="stat-col pkt-col">${team.points}</td>
         `;
         
         tbody.appendChild(row);

@@ -15,3 +15,14 @@
     padding-right: calc(2rem + var(--tv-h));
     padding-top: calc(5rem + var(--tv-v));
 }
+
+/* Standings table: larger text for TV readability */
+.standings-table {
+    font-size: 1.05rem;
+    line-height: 1.6;
+}
+
+.standings-table th,
+.standings-table td {
+    padding: 0.45rem 0.5rem;
+}

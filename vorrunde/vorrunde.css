@@ -547,6 +547,10 @@
     color: rgba(255, 255, 255, 0.9);
 }
 
+.standings-table .direct-qualifier td:first-child {
+    border-left: 4px solid #4ade80;
+}
+
 .standings-table .direct-qualifier .pos-col {
     color: #fff;
     font-weight: 700;
@@ -555,6 +559,37 @@
 .standings-table .playoff-qualifier td {
     background: rgba(255, 255, 255, 0.03);
     color: rgba(255, 255, 255, 0.7);
+}
+
+.standings-table .playoff-qualifier td:first-child {
+    border-left: 4px solid #facc15;
+}
+
+/* ─── Kompakt-Modus: nur Pos / Team / Pkt ─── */
+#standingsContainer.compact .stat-col { display: none; }
+#standingsContainer.compact .pkt-col  { display: table-cell; }
+
+/* ─── Toggle-Button ─── */
+.standings-view-toggle {
+    display: flex;
+    justify-content: flex-end;
+    padding: 0.5rem 0.75rem 0.25rem;
+}
+
+.standings-toggle-btn {
+    background: rgba(142, 145, 223, 0.2);
+    border: 1px solid rgba(142, 145, 223, 0.4);
+    border-radius: 8px;
+    color: #b0b2eb;
+    font-size: 0.75rem;
+    font-family: 'Space Mono', monospace;
+    padding: 0.3rem 0.75rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.standings-toggle-btn:hover {
+    background: rgba(142, 145, 223, 0.35);
 }
 
 /* Gradient-Trennlinie nach Platz 4 */
