@@ -20,4 +20,5 @@
     bottom: var(--tv-v);
     left: var(--tv-h);
     width: calc(100% - 2 * var(--tv-h));
+    padding-bottom: var(--tv-v);
 }
