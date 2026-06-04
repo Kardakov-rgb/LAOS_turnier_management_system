@@ -15,10 +15,3 @@
     padding-right: calc(2rem + var(--tv-h));
     padding-top: calc(5rem + var(--tv-v));
 }
-
-.overlay-footer {
-    bottom: var(--tv-v);
-    left: var(--tv-h);
-    width: calc(100% - 2 * var(--tv-h));
-    padding-bottom: var(--tv-v);
-}
