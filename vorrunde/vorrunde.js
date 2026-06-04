@@ -1324,46 +1324,50 @@ function renderStandings() {
         return a.team.localeCompare(b.team);
     });
     
-    // Tabelle erstellen
-    const table = document.createElement('table');
-    table.className = 'standings-table';
-    
-    // Tabellenkopf
-    const thead = document.createElement('thead');
-    thead.innerHTML = `
-        <tr>
-            <th class="pos-col">Pos</th>
-            <th class="team-col">Team</th>
-            <th class="stat-col sp-col">Sp</th>
-            <th class="stat-col">S</th>
-            <th class="stat-col">U</th>
-            <th class="stat-col">N</th>
-            <th class="stat-col">Tore</th>
-            <th class="stat-col diff-col">Diff</th>
-            <th class="stat-col pkt-col">Pkt</th>
-        </tr>
-    `;
-    table.appendChild(thead);
-    
-    // Tabellenkörper
-    const tbody = document.createElement('tbody');
-    
+    // Split-Wrapper: linke Tabelle Pos 1–13, rechte Pos 14–26
+    const wrapper = document.createElement('div');
+    wrapper.className = 'standings-split';
+
+    function makeShell() {
+        const t = document.createElement('table');
+        t.className = 'standings-table';
+        const th = document.createElement('thead');
+        th.innerHTML = `
+            <tr>
+                <th class="pos-col">Pos</th>
+                <th class="team-col">Team</th>
+                <th class="stat-col sp-col">Sp</th>
+                <th class="stat-col">S</th>
+                <th class="stat-col">U</th>
+                <th class="stat-col">N</th>
+                <th class="stat-col">Tore</th>
+                <th class="stat-col diff-col">Diff</th>
+                <th class="stat-col pkt-col">Pkt</th>
+            </tr>
+        `;
+        t.appendChild(th);
+        const tb = document.createElement('tbody');
+        return [t, tb];
+    }
+
+    const [table1, tbody1] = makeShell();
+    const [table2, tbody2] = makeShell();
+
     // Aktuelle Position und Werte für Vergleich initialisieren
     let currentPosition = 1;
     let positionCounter = 0;
     let lastTeamValues = null;
-    
+
     sortedStandings.forEach((team, index) => {
+        const tbody = index < 13 ? tbody1 : tbody2;
         const row = document.createElement('tr');
-        
-        // Aktuelle Werte des Teams
+
         const teamValues = {
             points: team.points,
             goalDifference: team.goalDifference,
             goalsFor: team.goalsFor
         };
-        
-        // Für Golden Cup-Entscheidungen prüfen, ob dies den gleichen Platz beeinträchtigt
+
         let isAffectedByGoldenCup = false;
         for (const tie of ties) {
             if (tie.result && tie.teams.some(t => t.team === team.team)) {
@@ -1371,44 +1375,31 @@ function renderStandings() {
                 break;
             }
         }
-        
-        // Position bestimmen
+
         if (index === 0) {
-            // Erste Position ist immer 1
             currentPosition = 1;
         } else if (isAffectedByGoldenCup) {
-            // Bei Golden Cup-Entscheidungen inkrementieren wir den Counter
             currentPosition = positionCounter + 1;
         } else if (JSON.stringify(teamValues) === JSON.stringify(lastTeamValues)) {
-            // Gleiche Werte -> gleiche Position (keine Änderung)
+            // Gleiche Werte -> gleiche Position
         } else {
-            // Unterschiedliche Werte -> neue Position basierend auf aktuellem Counter
             currentPosition = positionCounter + 1;
         }
-        
-        // Zähler für die nächste Position aktualisieren
+
         positionCounter = index + 1;
-        
-        // Werte für den nächsten Vergleich speichern
         lastTeamValues = teamValues;
-        
-        // CSS-Klasse für direkte Qualifikation und Playoff-Qualifikation
-        // Basierend auf tatsächlicher Position in der sortierten Tabelle
+
         if (index < 4) {
             row.className = 'direct-qualifier';
         } else if (index < 12) {
             row.className = 'playoff-qualifier';
         }
-        
-        // Team-Zelle OHNE Marker für Gleichstand in der normalen Ansicht
+
         const teamCell = document.createElement('td');
         teamCell.className = 'team-col';
         teamCell.textContent = team.team;
-        
-        // Restliche Zellen
-        row.innerHTML = `
-            <td class="pos-col">${currentPosition}</td>
-        `;
+
+        row.innerHTML = `<td class="pos-col">${currentPosition}</td>`;
         row.appendChild(teamCell);
         row.innerHTML += `
             <td class="stat-col sp-col">${team.played}</td>
@@ -1419,12 +1410,17 @@ function renderStandings() {
             <td class="stat-col diff-col">${team.goalDifference > 0 ? '+' : ''}${team.goalDifference}</td>
             <td class="stat-col pkt-col">${team.points}</td>
         `;
-        
+
         tbody.appendChild(row);
     });
-    
-    table.appendChild(tbody);
-    standingsContainer.appendChild(table);
+
+    table1.appendChild(tbody1);
+    wrapper.appendChild(table1);
+    if (sortedStandings.length > 13) {
+        table2.appendChild(tbody2);
+        wrapper.appendChild(table2);
+    }
+    standingsContainer.appendChild(wrapper);
 
     console.log("Tabelle wird neu gerendert");
 }
@@ -1955,30 +1951,6 @@ function renderStandingsWithTieMarkers(ties) {
         return a.team.localeCompare(b.team);
     });
     
-    // Tabelle erstellen
-    const table = document.createElement('table');
-    table.className = 'standings-table';
-    
-    // Tabellenkopf
-    const thead = document.createElement('thead');
-    thead.innerHTML = `
-        <tr>
-            <th class="pos-col">Pos</th>
-            <th class="team-col">Team</th>
-            <th class="stat-col sp-col">Sp</th>
-            <th class="stat-col">S</th>
-            <th class="stat-col">U</th>
-            <th class="stat-col">N</th>
-            <th class="stat-col">Tore</th>
-            <th class="stat-col diff-col">Diff</th>
-            <th class="stat-col pkt-col">Pkt</th>
-        </tr>
-    `;
-    table.appendChild(thead);
-    
-    // Tabellenkörper
-    const tbody = document.createElement('tbody');
-    
     // Verfolge Teams, deren Position durch Golden Cup entschieden wurde
     const teamsWithGoldenCupDecision = new Set();
     ties.forEach(tie => {
@@ -1986,23 +1958,50 @@ function renderStandingsWithTieMarkers(ties) {
             tie.teams.forEach(team => teamsWithGoldenCupDecision.add(team.team));
         }
     });
-    
-    // Aktuelle Position und Werte für Vergleich initialisieren
+
+    // Split-Wrapper: linke Tabelle Pos 1–13, rechte Pos 14–26
+    const wrapper = document.createElement('div');
+    wrapper.className = 'standings-split';
+
+    function makeShellWT() {
+        const t = document.createElement('table');
+        t.className = 'standings-table';
+        const th = document.createElement('thead');
+        th.innerHTML = `
+            <tr>
+                <th class="pos-col">Pos</th>
+                <th class="team-col">Team</th>
+                <th class="stat-col sp-col">Sp</th>
+                <th class="stat-col">S</th>
+                <th class="stat-col">U</th>
+                <th class="stat-col">N</th>
+                <th class="stat-col">Tore</th>
+                <th class="stat-col diff-col">Diff</th>
+                <th class="stat-col pkt-col">Pkt</th>
+            </tr>
+        `;
+        t.appendChild(th);
+        const tb = document.createElement('tbody');
+        return [t, tb];
+    }
+
+    const [table1, tbody1] = makeShellWT();
+    const [table2, tbody2] = makeShellWT();
+
     let currentPosition = 1;
     let positionCounter = 0;
     let lastTeamValues = null;
-    
+
     sortedStandings.forEach((team, index) => {
+        const tbody = index < 13 ? tbody1 : tbody2;
         const row = document.createElement('tr');
-        
-        // Aktuelle Werte des Teams
+
         const teamValues = {
             points: team.points,
             goalDifference: team.goalDifference,
             goalsFor: team.goalsFor
         };
-        
-        // Für Golden Cup-Entscheidungen prüfen, ob dies den gleichen Platz beeinträchtigt
+
         let isAffectedByGoldenCup = false;
         for (const tie of ties) {
             if (tie.result && tie.teams.some(t => t.team === team.team)) {
@@ -2010,31 +2009,22 @@ function renderStandingsWithTieMarkers(ties) {
                 break;
             }
         }
-        
-        // Position bestimmen
+
         if (index === 0) {
-            // Erste Position ist immer 1
             currentPosition = 1;
         } else if (isAffectedByGoldenCup) {
-            // Bei Golden Cup-Entscheidungen inkrementieren wir den Counter
             currentPosition = positionCounter + 1;
         } else if (JSON.stringify(teamValues) === JSON.stringify(lastTeamValues)) {
-            // Gleiche Werte -> gleiche Position (keine Änderung)
+            // Gleiche Werte -> gleiche Position
         } else {
-            // Unterschiedliche Werte -> neue Position basierend auf aktuellem Counter
             currentPosition = positionCounter + 1;
         }
-        
-        // Zähler für die nächste Position aktualisieren
+
         positionCounter = index + 1;
-        
-        // Werte für den nächsten Vergleich speichern
         lastTeamValues = teamValues;
-        
-        // Prüfen, ob Team in einem Tie ist
+
         const isInTie = ties.some(tie => tie.teams.some(t => t.team === team.team));
-        
-        // CSS-Klasse für direkte Qualifikation und Playoff-Qualifikation
+
         if (index < 4) {
             row.className = 'direct-qualifier';
         } else if (index < 12) {
@@ -2044,24 +2034,19 @@ function renderStandingsWithTieMarkers(ties) {
         if (teamsWithGoldenCupDecision.has(team.team)) {
             row.classList.add('golden-cup-decided');
         }
-        
-        // Team-Zelle mit Marker für Gleichstand
+
         const teamCell = document.createElement('td');
         teamCell.className = 'team-col';
-        
+
         if (isInTie) {
             const tieMarker = document.createElement('span');
             tieMarker.className = 'tie-marker';
             teamCell.appendChild(tieMarker);
         }
-        
-        const teamName = document.createTextNode(team.team);
-        teamCell.appendChild(teamName);
-        
-        // Grundlegende Zellen
-        row.innerHTML = `
-            <td class="pos-col">${currentPosition}</td>
-        `;
+
+        teamCell.appendChild(document.createTextNode(team.team));
+
+        row.innerHTML = `<td class="pos-col">${currentPosition}</td>`;
         row.appendChild(teamCell);
         row.innerHTML += `
             <td class="stat-col sp-col">${team.played}</td>
@@ -2072,14 +2057,18 @@ function renderStandingsWithTieMarkers(ties) {
             <td class="stat-col diff-col">${team.goalDifference > 0 ? '+' : ''}${team.goalDifference}</td>
             <td class="stat-col pkt-col">${team.points}</td>
         `;
-        
+
         tbody.appendChild(row);
     });
-    
-    table.appendChild(tbody);
-    standingsContainer.appendChild(table);
-    
-    // Hinweis unterhalb der Tabelle
+
+    table1.appendChild(tbody1);
+    wrapper.appendChild(table1);
+    if (sortedStandings.length > 13) {
+        table2.appendChild(tbody2);
+        wrapper.appendChild(table2);
+    }
+    standingsContainer.appendChild(wrapper);
+
     if (teamsWithGoldenCupDecision.size > 0) {
         const legend = document.createElement('p');
         legend.className = 'golden-cup-legend';

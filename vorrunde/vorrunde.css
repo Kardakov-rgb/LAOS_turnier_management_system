@@ -466,6 +466,18 @@
     display: none;
 }
 
+/* ─── Zweispaltige Tabellen-Darstellung ─── */
+.standings-split {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+}
+
+.standings-split .standings-table {
+    flex: 1;
+    min-width: 0;
+}
+
 /* ─── Standings-Sektion – dunkles Glas-Panel (wie Gegner-Seite) ─── */
 .standings-section {
     background: linear-gradient(160deg, #333333 0%, #111111 100%);
