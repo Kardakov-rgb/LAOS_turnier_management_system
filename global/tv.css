@@ -1,7 +1,7 @@
 /* TV Safe Zones: compensates for ~5% overscan on HD Ready (1280×720) displays */
 :root {
-    --tv-h: 70px;
-    --tv-v: 42px;
+    --tv-h: 35px;
+    --tv-v: 21px;
 }
 
 .main-header {
