@@ -49,8 +49,3 @@
 .standings-table tbody tr:not(.direct-qualifier):not(.playoff-qualifier) td {
     color: rgba(255, 255, 255, 0.55);
 }
-
-/* Tighten narrow stat columns to give more width to team names */
-.standings-table .stat-col {
-    width: 28px;
-}
