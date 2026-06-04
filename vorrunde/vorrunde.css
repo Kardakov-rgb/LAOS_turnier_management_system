@@ -22,7 +22,7 @@
 /* ─── Zwei-Spalten-Layout ─── */
 .vorrunde-content {
     display: grid;
-    grid-template-columns: 66fr 34fr;
+    grid-template-columns: 1fr 1fr;
     gap: 1.5rem;
     margin-top: 1rem;
 }
@@ -464,6 +464,24 @@
 /* ─── Aktions-Bereich (paarung-actions – durch JS genutzt, versteckt) ─── */
 .paarung-actions {
     display: none;
+}
+
+/* ─── Split-Wrapper für zwei Tabellen nebeneinander ─── */
+.standings-split {
+    display: flex;
+    gap: 0.5rem;
+    align-items: flex-start;
+}
+
+.standings-split .standings-table {
+    flex: 1;
+    min-width: 0;
+}
+
+@media (max-width: 768px) {
+    .standings-split {
+        flex-direction: column;
+    }
 }
 
 /* ─── Standings-Sektion – dunkles Glas-Panel (wie Gegner-Seite) ─── */
