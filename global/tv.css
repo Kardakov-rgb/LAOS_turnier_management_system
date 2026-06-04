@@ -1,0 +1,23 @@
+/* TV Safe Zones: compensates for ~5% overscan on HD Ready (1280×720) displays */
+:root {
+    --tv-h: 70px;
+    --tv-v: 42px;
+}
+
+.main-header {
+    left: var(--tv-h);
+    top: var(--tv-v);
+    width: calc(100% - 2 * var(--tv-h));
+}
+
+.main-content {
+    padding-left: calc(2rem + var(--tv-h));
+    padding-right: calc(2rem + var(--tv-h));
+    padding-top: calc(5rem + var(--tv-v));
+}
+
+.overlay-footer {
+    bottom: var(--tv-v);
+    left: var(--tv-h);
+    width: calc(100% - 2 * var(--tv-h));
+}
