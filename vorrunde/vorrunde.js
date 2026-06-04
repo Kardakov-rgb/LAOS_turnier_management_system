@@ -1324,34 +1324,24 @@ function renderStandings() {
         return a.team.localeCompare(b.team);
     });
     
-    // Split-Wrapper: linke Tabelle Pos 1–13, rechte Pos 14–26
-    const wrapper = document.createElement('div');
-    wrapper.className = 'standings-split';
-
-    function makeShell() {
-        const t = document.createElement('table');
-        t.className = 'standings-table';
-        const th = document.createElement('thead');
-        th.innerHTML = `
-            <tr>
-                <th class="pos-col">Pos</th>
-                <th class="team-col">Team</th>
-                <th class="stat-col sp-col">Sp</th>
-                <th class="stat-col">S</th>
-                <th class="stat-col">U</th>
-                <th class="stat-col">N</th>
-                <th class="stat-col">Tore</th>
-                <th class="stat-col diff-col">Diff</th>
-                <th class="stat-col pkt-col">Pkt</th>
-            </tr>
-        `;
-        t.appendChild(th);
-        const tb = document.createElement('tbody');
-        return [t, tb];
-    }
-
-    const [table1, tbody1] = makeShell();
-    const [table2, tbody2] = makeShell();
+    const table = document.createElement('table');
+    table.className = 'standings-table';
+    const thead = document.createElement('thead');
+    thead.innerHTML = `
+        <tr>
+            <th class="pos-col">Pos</th>
+            <th class="team-col">Team</th>
+            <th class="stat-col sp-col">Sp</th>
+            <th class="stat-col">S</th>
+            <th class="stat-col">U</th>
+            <th class="stat-col">N</th>
+            <th class="stat-col">Tore</th>
+            <th class="stat-col diff-col">Diff</th>
+            <th class="stat-col pkt-col">Pkt</th>
+        </tr>
+    `;
+    table.appendChild(thead);
+    const tbody1 = document.createElement('tbody');
 
     // Aktuelle Position und Werte für Vergleich initialisieren
     let currentPosition = 1;
@@ -1359,7 +1349,7 @@ function renderStandings() {
     let lastTeamValues = null;
 
     sortedStandings.forEach((team, index) => {
-        const tbody = index < 13 ? tbody1 : tbody2;
+        const tbody = tbody1;
         const row = document.createElement('tr');
 
         const teamValues = {
@@ -1414,13 +1404,8 @@ function renderStandings() {
         tbody.appendChild(row);
     });
 
-    table1.appendChild(tbody1);
-    wrapper.appendChild(table1);
-    if (sortedStandings.length > 13) {
-        table2.appendChild(tbody2);
-        wrapper.appendChild(table2);
-    }
-    standingsContainer.appendChild(wrapper);
+    table.appendChild(tbody1);
+    standingsContainer.appendChild(table);
 
     console.log("Tabelle wird neu gerendert");
 }
@@ -1959,41 +1944,31 @@ function renderStandingsWithTieMarkers(ties) {
         }
     });
 
-    // Split-Wrapper: linke Tabelle Pos 1–13, rechte Pos 14–26
-    const wrapper = document.createElement('div');
-    wrapper.className = 'standings-split';
-
-    function makeShellWT() {
-        const t = document.createElement('table');
-        t.className = 'standings-table';
-        const th = document.createElement('thead');
-        th.innerHTML = `
-            <tr>
-                <th class="pos-col">Pos</th>
-                <th class="team-col">Team</th>
-                <th class="stat-col sp-col">Sp</th>
-                <th class="stat-col">S</th>
-                <th class="stat-col">U</th>
-                <th class="stat-col">N</th>
-                <th class="stat-col">Tore</th>
-                <th class="stat-col diff-col">Diff</th>
-                <th class="stat-col pkt-col">Pkt</th>
-            </tr>
-        `;
-        t.appendChild(th);
-        const tb = document.createElement('tbody');
-        return [t, tb];
-    }
-
-    const [table1, tbody1] = makeShellWT();
-    const [table2, tbody2] = makeShellWT();
+    const table = document.createElement('table');
+    table.className = 'standings-table';
+    const thead = document.createElement('thead');
+    thead.innerHTML = `
+        <tr>
+            <th class="pos-col">Pos</th>
+            <th class="team-col">Team</th>
+            <th class="stat-col sp-col">Sp</th>
+            <th class="stat-col">S</th>
+            <th class="stat-col">U</th>
+            <th class="stat-col">N</th>
+            <th class="stat-col">Tore</th>
+            <th class="stat-col diff-col">Diff</th>
+            <th class="stat-col pkt-col">Pkt</th>
+        </tr>
+    `;
+    table.appendChild(thead);
+    const tbody1 = document.createElement('tbody');
 
     let currentPosition = 1;
     let positionCounter = 0;
     let lastTeamValues = null;
 
     sortedStandings.forEach((team, index) => {
-        const tbody = index < 13 ? tbody1 : tbody2;
+        const tbody = tbody1;
         const row = document.createElement('tr');
 
         const teamValues = {
@@ -2061,13 +2036,8 @@ function renderStandingsWithTieMarkers(ties) {
         tbody.appendChild(row);
     });
 
-    table1.appendChild(tbody1);
-    wrapper.appendChild(table1);
-    if (sortedStandings.length > 13) {
-        table2.appendChild(tbody2);
-        wrapper.appendChild(table2);
-    }
-    standingsContainer.appendChild(wrapper);
+    table.appendChild(tbody1);
+    standingsContainer.appendChild(table);
 
     if (teamsWithGoldenCupDecision.size > 0) {
         const legend = document.createElement('p');
