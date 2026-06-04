@@ -566,7 +566,9 @@
 }
 
 /* ─── Kompakt-Modus: nur Pos / Team / Pkt ─── */
-#standingsContainer.compact .stat-col { display: none; }
+#standingsContainer.compact .stat-col  { display: none; }
+#standingsContainer.compact .sp-col,
+#standingsContainer.compact .diff-col,
 #standingsContainer.compact .pkt-col  { display: table-cell; }
 
 /* ─── Toggle-Button ─── */

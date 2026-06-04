@@ -1334,12 +1334,12 @@ function renderStandings() {
         <tr>
             <th class="pos-col">Pos</th>
             <th class="team-col">Team</th>
-            <th class="stat-col">Sp</th>
+            <th class="stat-col sp-col">Sp</th>
             <th class="stat-col">S</th>
             <th class="stat-col">U</th>
             <th class="stat-col">N</th>
             <th class="stat-col">Tore</th>
-            <th class="stat-col">Diff</th>
+            <th class="stat-col diff-col">Diff</th>
             <th class="stat-col pkt-col">Pkt</th>
         </tr>
     `;
@@ -1411,12 +1411,12 @@ function renderStandings() {
         `;
         row.appendChild(teamCell);
         row.innerHTML += `
-            <td class="stat-col">${team.played}</td>
+            <td class="stat-col sp-col">${team.played}</td>
             <td class="stat-col">${team.won}</td>
             <td class="stat-col">${team.drawn}</td>
             <td class="stat-col">${team.lost}</td>
             <td class="stat-col">${team.goalsFor}:${team.goalsAgainst}</td>
-            <td class="stat-col">${team.goalDifference > 0 ? '+' : ''}${team.goalDifference}</td>
+            <td class="stat-col diff-col">${team.goalDifference > 0 ? '+' : ''}${team.goalDifference}</td>
             <td class="stat-col pkt-col">${team.points}</td>
         `;
         
@@ -1965,12 +1965,12 @@ function renderStandingsWithTieMarkers(ties) {
         <tr>
             <th class="pos-col">Pos</th>
             <th class="team-col">Team</th>
-            <th class="stat-col">Sp</th>
+            <th class="stat-col sp-col">Sp</th>
             <th class="stat-col">S</th>
             <th class="stat-col">U</th>
             <th class="stat-col">N</th>
             <th class="stat-col">Tore</th>
-            <th class="stat-col">Diff</th>
+            <th class="stat-col diff-col">Diff</th>
             <th class="stat-col pkt-col">Pkt</th>
         </tr>
     `;
@@ -2064,12 +2064,12 @@ function renderStandingsWithTieMarkers(ties) {
         `;
         row.appendChild(teamCell);
         row.innerHTML += `
-            <td class="stat-col">${team.played}</td>
+            <td class="stat-col sp-col">${team.played}</td>
             <td class="stat-col">${team.won}</td>
             <td class="stat-col">${team.drawn}</td>
             <td class="stat-col">${team.lost}</td>
             <td class="stat-col">${team.goalsFor}:${team.goalsAgainst}</td>
-            <td class="stat-col">${team.goalDifference > 0 ? '+' : ''}${team.goalDifference}</td>
+            <td class="stat-col diff-col">${team.goalDifference > 0 ? '+' : ''}${team.goalDifference}</td>
             <td class="stat-col pkt-col">${team.points}</td>
         `;
         
