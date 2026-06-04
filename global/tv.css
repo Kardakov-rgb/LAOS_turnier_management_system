@@ -16,7 +16,7 @@
     padding-top: calc(5rem + var(--tv-v));
 }
 
-/* Standings table: TV readability improvements */
+/* ─── Standings table: TV readability ─── */
 .standings-table {
     font-size: 1.05rem;
     line-height: 1.6;
@@ -27,25 +27,85 @@
     padding: 0.45rem 0.5rem;
 }
 
-/* Fix: vorrunde.css overrides th font-size to 0.58rem — restore for TV */
-.standings-table th {
-    font-size: 0.82rem;
-    color: rgba(255, 255, 255, 0.8);
+/* ─── Light Theme: Standings Panel ─── */
+
+.standings-section {
+    background: #f0f2f5;
+    border: 1px solid rgba(0, 0, 0, 0.12);
 }
 
-/* Team names: humanist sans-serif reads better at distance than monospace */
+.standings-table td {
+    color: #1a1a1a;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+/* Fix: vorrunde.css overrides th to 0.58rem — restore for TV, switch to dark */
+.standings-table th {
+    font-size: 0.82rem;
+    color: rgba(0, 0, 0, 0.55);
+}
+
+.standings-table thead tr {
+    background: rgba(0, 0, 0, 0.06);
+}
+
+.standings-table thead tr::after {
+    background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(0, 0, 0, 0.2) 25%,
+        rgba(0, 0, 0, 0.2) 75%,
+        transparent 100%);
+}
+
+/* Qualifikationszonen: sättigter auf hellem Hintergrund */
+.standings-table .direct-qualifier td {
+    background: rgba(74, 222, 128, 0.15);
+    color: #1a1a1a;
+}
+
+.standings-table .direct-qualifier td:first-child {
+    border-left: 4px solid #16a34a;
+}
+
+.standings-table .playoff-qualifier td {
+    background: rgba(250, 204, 21, 0.2);
+    color: #1a1a1a;
+}
+
+.standings-table .playoff-qualifier td:first-child {
+    border-left: 4px solid #b45309;
+}
+
+/* Hover */
+.standings-table tbody tr:hover td {
+    background: rgba(0, 0, 0, 0.06);
+    color: #000;
+}
+
+/* Zebra-Stripes */
+.standings-table tbody tr:nth-child(even) td {
+    background: rgba(0, 0, 0, 0.03);
+}
+
+/* Non-Qualifier (13+) gedimmt */
+.standings-table tbody tr:not(.direct-qualifier):not(.playoff-qualifier) td {
+    color: rgba(0, 0, 0, 0.5);
+}
+
+/* Team-Namen: besser lesbar auf Distanz */
 .standings-table .team-col {
     font-family: 'Montserrat', sans-serif;
     font-weight: 600;
     letter-spacing: 0.01em;
 }
 
-/* Zebra stripes: helps eyes track horizontally across 26 rows */
-.standings-table tbody tr:nth-child(even) td {
-    background: rgba(255, 255, 255, 0.04);
+/* Toggle-Button auf hellem Hintergrund */
+.standings-toggle-btn {
+    background: rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    color: #333;
 }
 
-/* Non-qualifiers (13+) visually recede behind top-12 */
-.standings-table tbody tr:not(.direct-qualifier):not(.playoff-qualifier) td {
-    color: rgba(255, 255, 255, 0.55);
+.standings-toggle-btn:hover {
+    background: rgba(0, 0, 0, 0.14);
 }
