@@ -61,7 +61,8 @@
 }
 
 /* Qualifikationszonen: nur Akzentbalken, kein Hintergrund-Tint */
-.standings-table .direct-qualifier td {
+.standings-table .direct-qualifier td,
+.standings-table .direct-qualifier .pos-col {
     background: transparent;
     color: #1a1a1a;
 }
