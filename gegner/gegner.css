@@ -372,46 +372,42 @@
     color: rgba(255, 255, 255, 0.28);
 }
 
-/* ─── Standings-Sektion (rechts) – Glassmorphism ─── */
+/* ─── Standings-Sektion (rechts) – helles Card-Panel ─── */
 .standings-section {
-    /* Dunkles Glas-Panel – Dunkelgrau (Standardfarbe) */
-    background: linear-gradient(160deg, #333333 0%, #111111 100%);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 14px;
     overflow: hidden;
     box-shadow:
-        0 8px 32px rgba(0, 0, 0, 0.4),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        0 4px 16px rgba(0, 0, 0, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.8);
     font-family: 'Space Mono', 'Courier New', monospace;
-    /* Höhe füllt die Grid-Zelle komplett */
     align-self: stretch;
 }
 
 .standings-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 0.78rem;
+    font-size: 1.17rem;
     font-family: 'Space Mono', monospace;
     background: transparent;
 }
 
 /* ─── Tabellen-Header ─── */
 .standings-table thead tr {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(6px);
+    background: rgba(142, 145, 223, 0.2);
     position: relative;
 }
 
 .standings-table th {
-    color: rgba(255, 255, 255, 0.55);
+    color: var(--color-dark-gray);
     font-weight: 700;
-    font-size: 0.58rem;
+    font-size: 0.87rem;
     text-transform: uppercase;
     letter-spacing: 0.14em;
     padding: 0.7rem 0.4rem;
     text-align: center;
     border-bottom: none;
-    position: relative;
 }
 
 /* Gradient-Trennlinie unter dem Header */
@@ -423,8 +419,8 @@
     height: 1px;
     background: linear-gradient(90deg,
         transparent 0%,
-        rgba(255,255,255,0.35) 25%,
-        rgba(255,255,255,0.35) 75%,
+        rgba(0,0,0,0.2) 25%,
+        rgba(0,0,0,0.2) 75%,
         transparent 100%);
 }
 
@@ -432,38 +428,38 @@
 .standings-table td {
     padding: 0.4rem 0.4rem;
     text-align: center;
-    color: rgba(255, 255, 255, 0.75);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    color: var(--color-dark-gray);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.07);
 }
 
 .standings-table tbody tr:hover td {
-    background: rgba(255, 255, 255, 0.08);
-    color: #fff;
+    background: rgba(142, 145, 223, 0.1);
+    color: var(--color-black);
     transition: background 0.15s ease, color 0.15s ease;
 }
 
 /* ─── Qualifikations-Zonen ─── */
 .standings-table .direct-qualifier td {
-    background: rgba(255, 255, 255, 0.07);
-    color: rgba(255, 255, 255, 0.9);
+    background: rgba(173, 221, 200, 0.35);
+    color: var(--color-black);
 }
 
 .standings-table .direct-qualifier td:first-child {
-    border-left: 4px solid #4ade80;
+    border-left: 4px solid var(--color-green-dark);
 }
 
 .standings-table .direct-qualifier .pos-col {
-    color: #fff;
+    color: var(--color-black);
     font-weight: 700;
 }
 
 .standings-table .playoff-qualifier td {
-    background: rgba(255, 255, 255, 0.03);
-    color: rgba(255, 255, 255, 0.7);
+    background: rgba(255, 220, 130, 0.3);
+    color: var(--color-dark-gray);
 }
 
 .standings-table .playoff-qualifier td:first-child {
-    border-left: 4px solid #facc15;
+    border-left: 4px solid #c8960c;
 }
 
 /* Gradient-Trennlinie nach Direktqualifikanten (4. Platz) */
@@ -479,8 +475,8 @@
     height: 2px;
     background: linear-gradient(90deg,
         transparent 0%,
-        rgba(255,255,255,0.4) 20%,
-        rgba(255,255,255,0.4) 80%,
+        rgba(0,0,0,0.25) 20%,
+        rgba(0,0,0,0.25) 80%,
         transparent 100%);
 }
 
@@ -497,8 +493,8 @@
     height: 2px;
     background: linear-gradient(90deg,
         transparent 0%,
-        rgba(255,255,255,0.25) 20%,
-        rgba(255,255,255,0.25) 80%,
+        rgba(0,0,0,0.15) 20%,
+        rgba(0,0,0,0.15) 80%,
         transparent 100%);
 }
 
@@ -521,10 +517,10 @@
 }
 
 .standings-toggle-btn {
-    background: rgba(142, 145, 223, 0.2);
-    border: 1px solid rgba(142, 145, 223, 0.4);
+    background: rgba(142, 145, 223, 0.15);
+    border: 1px solid rgba(142, 145, 223, 0.5);
     border-radius: 8px;
-    color: #b0b2eb;
+    color: var(--color-blue-dark);
     font-size: 0.75rem;
     font-family: 'Space Mono', monospace;
     padding: 0.3rem 0.75rem;
@@ -533,7 +529,7 @@
 }
 
 .standings-toggle-btn:hover {
-    background: rgba(142, 145, 223, 0.35);
+    background: rgba(142, 145, 223, 0.3);
 }
 
 .tie-marker {
