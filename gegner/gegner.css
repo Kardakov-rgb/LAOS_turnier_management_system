@@ -14,7 +14,7 @@
 /* ─── Hauptlayout ─── */
 .gegner-container {
     display: grid;
-    grid-template-columns: 80fr 20fr;
+    grid-template-columns: 64fr 33fr;
     gap: 0.75rem;
     width: 100%;
     min-height: calc(100vh - 11rem);
@@ -447,6 +447,10 @@
     color: rgba(255, 255, 255, 0.9);
 }
 
+.standings-table .direct-qualifier td:first-child {
+    border-left: 4px solid #4ade80;
+}
+
 .standings-table .direct-qualifier .pos-col {
     color: #fff;
     font-weight: 700;
@@ -455,6 +459,10 @@
 .standings-table .playoff-qualifier td {
     background: rgba(255, 255, 255, 0.03);
     color: rgba(255, 255, 255, 0.7);
+}
+
+.standings-table .playoff-qualifier td:first-child {
+    border-left: 4px solid #facc15;
 }
 
 /* Gradient-Trennlinie nach Direktqualifikanten (4. Platz) */
@@ -499,13 +507,17 @@
 .standings-table .stat-col { width: 36px; }
 
 .tie-marker {
-    display: inline-block;
+    display: none;
     width: 8px;
     height: 8px;
     background-color: #FFD700;
     border-radius: 50%;
     margin-right: 4px;
     vertical-align: middle;
+}
+
+body.golden-cup-active .tie-marker {
+    display: inline-block;
 }
 
 /* ─── Responsive ─── */
