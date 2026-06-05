@@ -109,12 +109,12 @@
 
 .standings-table .direct-qualifier td,
 .standings-table .direct-qualifier .pos-col {
-    background: rgba(45, 158, 107, 0.18);
+    background: rgba(173, 221, 200, 0.35);
     color: #1a1a1a;
 }
 
 .standings-table .direct-qualifier td:first-child {
-    border-left: 4px solid #2d9e6b;
+    border-left: 4px solid #ADDDC8;
 }
 
 .standings-table .direct-qualifier .pos-col {
@@ -124,12 +124,12 @@
 /* ── Playoff-Qualifikanten (Plätze 5–12) ─────────────────────────────────── */
 
 .standings-table .playoff-qualifier td {
-    background: rgba(176, 136, 0, 0.15);
+    background: rgba(255, 102, 0, 0.12);
     color: #1a1a1a;
 }
 
 .standings-table .playoff-qualifier td:first-child {
-    border-left: 4px solid #b08800;
+    border-left: 4px solid #FF6600;
 }
 
 /* ── Trennlinien nach Platz 4 und 12 ────────────────────────────────────── */
