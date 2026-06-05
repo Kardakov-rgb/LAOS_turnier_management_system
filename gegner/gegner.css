@@ -453,7 +453,7 @@
 }
 
 .standings-table tbody tr:not(.direct-qualifier):not(.playoff-qualifier) td {
-    color: rgba(0, 0, 0, 0.45);
+    color: #1a1a1a;
 }
 
 .standings-table .direct-qualifier td,
