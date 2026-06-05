@@ -478,15 +478,15 @@
     min-width: 0;
 }
 
-/* ─── Standings-Sektion – dunkles Glas-Panel (wie Gegner-Seite) ─── */
+/* ─── Standings-Sektion – TV-Modus-Styling aus global/tv.css ─── */
 .standings-section {
-    background: linear-gradient(160deg, #333333 0%, #111111 100%);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: linear-gradient(160deg, rgba(255, 255, 255, 0.55) 0%, rgba(220, 222, 255, 0.45) 100%);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
     border-radius: 14px;
     overflow: hidden;
-    box-shadow:
-        0 8px 32px rgba(0, 0, 0, 0.4),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.6);
     font-family: 'Space Mono', 'Courier New', monospace;
     align-self: start;
 }
@@ -499,24 +499,24 @@
 .standings-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 0.78rem;
+    font-size: 1.05rem;
+    line-height: 1.6;
     font-family: 'Space Mono', monospace;
     background: transparent;
 }
 
 .standings-table thead tr {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(6px);
+    background: rgba(142, 145, 223, 0.15);
     position: relative;
 }
 
 .standings-table th {
-    color: rgba(255, 255, 255, 0.55);
+    color: rgba(0, 0, 0, 0.55);
     font-weight: 700;
-    font-size: 0.58rem;
+    font-size: 0.82rem;
     text-transform: uppercase;
     letter-spacing: 0.14em;
-    padding: 0.7rem 0.4rem;
+    padding: 0.45rem 0.5rem;
     text-align: center;
     border-bottom: none;
 }
@@ -532,49 +532,61 @@
     height: 1px;
     background: linear-gradient(90deg,
         transparent 0%,
-        rgba(255, 255, 255, 0.35) 25%,
-        rgba(255, 255, 255, 0.35) 75%,
+        rgba(142, 145, 223, 0.4) 25%,
+        rgba(142, 145, 223, 0.4) 75%,
         transparent 100%);
 }
 
 .standings-table td {
-    padding: 0.4rem 0.4rem;
+    padding: 0.45rem 0.5rem;
     text-align: center;
-    color: rgba(255, 255, 255, 0.9);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    color: #1a1a1a;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.07);
 }
 
-.standings-table .team-col { text-align: left; }
+.standings-table .team-col {
+    text-align: left;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+}
 .standings-table .pos-col  { width: 28px; }
 .standings-table .stat-col { width: 36px; }
 
 .standings-table tbody tr:hover td {
-    background: rgba(255, 255, 255, 0.08);
-    color: #fff;
+    background: rgba(142, 145, 223, 0.12);
+    color: #000;
     transition: background 0.15s ease;
 }
 
+.standings-table tbody tr:nth-child(even):not(.direct-qualifier):not(.playoff-qualifier) td {
+    background: rgba(0, 0, 0, 0.03);
+}
+
+.standings-table tbody tr:not(.direct-qualifier):not(.playoff-qualifier) td {
+    color: #1a1a1a;
+}
+
 .standings-table .direct-qualifier td {
-    background: rgba(74, 222, 128, 0.38);
-    color: rgba(255, 255, 255, 0.95);
+    background: rgba(45, 158, 107, 0.18);
+    color: #1a1a1a;
 }
 
 .standings-table .direct-qualifier td:first-child {
-    border-left: 4px solid #4ade80;
+    border-left: 4px solid #2d9e6b;
 }
 
 .standings-table .direct-qualifier .pos-col {
-    color: #fff;
     font-weight: 700;
 }
 
 .standings-table .playoff-qualifier td {
-    background: rgba(250, 204, 21, 0.3);
-    color: rgba(255, 255, 255, 0.95);
+    background: rgba(176, 136, 0, 0.15);
+    color: #1a1a1a;
 }
 
 .standings-table .playoff-qualifier td:first-child {
-    border-left: 4px solid #facc15;
+    border-left: 4px solid #b08800;
 }
 
 /* ─── Kompakt-Modus: nur Pos / Team / Pkt ─── */
@@ -592,9 +604,9 @@
 
 .standings-toggle-btn {
     background: rgba(142, 145, 223, 0.2);
-    border: 1px solid rgba(142, 145, 223, 0.4);
+    border: 1px solid rgba(142, 145, 223, 0.45);
     border-radius: 8px;
-    color: #b0b2eb;
+    color: #3a3d8f;
     font-size: 0.75rem;
     font-family: 'Space Mono', monospace;
     padding: 0.3rem 0.75rem;
@@ -622,8 +634,8 @@
     height: 2px;
     background: linear-gradient(90deg,
         transparent 0%,
-        rgba(255, 255, 255, 0.4) 20%,
-        rgba(255, 255, 255, 0.4) 80%,
+        rgba(0, 0, 0, 0.2) 20%,
+        rgba(0, 0, 0, 0.2) 80%,
         transparent 100%);
 }
 
@@ -643,8 +655,8 @@
     height: 2px;
     background: linear-gradient(90deg,
         transparent 0%,
-        rgba(255, 255, 255, 0.25) 20%,
-        rgba(255, 255, 255, 0.25) 80%,
+        rgba(0, 0, 0, 0.12) 20%,
+        rgba(0, 0, 0, 0.12) 80%,
         transparent 100%);
 }
 
