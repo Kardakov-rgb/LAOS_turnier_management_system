@@ -448,7 +448,7 @@
     transition: background 0.15s ease;
 }
 
-.standings-table tbody tr:nth-child(even) td {
+.standings-table tbody tr:nth-child(even):not(.direct-qualifier):not(.playoff-qualifier) td {
     background: rgba(0, 0, 0, 0.03);
 }
 
