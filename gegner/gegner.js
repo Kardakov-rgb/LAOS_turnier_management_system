@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     const teamsOverviewContainer = document.getElementById('teamsOverviewContainer');
     const updateTimeElement     = document.getElementById('updateTime');
     const standingsContainer    = document.getElementById('standingsContainer');
+    const standingsToggleBtn    = document.getElementById('standingsToggleBtn');
     const tabButtons            = document.querySelectorAll('.gegner-tab-btn');
 
     // ─── Daten-Variablen ───
@@ -52,6 +53,14 @@ document.addEventListener('DOMContentLoaded', async function() {
 
         // Tab-Buttons verdrahten
         tabButtons.forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
+
+        // Standings-Toggle verdrahten
+        if (standingsToggleBtn) {
+            standingsToggleBtn.addEventListener('click', () => {
+                const isCompact = standingsContainer.classList.toggle('compact');
+                standingsToggleBtn.textContent = isCompact ? '📊 Vollständig' : '📋 Kompakt';
+            });
+        }
 
         // Erste Anzeige
         renderActiveTab();
@@ -498,9 +507,13 @@ document.addEventListener('DOMContentLoaded', async function() {
             <tr>
                 <th class="pos-col">Pos</th>
                 <th class="team-col">Team</th>
-                <th class="stat-col">Sp</th>
-                <th class="stat-col">Diff</th>
-                <th class="stat-col">Pkt</th>
+                <th class="stat-col sp-col">Sp</th>
+                <th class="stat-col">S</th>
+                <th class="stat-col">U</th>
+                <th class="stat-col">N</th>
+                <th class="stat-col">Tore</th>
+                <th class="stat-col diff-col">Diff</th>
+                <th class="stat-col pkt-col">Pkt</th>
             </tr>
         `;
         table.appendChild(thead);
@@ -542,9 +555,13 @@ document.addEventListener('DOMContentLoaded', async function() {
             row.innerHTML = `<td class="pos-col">${currentPosition}</td>`;
             row.appendChild(teamCell);
             row.innerHTML += `
-                <td class="stat-col">${team.played}</td>
-                <td class="stat-col">${team.goalsFor - team.goalsAgainst}</td>
-                <td class="stat-col">${team.points}</td>
+                <td class="stat-col sp-col">${team.played}</td>
+                <td class="stat-col">${team.won}</td>
+                <td class="stat-col">${team.drawn}</td>
+                <td class="stat-col">${team.lost}</td>
+                <td class="stat-col">${team.goalsFor}:${team.goalsAgainst}</td>
+                <td class="stat-col diff-col">${team.goalDifference > 0 ? '+' : ''}${team.goalDifference}</td>
+                <td class="stat-col pkt-col">${team.points}</td>
             `;
             tbody.appendChild(row);
         });
