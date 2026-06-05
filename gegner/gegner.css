@@ -458,7 +458,7 @@
 
 .standings-table .direct-qualifier td,
 .standings-table .direct-qualifier .pos-col {
-    background: transparent;
+    background: rgba(45, 158, 107, 0.18);
     color: #1a1a1a;
 }
 
@@ -471,7 +471,7 @@
 }
 
 .standings-table .playoff-qualifier td {
-    background: transparent;
+    background: rgba(176, 136, 0, 0.15);
     color: #1a1a1a;
 }
 
