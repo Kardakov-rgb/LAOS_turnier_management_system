@@ -399,6 +399,7 @@
 .standings-table thead tr {
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(6px);
+    position: relative;
 }
 
 .standings-table th {
@@ -429,7 +430,7 @@
 
 /* ─── Tabellenzeilen ─── */
 .standings-table td {
-    padding: 0.45rem 0.4rem;
+    padding: 0.4rem 0.4rem;
     text-align: center;
     color: rgba(255, 255, 255, 0.75);
     border-bottom: 1px solid rgba(255, 255, 255, 0.06);
@@ -505,6 +506,35 @@
 .standings-table .team-col { text-align: left; }
 .standings-table .pos-col  { width: 28px; }
 .standings-table .stat-col { width: 36px; }
+
+/* ─── Kompakt-Modus: nur Pos / Team / Sp / Diff / Pkt ─── */
+#standingsContainer.compact .stat-col  { display: none; }
+#standingsContainer.compact .sp-col,
+#standingsContainer.compact .diff-col,
+#standingsContainer.compact .pkt-col  { display: table-cell; }
+
+/* ─── Toggle-Button ─── */
+.standings-view-toggle {
+    display: flex;
+    justify-content: flex-end;
+    padding: 0.5rem 0.75rem 0.25rem;
+}
+
+.standings-toggle-btn {
+    background: rgba(142, 145, 223, 0.2);
+    border: 1px solid rgba(142, 145, 223, 0.4);
+    border-radius: 8px;
+    color: #b0b2eb;
+    font-size: 0.75rem;
+    font-family: 'Space Mono', monospace;
+    padding: 0.3rem 0.75rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.standings-toggle-btn:hover {
+    background: rgba(142, 145, 223, 0.35);
+}
 
 .tie-marker {
     display: none;
